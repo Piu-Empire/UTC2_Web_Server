@@ -1,7 +1,5 @@
-
-
--- USER
-INSERT INTO `USER`
+-- user
+INSERT INTO `user`
 (`email`, `password_hash`, `auth_provider`)
 VALUES
 ('admin@utc2.edu.vn', 'hashed_admin_123', 'local'),
@@ -9,15 +7,15 @@ VALUES
 ('tranthib@utc2.edu.vn', 'hashed_sv_456', 'local'),
 ('levanc@utc2.edu.vn', 'hashed_sv_789', 'microsoft');
 
--- ADVISOR
-INSERT INTO `ADVISOR`
+-- advisor
+INSERT INTO `advisor`
 (`full_name`, `email`, `phone`, `faculty`, `office_room`)
 VALUES
 ('Nguyễn Văn Hùng', 'hung.nguyen@utc2.edu.vn', '0909123456', 'Công nghệ thông tin', 'A101'),
 ('Trần Thị Mai', 'mai.tran@utc2.edu.vn', '0911222333', 'Kinh tế vận tải', 'B203');
 
--- USER_PROFILE
-INSERT INTO `USER_PROFILE`
+-- user_profile
+INSERT INTO `user_profile`
 (`user_id`, `full_name`, `phone_number`, `avatar_url`, `date_of_birth`, `gender`)
 VALUES
 (1, 'Quản Trị Viên', '0909000000', 'https://cdn.utc2/avatar/admin.png', '1990-01-01', 'Nam'),
@@ -25,16 +23,16 @@ VALUES
 (3, 'Trần Thị B', '0922222222', 'https://cdn.utc2/avatar/sv_b.png', '2005-03-22', 'Nữ'),
 (4, 'Lê Văn C', '0933333333', 'https://cdn.utc2/avatar/sv_c.png', '2004-12-01', 'Nam');
 
--- STUDENT_PROFILE
-INSERT INTO `STUDENT_PROFILE`
+-- student_profile
+INSERT INTO `student_profile`
 (`user_id`, `student_code`, `faculty`, `advisor_id`, `major`, `academic_year`, `class_name`, `status`)
 VALUES
 (2, '2211020001', 'Công nghệ thông tin', 1, 'Kỹ thuật phần mềm', 'K65', '65TH1', 'đang học'),
 (3, '2211020002', 'Công nghệ thông tin', 1, 'Khoa học máy tính', 'K65', '65TH2', 'đang học'),
 (4, '2211030001', 'Kinh tế vận tải', 2, 'Logistics', 'K65', '65LG1', 'đang học');
 
--- SEMESTER
-INSERT INTO `SEMESTER`
+-- semester
+INSERT INTO `semester`
 (`user_id`, `semester_name`, `academic_year`, `semester_number`,
 `start_date`, `end_date`, `gpa`, `total_credits`, `passed_credits`)
 VALUES
@@ -42,8 +40,8 @@ VALUES
 (3, 'Học kỳ 1 năm 2025-2026', '2025-2026', 1, '2025-09-01', '2026-01-15', 3.10, 17, 15),
 (4, 'Học kỳ 1 năm 2025-2026', '2025-2026', 1, '2025-09-01', '2026-01-15', 2.85, 16, 14);
 
--- COURSE
-INSERT INTO `COURSE`
+-- course
+INSERT INTO `course`
 (`course_code`, `course_name`, `credits`, `theory_hours`,
 `practice_hours`, `department`, `description`)
 VALUES
@@ -52,8 +50,8 @@ VALUES
 ('WEB301', 'Lập trình Web', 4, 45, 30, 'CNTT', 'Xây dựng ứng dụng web'),
 ('LOG101', 'Nhập môn Logistics', 3, 30, 15, 'KTVT', 'Kiến thức cơ bản logistics');
 
--- ENROLLMENT
-INSERT INTO `ENROLLMENT`
+-- enrollment
+INSERT INTO `enrollment`
 (`user_id`, `course_id`, `semester_id`, `status`,
 `midterm_score`, `final_score`, `assignment_score`,
 `total_score`, `letter_grade`, `grade_point`, `is_passed`)
@@ -63,8 +61,8 @@ VALUES
 (3, 1, 2, 'hoàn thành', 6.5, 7.0, 7.5, 7.0, 'B', 3.0, true),
 (4, 4, 3, 'hoàn thành', 5.5, 6.0, 6.5, 6.0, 'C', 2.0, true);
 
--- SCHEDULE
-INSERT INTO `SCHEDULE`
+-- schedule
+INSERT INTO `schedule`
 (`user_id`, `course_id`, `semester_id`,
 `day_of_week`, `start_period`, `end_period`,
 `start_time`, `end_time`,
@@ -75,18 +73,18 @@ VALUES
 (2, 2, 1, 4, 4, 6, '09:40:00', '12:00:00', 'B202', 'Nhà B', 'ThS. Lê Huy', 1, 15),
 (3, 1, 2, 3, 1, 3, '07:00:00', '09:30:00', 'A102', 'Nhà A', 'TS. Phạm Minh', 1, 15);
 
--- FEE
-INSERT INTO `FEE`
+-- fee
+INSERT INTO `fee`
 (`user_id`, `semester_id`,
 `total_amount`, `paid_amount`, `remaining_amount`,
 `due_date`, `status`, `payment_method`, `paid_at`)
 VALUES
 (2, 1, 12000000, 12000000, 0, '2025-10-01', 'đã đóng đủ', 'chuyển khoản', '2025-09-15 10:00:00'),
 (3, 2, 11500000, 5000000, 6500000, '2025-10-01', 'đóng một phần', 'tiền mặt', '2025-09-20 09:00:00'),
-(4, 3, 10000000, 0, 10000000, '2025-10-01', 'chưa đóng', 'NULL', '2025-09-01 00:00:00');
+(4, 3, 10000000, 0, 10000000, '2025-10-01', 'chưa đóng', NULL, '2025-09-01 00:00:00');
 
--- DORMITORY_ROOM
-INSERT INTO `DORMITORY_ROOM`
+-- dormitory_room
+INSERT INTO `dormitory_room`
 (`room_code`, `building`, `floor`,
 `capacity`, `current_occupancy`,
 `room_type`, `price_per_month`,
@@ -95,8 +93,8 @@ VALUES
 ('A-201', 'KTX A', 2, 4, 3, 'thường', 800000, 'còn chỗ', 'Wifi, Máy lạnh'),
 ('B-305', 'KTX B', 3, 6, 6, 'dịch vụ', 1200000, 'đã đầy', 'Wifi, Máy lạnh, Máy giặt');
 
--- DORMITORY_REGISTRATION
-INSERT INTO `DORMITORY_REGISTRATION`
+-- dormitory_registration
+INSERT INTO `dormitory_registration`
 (`user_id`, `room_id`,
 `start_date`, `end_date`,
 `status`, `total_fee`, `paid_status`)
@@ -104,16 +102,16 @@ VALUES
 (2, 1, '2025-09-01', '2026-06-01', 'đã duyệt', 7200000, 'đã đóng'),
 (3, 1, '2025-09-01', '2026-06-01', 'chờ duyệt', 7200000, 'chưa đóng');
 
--- CURRICULUM
-INSERT INTO `CURRICULUM`
+-- curriculum
+INSERT INTO `curriculum`
 (`major`, `academic_year`,
 `total_credits_required`, `description`)
 VALUES
 ('Kỹ thuật phần mềm', 'K65', 145, 'Chương trình đào tạo KTPM K65'),
 ('Logistics', 'K65', 140, 'Chương trình đào tạo Logistics K65');
 
--- CURRICULUM_ITEM
-INSERT INTO `CURRICULUM_ITEM`
+-- curriculum_item
+INSERT INTO `curriculum_item`
 (`curriculum_id`, `course_id`,
 `semester_suggestion`, `is_required`, `group_name`)
 VALUES
@@ -122,27 +120,27 @@ VALUES
 (1, 3, 3, true, 'Chuyên ngành'),
 (2, 4, 1, true, 'Đại cương');
 
--- NOTIFICATION
-INSERT INTO `NOTIFICATION`
+-- notification
+INSERT INTO `notification`
 (`user_id`, `title`, `body`,
 `type`, `related_entity_type`,
 `related_entity_id`, `is_read`,
 `scheduled_for`)
 VALUES
-(2, 'Thông báo học phí', 'Bạn đã hoàn thành học phí học kỳ 1', 'học phí', 'FEE', 1, true, '2025-09-15 10:00:00'),
-(3, 'Cảnh báo công nợ', 'Bạn còn nợ học phí', 'học phí', 'FEE', 2, false, '2025-09-20 10:00:00'),
-(2, 'Lịch học thay đổi', 'Phòng học môn CSDL đổi sang B305', 'lịch học', 'SCHEDULE', 2, false, '2025-09-22 07:00:00');
+(2, 'Thông báo học phí', 'Bạn đã hoàn thành học phí học kỳ 1', 'học phí', 'fee', 1, true, '2025-09-15 10:00:00'),
+(3, 'Cảnh báo công nợ', 'Bạn còn nợ học phí', 'học phí', 'fee', 2, false, '2025-09-20 10:00:00'),
+(2, 'Lịch học thay đổi', 'Phòng học môn CSDL đổi sang B305', 'lịch học', 'schedule', 2, false, '2025-09-22 07:00:00');
 
--- ACADEMIC_WARNING
-INSERT INTO `ACADEMIC_WARNING`
+-- academic_warning
+INSERT INTO `academic_warning`
 (`user_id`, `semester_id`,
 `warning_type`, `description`,
 `resolved_at`, `status`)
 VALUES
 (4, 3, 'GPA thấp', 'Điểm GPA dưới mức yêu cầu', '2025-12-01 00:00:00', 'đang hiệu lực');
 
--- SERVICE_REQUEST
-INSERT INTO `SERVICE_REQUEST`
+-- service_request
+INSERT INTO `service_request`
 (`user_id`, `service_type`,
 `description`, `status`,
 `resolved_at`, `result_note`,
@@ -158,8 +156,8 @@ VALUES
 NULL,
 NULL);
 
--- FEEDBACK
-INSERT INTO `FEEDBACK`
+-- feedback
+INSERT INTO `feedback`
 (`user_id`, `type`,
 `content`, `status`,
 `admin_reply`)
