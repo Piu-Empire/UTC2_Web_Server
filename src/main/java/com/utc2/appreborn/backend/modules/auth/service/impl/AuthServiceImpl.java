@@ -20,13 +20,13 @@ public class AuthServiceImpl implements AuthService {
     private final UserDetailsService userDetailsService;
 
     @Override
-    public AuthResponse login( LoginRequest request) {
-        // 1. Xác thực bằng Username/Password qua AuthenticationManager
+    public AuthResponse login(LoginRequest request) {
+        // 1. Xác thực bằng Email/Password qua AuthenticationManager
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
-        // 2. Lấy thông tin user và tạo token
-        var user = userDetailsService.loadUserByUsername(request.getUsername());
+        // 2. Lấy thông tin user bằng email và tạo token
+        var user = userDetailsService.loadUserByUsername(request.getEmail());
         String token = jwtService.generateToken(user);
 
         return AuthResponse.builder().accessToken(token).build();
