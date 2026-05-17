@@ -3,9 +3,9 @@ INSERT INTO `user`
 (`email`, `password_hash`, `auth_provider`)
 VALUES
 ('admin@utc2.edu.vn', 'hashed_admin_123', 'local'),
-('nguyenvana@utc2.edu.vn', 'hashed_sv_123', 'google'),
-('tranthib@utc2.edu.vn', 'hashed_sv_456', 'local'),
-('levanc@utc2.edu.vn', 'hashed_sv_789', 'microsoft');
+('2211020001@st.utc2.edu.vn', 'hashed_sv_123', 'local'),
+('2211020002@st.utc2.edu.vn', 'hashed_sv_456', 'local'),
+('2211030001@st.utc2.edu.vn', 'hashed_sv_789', 'local');
 
 -- advisor
 INSERT INTO `advisor`
