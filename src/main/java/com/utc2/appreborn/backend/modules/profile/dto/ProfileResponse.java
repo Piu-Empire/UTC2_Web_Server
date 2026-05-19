@@ -14,15 +14,19 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class ProfileResponse {
     private Long   id;
-    private String studentId;    // MSSV
+    private String studentId;       // MSSV
+    private String username;
     private String email;
     private String fullName;
     private String phoneNumber;
-    private String gender;
+    private String address;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    // FIX BUG 1+3: Đảm bảo Jackson serialize LocalDate thành "yyyy-MM-dd" (String)
+    // thay vì array số [2003,8,15] khi JavaTimeModule chưa được config toàn cục.
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth;
 
+    private String gender;
     private String faculty;
     private String major;
     private String academicYear;
@@ -30,4 +34,5 @@ public class ProfileResponse {
     private String status;
     private String avatarUrl;
     private String studentCardUrl;
+    private String role;
 }

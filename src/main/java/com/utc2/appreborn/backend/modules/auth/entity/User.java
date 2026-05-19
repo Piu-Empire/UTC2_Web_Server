@@ -1,5 +1,6 @@
 package com.utc2.appreborn.backend.modules.auth.entity;
 
+import com.utc2.appreborn.backend.common.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -17,7 +18,7 @@ public class User {
     @Column(name = "user_id")
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(name = "email", unique = true)
     private String email;
 
     @Column(name = "password_hash")
@@ -26,9 +27,11 @@ public class User {
     @Column(name = "auth_provider")
     private String authProvider;
 
-    @Column(name = "created_at", insertable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
-    @Column(name = "updated_at", insertable = false, updatable = false)
+    private boolean enabled;
+
+    private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
