@@ -1,10 +1,12 @@
 package com.utc2.appreborn.backend.modules.profile.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-
 /**
  * ProfileResponse
  * ──────────────────────────────────────────────────────────────
@@ -20,44 +22,26 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProfileResponse {
-
-    /** USER.user_id */
-    private Long id;
-
-    /** STUDENT_PROFILE.student_code — MSSV, encode vào QR */
-    private String studentId;
-
-    /** USER.email */
+    private Long   id;
+    private String studentId;       // MSSV
+    private String username;
     private String email;
-
-    /** USER_PROFILE.full_name — tên hiển thị trên Home + QR */
     private String fullName;
-
-    /** USER_PROFILE.phone_number */
     private String phoneNumber;
+    private String address;
 
-    /** USER_PROFILE.gender */
-    private String gender;
-
-    /** USER_PROFILE.date_of_birth — format "yyyy-MM-dd" */
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    // FIX BUG 1+3: Đảm bảo Jackson serialize LocalDate thành "yyyy-MM-dd" (String)
+    // thay vì array số [2003,8,15] khi JavaTimeModule chưa được config toàn cục.
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth;
 
-    /** STUDENT_PROFILE.faculty */
+    private String gender;
     private String faculty;
-
-    /** STUDENT_PROFILE.major */
     private String major;
-
-    /** STUDENT_PROFILE.academic_year */
     private String academicYear;
-
-    /** STUDENT_PROFILE.class_name */
     private String className;
-
-    /** STUDENT_PROFILE.status */
     private String status;
-
-    /** USER_PROFILE.avatar_url */
     private String avatarUrl;
+    private String studentCardUrl;
+    private String role;
 }

@@ -1,8 +1,10 @@
 package com.utc2.appreborn.backend.modules.profile.service;
 
 import com.utc2.appreborn.backend.modules.profile.dto.ProfileResponse;
+import com.utc2.appreborn.backend.modules.profile.dto.UpdateProfileRequest;
 
 public interface ProfileService {
-    /** Trả về profile của user đang đăng nhập (lấy email từ JWT). */
-    ProfileResponse getMyProfile(String email);
+    ProfileResponse getMyProfile(String username);
+    ProfileResponse getProfileByStudentId(String studentId);
+    ProfileResponse updateMyProfile(String username, UpdateProfileRequest request);
 }

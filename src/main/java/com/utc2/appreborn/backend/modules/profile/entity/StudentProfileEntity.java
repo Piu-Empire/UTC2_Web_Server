@@ -1,5 +1,6 @@
 package com.utc2.appreborn.backend.modules.profile.entity;
 
+import com.utc2.appreborn.backend.modules.auth.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,7 +16,12 @@ public class StudentProfileEntity {
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "student_code")
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @Column(name = "student_code", unique = true)
     private String studentCode;
 
     @Column(name = "faculty")
@@ -35,4 +41,7 @@ public class StudentProfileEntity {
 
     @Column(name = "status")
     private String status;
+
+    @Column(name = "student_card_url", columnDefinition = "TEXT")
+    private String studentCardUrl;
 }
