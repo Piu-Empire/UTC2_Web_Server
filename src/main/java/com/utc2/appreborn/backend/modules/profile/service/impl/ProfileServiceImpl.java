@@ -1,23 +1,27 @@
 package com.utc2.appreborn.backend.modules.profile.service.impl;
 
 import com.utc2.appreborn.backend.exception.ResourceNotFoundException;
+import com.utc2.appreborn.backend.modules.auth.entity.User;
+import com.utc2.appreborn.backend.modules.auth.repository.UserRepository;
 import com.utc2.appreborn.backend.modules.profile.dto.ProfileResponse;
+import com.utc2.appreborn.backend.modules.profile.entity.StudentProfileEntity;
+import com.utc2.appreborn.backend.modules.profile.entity.UserProfileEntity;
 import com.utc2.appreborn.backend.modules.profile.dto.UpdateProfileRequest;
-import com.utc2.appreborn.backend.modules.profile.entity.StudentProfile;
-import com.utc2.appreborn.backend.modules.profile.entity.UserProfile;
 import com.utc2.appreborn.backend.modules.profile.repository.StudentProfileRepository;
 import com.utc2.appreborn.backend.modules.profile.repository.UserProfileRepository;
 import com.utc2.appreborn.backend.modules.profile.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import java.util.Optional;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class ProfileServiceImpl implements ProfileService {
 
-    private final StudentProfileRepository studentProfileRepository;
-    private final UserProfileRepository    userProfileRepository;
+    private final UserRepository            userRepository;
+    private final UserProfileRepository     userProfileRepository;
+    private final StudentProfileRepository  studentProfileRepository;
 
     @Override
     public ProfileResponse getMyProfile(String username) {
@@ -25,24 +29,24 @@ public class ProfileServiceImpl implements ProfileService {
         // → extract MSSV trước khi tìm StudentProfile
         String studentCode = extractStudentCode(username);
 
-        StudentProfile sp = studentProfileRepository.findByStudentCodeWithUser(studentCode)
+        StudentProfileEntity  sp = studentProfileRepository.findByStudentCodeWithUser(studentCode)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Không tìm thấy sinh viên với mã định danh: " + studentCode));
 
         // FIX: dùng findById thay vì findByUserId (userId là @Id)
-        UserProfile up = userProfileRepository.findById(sp.getUser().getId()).orElse(null);
+        UserProfileEntity  up = userProfileRepository.findById(sp.getUser().getId()).orElse(null);
 
         return toResponse(sp, up);
     }
 
     @Override
     public ProfileResponse getProfileByStudentId(String studentId) {
-        StudentProfile sp = studentProfileRepository.findByStudentCodeWithUser(studentId)
+        StudentProfileEntity  sp = studentProfileRepository.findByStudentCodeWithUser(studentId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Không tìm thấy sinh viên với mã số: " + studentId));
 
         // FIX: findById
-        UserProfile up = userProfileRepository.findById(sp.getUser().getId()).orElse(null);
+        UserProfileEntity  up = userProfileRepository.findById(sp.getUser().getId()).orElse(null);
 
         return toResponse(sp, up);
     }
@@ -52,13 +56,13 @@ public class ProfileServiceImpl implements ProfileService {
     public ProfileResponse updateMyProfile(String username, UpdateProfileRequest request) {
         String studentCode = extractStudentCode(username);
 
-        StudentProfile sp = studentProfileRepository.findByStudentCodeWithUser(studentCode)
+        StudentProfileEntity  sp = studentProfileRepository.findByStudentCodeWithUser(studentCode)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Không tìm thấy thông tin sinh viên cần cập nhật: " + studentCode));
 
         // FIX: findById thay vì findByUserId
-        UserProfile up = userProfileRepository.findById(sp.getUser().getId())
-                .orElse(UserProfile.builder()
+        UserProfileEntity  up = userProfileRepository.findById(sp.getUser().getId())
+                .orElse(UserProfileEntity.builder()
                         .userId(sp.getUser().getId())
                         .user(sp.getUser())
                         .build());
@@ -86,19 +90,27 @@ public class ProfileServiceImpl implements ProfileService {
         return username.contains("@") ? username.split("@")[0] : username;
     }
 
-    private ProfileResponse toResponse(StudentProfile sp, UserProfile up) {
+    private ProfileResponse toResponse(StudentProfileEntity  sp, UserProfileEntity  up) {
         return ProfileResponse.builder()
                 .id(sp.getUserId())
                 .studentId(sp.getStudentCode())
                 .username(sp.getStudentCode())
-                .email(sp.getUser().getEmail())
+                .email(
+                        sp.getUser() != null
+                                ? sp.getUser().getEmail()
+                                : null
+                )
                 .faculty(sp.getFaculty())
                 .major(sp.getMajor())
                 .academicYear(sp.getAcademicYear())
                 .className(sp.getClassName())
                 .status(sp.getStatus())
                 .studentCardUrl(sp.getStudentCardUrl())
-                .role(sp.getUser().getRole().name())
+                .role(
+                        sp.getUser() != null
+                                ? sp.getUser().getRole().name()
+                                : null
+                )
                 .fullName(up != null ? up.getFullName()    : null)
                 .phoneNumber(up != null ? up.getPhoneNumber() : null)
                 .address(up != null ? up.getAddress()      : null)

@@ -22,17 +22,26 @@ import org.springframework.web.bind.annotation.*;
 public class ProfileController {
 
     private final ProfileService profileService;
-
+        
     /**
      * GET /api/v1/profile/me
-     * Cần Bearer token — trả về thông tin profile của user đang đăng nhập
+     *
+     * Trả về thông tin profile của sinh viên đang đăng nhập.
+     * Yêu cầu: Bearer JWT token hợp lệ trong header Authorization.
+     *
+     * App dùng endpoint này cho:
+     *   - HomeFragment: hiển thị tên sinh viên trên toolbar
+     *   - QrFragment:   hiển thị tên + mã QR từ MSSV
+     *
+     * Response: ApiResponse<ProfileResponse>
+     *   { success: true, message: "Success", data: { fullName, studentId, ... } }
      */
     @GetMapping("/me")
     @Operation(summary = "Xem profile của chính mình")
     public ResponseEntity<ApiResponse<ProfileResponse>> getMyProfile(
             @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok(ApiResponse.success(
-                profileService.getMyProfile(userDetails.getUsername())));
+        ProfileResponse profile = profileService.getMyProfile(userDetails.getUsername());
+        return ResponseEntity.ok(ApiResponse.success(profile));
     }
 
     @GetMapping("/student/{studentId}")

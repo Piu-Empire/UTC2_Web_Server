@@ -7,8 +7,8 @@ import com.utc2.appreborn.backend.modules.finance.dto.TuitionSummaryResponse;
 import com.utc2.appreborn.backend.modules.finance.entity.TuitionFee;
 import com.utc2.appreborn.backend.modules.finance.repository.TuitionFeeRepository;
 import com.utc2.appreborn.backend.modules.finance.service.TuitionService;
-import com.utc2.appreborn.backend.modules.profile.entity.StudentProfile;
-import com.utc2.appreborn.backend.modules.profile.entity.UserProfile;
+import com.utc2.appreborn.backend.modules.profile.entity.StudentProfileEntity;
+import com.utc2.appreborn.backend.modules.profile.entity.UserProfileEntity;
 import com.utc2.appreborn.backend.modules.profile.repository.StudentProfileRepository;
 import com.utc2.appreborn.backend.modules.profile.repository.UserProfileRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,11 +28,11 @@ public class TuitionServiceImpl implements TuitionService {
 
     @Override
     public TuitionSummaryResponse getMyTuitionSummary(String username) {
-        StudentProfile sp = findStudentByUsername(username);
+        StudentProfileEntity sp = findStudentByUsername(username);
         User user = sp.getUser();
 
         // FIX: findById thay vì findByUserId (userId là @Id của UserProfile)
-        UserProfile up = userProfileRepository.findById(user.getId()).orElse(null);
+        UserProfileEntity up = userProfileRepository.findById(user.getId()).orElse(null);
         String fullName = up != null ? up.getFullName() : user.getEmail();
 
         List<TuitionFee> fees = tuitionFeeRepository.findByUserIdOrderBySemesterIdDesc(user.getId());
@@ -50,10 +50,10 @@ public class TuitionServiceImpl implements TuitionService {
 
     @Override
     public List<TuitionResponse> getMyTuitionHistory(String username) {
-        StudentProfile sp = findStudentByUsername(username);
+        StudentProfileEntity sp = findStudentByUsername(username);
 
         // FIX: findById
-        UserProfile up = userProfileRepository.findById(sp.getUser().getId()).orElse(null);
+        UserProfileEntity up = userProfileRepository.findById(sp.getUser().getId()).orElse(null);
 
         return tuitionFeeRepository
                 .findByUserIdOrderBySemesterIdDesc(sp.getUser().getId())
@@ -64,10 +64,10 @@ public class TuitionServiceImpl implements TuitionService {
 
     @Override
     public TuitionResponse getTuitionBySemester(String username, String semester) {
-        StudentProfile sp = findStudentByUsername(username);
+        StudentProfileEntity sp = findStudentByUsername(username);
 
         // FIX: findById
-        UserProfile up = userProfileRepository.findById(sp.getUser().getId()).orElse(null);
+        UserProfileEntity up = userProfileRepository.findById(sp.getUser().getId()).orElse(null);
 
         Long semesterId;
         try {
@@ -89,14 +89,14 @@ public class TuitionServiceImpl implements TuitionService {
     /**
      * FIX WARN 1: username từ JWT = email → extract studentCode trước khi tìm
      */
-    private StudentProfile findStudentByUsername(String username) {
+    private StudentProfileEntity findStudentByUsername(String username) {
         String studentCode = username.contains("@") ? username.split("@")[0] : username;
         return studentProfileRepository.findByStudentCodeWithUser(studentCode)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Không tìm thấy sinh viên MSSV: " + studentCode));
     }
 
-    private TuitionResponse toResponse(TuitionFee fee, StudentProfile sp, UserProfile up) {
+    private TuitionResponse toResponse(TuitionFee fee, StudentProfileEntity sp, UserProfileEntity up) {
         return TuitionResponse.builder()
                 .id(fee.getId())
                 .studentId(sp.getStudentCode())

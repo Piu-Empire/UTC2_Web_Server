@@ -7,7 +7,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-
+/**
+ * ProfileResponse
+ * ──────────────────────────────────────────────────────────────
+ * Trả về thông tin profile của sinh viên đang đăng nhập.
+ * Field names khớp với ProfileResponse.java phía app Android.
+ *
+ * App dùng các field này cho:
+ *   - HomeFragment: fullName (tên hiển thị thanh toolbar)
+ *   - QrFragment:   fullName + studentId (nội dung mã QR)
+ */
 @Data
 @Builder
 @NoArgsConstructor
