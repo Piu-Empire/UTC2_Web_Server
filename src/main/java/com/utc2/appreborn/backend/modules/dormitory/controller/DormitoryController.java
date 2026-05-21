@@ -30,7 +30,7 @@ public class DormitoryController {
 
     /**
      * GET /api/v1/dormitory/my
-     * Lịch sử đăng ký KTX của sinh viên đang đăng nhập — cần token.
+     * Lịch sử đăng ký KTX của sinh viên đang đăng nhập phải cần token.
      */
     @GetMapping("/my")
     public ResponseEntity<ApiResponse<List<DormRegistrationDto>>> getMyRegistrations() {
