@@ -70,7 +70,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .totalScore(row[9] != null ? ((Number) row[9]).doubleValue() : null)
                 .letterGrade((String) row[10])
                 .gradePoint(row[11] != null ? ((Number) row[11]).doubleValue() : null)
-                .isPassed(row[12] != null ? ((Number) row[12]).intValue() == 1 : null)
+                .isPassed(row[12] != null ? (Boolean) row[12] : null)
                 .registeredAt(row[13] != null ? row[13].toString() : null)
                 .build();
     }
