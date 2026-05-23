@@ -7,16 +7,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-/**
- * ProfileResponse
- * ──────────────────────────────────────────────────────────────
- * Trả về thông tin profile của sinh viên đang đăng nhập.
- * Field names khớp với ProfileResponse.java phía app Android.
- *
- * App dùng các field này cho:
- *   - HomeFragment: fullName (tên hiển thị thanh toolbar)
- *   - QrFragment:   fullName + studentId (nội dung mã QR)
- */
+import java.util.List;
+import java.util.Map;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -30,8 +23,6 @@ public class ProfileResponse {
     private String phoneNumber;
     private String address;
 
-    // FIX BUG 1+3: Đảm bảo Jackson serialize LocalDate thành "yyyy-MM-dd" (String)
-    // thay vì array số [2003,8,15] khi JavaTimeModule chưa được config toàn cục.
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth;
 
@@ -41,7 +32,13 @@ public class ProfileResponse {
     private String academicYear;
     private String className;
     private String status;
-    private String avatarUrl;
     private String studentCardUrl;
     private String role;
+    private String avatarUrl;
+
+    // ─── DATA ĐỔ VÀO CÁC TAB CHI TIẾT TRÊN FRONTEND ───
+    private Double gpa;                                     // GPA tích lũy tổng
+    private Map<String, List<Map<String, Object>>> grades;  // Bảng điểm nhóm theo học kỳ
+    private List<Map<String, Object>> schedules;            // Thời khóa biểu
+    private List<Map<String, Object>> fees;                 // Tình hình học phí
 }

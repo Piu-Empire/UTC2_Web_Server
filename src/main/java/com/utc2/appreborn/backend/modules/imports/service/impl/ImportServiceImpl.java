@@ -7,10 +7,12 @@ import com.utc2.appreborn.backend.modules.finance.entity.TuitionFee;
 import com.utc2.appreborn.backend.modules.finance.repository.TuitionFeeRepository;
 import com.utc2.appreborn.backend.modules.imports.dto.*;
 import com.utc2.appreborn.backend.modules.imports.service.ImportService;
-import com.utc2.appreborn.backend.modules.profile.entity.StudentProfile;
-import com.utc2.appreborn.backend.modules.profile.entity.UserProfile;
+import com.utc2.appreborn.backend.modules.profile.entity.StudentProfileEntity;
+import com.utc2.appreborn.backend.modules.profile.entity.UserProfileEntity;
 import com.utc2.appreborn.backend.modules.profile.repository.StudentProfileRepository;
 import com.utc2.appreborn.backend.modules.profile.repository.UserProfileRepository;
+import com.utc2.appreborn.backend.modules.academic.entity.CourseEntity;
+import com.utc2.appreborn.backend.modules.academic.repository.CourseRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +36,7 @@ public class ImportServiceImpl implements ImportService {
     private final StudentProfileRepository studentProfileRepository;
     private final UserProfileRepository    userProfileRepository;
     private final TuitionFeeRepository     tuitionFeeRepository;
-
+    private final CourseRepository courseRepository;
     @PersistenceContext
     private EntityManager em;
 
@@ -77,13 +79,13 @@ public class ImportServiceImpl implements ImportService {
                         continue;
                     }
 
-                    Optional<StudentProfile> spOpt = studentProfileRepository.findByStudentCode(studentCode);
+                    Optional<StudentProfileEntity> spOpt = studentProfileRepository.findByStudentCode(studentCode);
                     if (spOpt.isEmpty()) {
                         errors.add(err(rowNum, "student_code", "Không tìm thấy sinh viên: " + studentCode));
                         continue;
                     }
 
-                    StudentProfile sp = spOpt.get();
+                    StudentProfileEntity sp = spOpt.get();
                     Long userId = sp.getUserId();
 
                     if (!faculty.isEmpty())      sp.setFaculty(faculty);
@@ -93,8 +95,8 @@ public class ImportServiceImpl implements ImportService {
                     if (!status.isEmpty())       sp.setStatus(status);
                     studentProfileRepository.save(sp);
 
-                    UserProfile up = userProfileRepository.findById(userId)
-                            .orElse(UserProfile.builder().userId(userId).user(sp.getUser()).build());
+                    UserProfileEntity up = userProfileRepository.findById(userId)
+                            .orElse(UserProfileEntity.builder().userId(userId).user(sp.getUser()).build());
 
                     if (!fullName.isEmpty()) up.setFullName(fullName);
                     if (!phone.isEmpty())    up.setPhoneNumber(phone);
@@ -170,7 +172,7 @@ public class ImportServiceImpl implements ImportService {
                         errors.add(err(rowNum, "total_amount", "Không được để trống")); continue;
                     }
 
-                    Optional<StudentProfile> spOpt = studentProfileRepository.findByStudentCode(studentCode);
+                    Optional<StudentProfileEntity> spOpt = studentProfileRepository.findByStudentCode(studentCode);
                     if (spOpt.isEmpty()) {
                         errors.add(err(rowNum, "student_code", "Không tìm thấy sinh viên: " + studentCode)); continue;
                     }
@@ -288,7 +290,11 @@ public class ImportServiceImpl implements ImportService {
                             .setParameter(1, major).setParameter(2, academicYear)
                             .setParameter(3, "Chương trình đào tạo " + major + " " + academicYear)
                             .executeUpdate();
-                        curriculumId = ((Number) em.createNativeQuery("SELECT LAST_INSERT_ID()").getSingleResult()).longValue();
+                        // Query lại thay vì dùng LAST_INSERT_ID() vì JPA có thể dùng connection khác
+                        List<?> newIds = em.createNativeQuery(
+                            "SELECT curriculum_id FROM curriculum WHERE major=? AND academic_year=?")
+                            .setParameter(1, major).setParameter(2, academicYear).getResultList();
+                        curriculumId = ((Number) newIds.get(0)).longValue();
                     } else {
                         curriculumId = ((Number) curriculumIds.get(0)).longValue();
                     }
@@ -412,7 +418,7 @@ public class ImportServiceImpl implements ImportService {
     // Required cols: course_code, course_name, credits
     // Optional: description
     // ─────────────────────────────────────────────────────────
-    @Override
+   @Override
     @Transactional
     public ImportResultResponse importCourses(MultipartFile file, boolean overwrite) {
         List<ImportResultResponse.ImportError> errors = new ArrayList<>();
@@ -428,75 +434,73 @@ public class ImportServiceImpl implements ImportService {
 
                 int rowNum = i + 1;
                 try {
-                    String courseCode  = getCol(row, colMap, "course_code");
-                    String courseName  = getCol(row, colMap, "course_name");
-                    String creditsStr  = getCol(row, colMap, "credits");
-                    String description = getCol(row, colMap, "description");
+                    String courseCode = getCol(row, colMap, "course_code").trim();
+                    String courseName = getCol(row, colMap, "course_name").trim();
+                    String creditsStr = getCol(row, colMap, "credits").trim();
+                    String desc       = getCol(row, colMap, "description").trim();
 
-                    if (courseCode.isEmpty()) {
-                        errors.add(err(rowNum, "course_code", "Không được để trống")); continue;
-                    }
-                    if (courseName.isEmpty()) {
-                        errors.add(err(rowNum, "course_name", "Không được để trống")); continue;
-                    }
-                    if (creditsStr.isEmpty()) {
-                        errors.add(err(rowNum, "credits", "Không được để trống")); continue;
+                    if (courseCode.isEmpty() || courseName.isEmpty() || creditsStr.isEmpty()) {
+                        errors.add(err(rowNum, "validation", "Thiếu dữ liệu bắt buộc"));
+                        continue;
                     }
 
                     int credits;
-                    try { credits = Integer.parseInt(creditsStr); }
-                    catch (NumberFormatException e) {
-                        errors.add(err(rowNum, "credits", "Phải là số nguyên")); continue;
+                    try {
+                        credits = Integer.parseInt(creditsStr);
+                    } catch (NumberFormatException e) {
+                        errors.add(err(rowNum, "credits", "Credits phải là số"));
+                        continue;
                     }
 
-                    List<?> existing = em.createNativeQuery(
-                            "SELECT course_id FROM course WHERE course_code = ?")
-                            .setParameter(1, courseCode).getResultList();
+                    // Sử dụng CourseEntity thay cho Course
+                    Optional<CourseEntity> existing = courseRepository.findByCourseCode(courseCode);
 
-                    if (!existing.isEmpty()) {
+                    if (existing.isPresent()) {
                         if (overwrite) {
-                            em.createNativeQuery(
-                                "UPDATE course SET course_name=?, credits=?, description=? WHERE course_code=?")
-                                .setParameter(1, courseName)
-                                .setParameter(2, credits)
-                                .setParameter(3, description.isEmpty() ? null : description)
-                                .setParameter(4, courseCode)
-                                .executeUpdate();
+                            CourseEntity c = existing.get();
+                            c.setCourseName(courseName);
+                            c.setCredits(credits);
+                            c.setDescription(desc.isEmpty() ? null : desc);
+                            courseRepository.save(c);
                         } else {
-                            errors.add(err(rowNum, "course_code",
-                                    "Học phần " + courseCode + " đã tồn tại — dùng overwrite=true để ghi đè"));
+                            errors.add(err(rowNum, "course_code", "Học phần đã tồn tại"));
                             continue;
                         }
                     } else {
-                        em.createNativeQuery(
-                            "INSERT INTO course (course_code, course_name, credits, description) VALUES (?, ?, ?, ?)")
-                            .setParameter(1, courseCode)
-                            .setParameter(2, courseName)
-                            .setParameter(3, credits)
-                            .setParameter(4, description.isEmpty() ? null : description)
-                            .executeUpdate();
+                        CourseEntity newCourse = new CourseEntity();
+                        newCourse.setCourseCode(courseCode);
+                        newCourse.setCourseName(courseName);
+                        newCourse.setCredits(credits);
+                        newCourse.setDescription(desc.isEmpty() ? null : desc);
+                        courseRepository.save(newCourse);
                     }
-
                     success++;
                 } catch (Exception e) {
-                    errors.add(err(rowNum, "unknown", e.getMessage()));
+                    errors.add(err(rowNum, "system", e.getMessage()));
                 }
             }
         } catch (Exception e) {
             errors.add(err(0, "file", "Lỗi đọc file: " + e.getMessage()));
         }
-
         return ImportResultResponse.builder()
-                .success(success).failed(errors.size()).errors(errors).build();
+                .success(success)
+                .failed(errors.size())
+                .errors(errors)
+                .build();
     }
 
+// Hàm bổ trợ để parse số an toàn
+private Integer parseInteger(String val) {
+    if (val == null || val.isEmpty()) return null;
+    try { return Integer.parseInt(val); }
+    catch (NumberFormatException e) { return null; }
+}
     // ─────────────────────────────────────────────────────────
     // IMPORT STUDENTS (tạo tài khoản sinh viên mới)
     // Required cols: email, full_name, student_code, faculty, major, academic_year, status
     // Optional: phone_number, date_of_birth, gender, address, class_name
     // ─────────────────────────────────────────────────────────
     @Override
-    @Transactional
     public ImportResultResponse importStudents(MultipartFile file, boolean overwrite) {
         List<ImportResultResponse.ImportError> errors = new ArrayList<>();
         int success = 0;
@@ -545,7 +549,7 @@ public class ImportServiceImpl implements ImportService {
                     }
 
                     // Kiểm tra trùng student_code
-                    Optional<StudentProfile> existingSp = studentProfileRepository.findByStudentCode(studentCode);
+                    Optional<StudentProfileEntity> existingSp = studentProfileRepository.findByStudentCode(studentCode);
                     if (existingSp.isPresent()) {
                         if (!overwrite) {
                             errors.add(err(rowNum, "student_code",
@@ -553,22 +557,22 @@ public class ImportServiceImpl implements ImportService {
                             continue;
                         }
                         // overwrite: cập nhật profile + user profile
-                        StudentProfile sp = existingSp.get();
+                        StudentProfileEntity sp = existingSp.get();
                         sp.setFaculty(faculty); sp.setMajor(major);
                         sp.setAcademicYear(academicYear);
                         if (!className.isEmpty()) sp.setClassName(className);
                         if (!status.isEmpty())    sp.setStatus(status);
-                        studentProfileRepository.save(sp);
+                        studentProfileRepository.saveAndFlush(sp);
 
                         Long userId = sp.getUserId();
-                        UserProfile up = userProfileRepository.findById(userId)
-                                .orElse(UserProfile.builder().userId(userId).user(sp.getUser()).build());
+                        UserProfileEntity up = userProfileRepository.findById(userId)
+                                .orElse(UserProfileEntity.builder().userId(userId).user(sp.getUser()).build());
                         if (!fullName.isEmpty()) up.setFullName(fullName);
                         if (!phone.isEmpty())    up.setPhoneNumber(phone);
                         if (!gender.isEmpty())   up.setGender(gender);
                         if (!address.isEmpty())  up.setAddress(address);
                         parseDob(row, colMap, dob, up, errors, rowNum);
-                        userProfileRepository.save(up);
+                        userProfileRepository.saveAndFlush(up);
                         success++;
                         continue;
                     }
@@ -583,11 +587,12 @@ public class ImportServiceImpl implements ImportService {
                             .email(email)
                             .password(studentCode)   // sẽ encode ở service layer nếu có PasswordEncoder
                             .role(Role.STUDENT)
+                            .enabled(true)
                             .build();
-                    user = userRepository.save(user);
+                    user = userRepository.saveAndFlush(user);
 
                     // Tạo StudentProfile
-                    StudentProfile sp = StudentProfile.builder()
+                    StudentProfileEntity sp = StudentProfileEntity.builder()
                             .userId(user.getId())
                             .user(user)
                             .studentCode(studentCode)
@@ -597,10 +602,10 @@ public class ImportServiceImpl implements ImportService {
                             .className(className.isEmpty() ? null : className)
                             .status(status.isEmpty() ? "active" : status)
                             .build();
-                    studentProfileRepository.save(sp);
+                    studentProfileRepository.saveAndFlush(sp);
 
                     // Tạo UserProfile
-                    UserProfile up = UserProfile.builder()
+                    UserProfileEntity up = UserProfileEntity.builder()
                             .userId(user.getId())
                             .user(user)
                             .fullName(fullName)
@@ -609,7 +614,7 @@ public class ImportServiceImpl implements ImportService {
                             .address(address.isEmpty() ? null : address)
                             .build();
                     parseDob(row, colMap, dob, up, errors, rowNum);
-                    userProfileRepository.save(up);
+                    userProfileRepository.saveAndFlush(up);
 
                     success++;
                 } catch (Exception e) {
@@ -626,7 +631,7 @@ public class ImportServiceImpl implements ImportService {
 
     /** Helper: parse date_of_birth vào UserProfile, hỗ trợ Date cell và String yyyy-MM-dd */
     private void parseDob(Row row, Map<String, Integer> colMap, String dobStr,
-                          UserProfile up, List<ImportResultResponse.ImportError> errors, int rowNum) {
+                          UserProfileEntity up, List<ImportResultResponse.ImportError> errors, int rowNum) {
         Integer dobIdx = colMap.get("date_of_birth");
         if (dobIdx == null) return;
         Cell dobCell = row.getCell(dobIdx, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);

@@ -12,6 +12,7 @@ import com.utc2.appreborn.backend.modules.profile.repository.StudentProfileRepos
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -23,6 +24,8 @@ public class PublicServicesServiceImpl implements PublicServicesService {
     private final ServiceRequestRepository serviceRequestRepository;
     private final StudentProfileRepository studentProfileRepository;
     private final ObjectMapper             objectMapper;
+
+    // ── Student methods ──────────────────────────────────────
 
     @Override
     public ServiceRequestResponse submitCardReissue(String username, CardReissueRequest req) {
@@ -80,7 +83,48 @@ public class PublicServicesServiceImpl implements PublicServicesService {
                 .stream().map(this::toResponse).collect(Collectors.toList());
     }
 
-    // ── Helpers ───────────────────────────────────────────────
+    // ── Admin methods ────────────────────────────────────────
+
+    @Override
+    public List<ServiceRequestResponse> getAllRequests(String status, String serviceType) {
+        List<ServiceRequest> results;
+
+        if (status != null && serviceType != null) {
+            results = serviceRequestRepository
+                    .findByStatusAndServiceTypeOrderBySubmittedAtDesc(status, serviceType);
+        } else if (status != null) {
+            results = serviceRequestRepository
+                    .findByStatusOrderBySubmittedAtDesc(status);
+        } else if (serviceType != null) {
+            results = serviceRequestRepository
+                    .findByServiceTypeOrderBySubmittedAtDesc(serviceType);
+        } else {
+            results = serviceRequestRepository
+                    .findAllByOrderBySubmittedAtDesc();
+        }
+
+        return results.stream().map(this::toResponse).collect(Collectors.toList());
+    }
+
+    @Override
+    public ServiceRequestResponse updateRequestStatus(Long id, AdminUpdateStatusRequest request) {
+        ServiceRequest req = serviceRequestRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Không tìm thấy yêu cầu dịch vụ với id: " + id));
+
+        req.setStatus(request.getStatus());
+        if (request.getResultNote() != null) {
+            req.setResultNote(request.getResultNote());
+        }
+        // Nếu COMPLETED hoặc REJECTED thì set resolvedAt
+        if ("COMPLETED".equals(request.getStatus()) || "REJECTED".equals(request.getStatus())) {
+            req.setResolvedAt(LocalDateTime.now());
+        }
+
+        return toResponse(serviceRequestRepository.save(req));
+    }
+
+    // ── Helpers ──────────────────────────────────────────────
 
     private ServiceRequestResponse save(User user, String type, String description) {
         ServiceRequest req = ServiceRequest.builder()
@@ -92,10 +136,6 @@ public class PublicServicesServiceImpl implements PublicServicesService {
         return toResponse(serviceRequestRepository.save(req));
     }
 
-    /**
-     * FIX WARN 1: username từ JWT = email (2211020001@st.utc2.edu.vn)
-     * → extract studentCode trước khi tìm StudentProfile
-     */
     private User findUser(String username) {
         String studentCode = username.contains("@") ? username.split("@")[0] : username;
         return studentProfileRepository.findByStudentCodeWithUser(studentCode)

@@ -1,5 +1,4 @@
 package com.utc2.appreborn.backend.modules.imports.controller;
-
 import com.utc2.appreborn.backend.common.response.ApiResponse;
 import com.utc2.appreborn.backend.modules.imports.dto.ImportResultResponse;
 import com.utc2.appreborn.backend.modules.imports.service.ImportService;
@@ -67,5 +66,35 @@ public class ImportController {
             @RequestParam(defaultValue = "false") boolean overwrite) {
         return ResponseEntity.ok(ApiResponse.success(
                 importService.importCurriculum(file, overwrite)));
+    }
+
+    /**
+     * POST /api/v1/admin/import/courses
+     * Import danh sách học phần
+     * Required cols: course_code, course_name, credits
+     * Optional cols: description, theory_hours, practice_hours, department
+     */
+    @PostMapping(value = "/courses", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Import học phần")
+    public ResponseEntity<ApiResponse<ImportResultResponse>> importCourses(
+            @RequestPart("file") MultipartFile file,
+            @RequestParam(defaultValue = "false") boolean overwrite) {
+        return ResponseEntity.ok(ApiResponse.success(
+                importService.importCourses(file, overwrite)));
+    }
+
+    /**
+     * POST /api/v1/admin/import/students
+     * Import/tạo tài khoản sinh viên mới
+     * Required cols: email, full_name, student_code, faculty, major, academic_year, status
+     * Optional cols: phone_number, date_of_birth, gender, address, class_name
+     */
+    @PostMapping(value = "/students", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Import sinh viên")
+    public ResponseEntity<ApiResponse<ImportResultResponse>> importStudents(
+            @RequestPart("file") MultipartFile file,
+            @RequestParam(defaultValue = "false") boolean overwrite) {
+        return ResponseEntity.ok(ApiResponse.success(
+                importService.importStudents(file, overwrite)));
     }
 }

@@ -27,8 +27,9 @@ public class StudentProfileEntity {
     @Column(name = "faculty")
     private String faculty;
 
-    @Column(name = "advisor_id")
-    private Long advisorId;
+   @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "advisor_id") // Ánh xạ tới cột advisor_id trong bảng student_profile
+    private AdvisorEntity advisor;
 
     @Column(name = "major")
     private String major;
