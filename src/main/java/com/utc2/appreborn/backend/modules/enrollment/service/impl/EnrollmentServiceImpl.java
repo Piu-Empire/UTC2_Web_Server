@@ -2,7 +2,7 @@ package com.utc2.appreborn.backend.modules.enrollment.service.impl;
 
 import com.utc2.appreborn.backend.exception.BadRequestException;
 import com.utc2.appreborn.backend.exception.ResourceNotFoundException;
-import com.utc2.appreborn.backend.modules.academic.entity.EnrollmentEntity;
+import com.utc2.appreborn.backend.modules.enrollment.entity.EnrollmentEntity;
 import com.utc2.appreborn.backend.modules.auth.repository.UserRepository;
 import com.utc2.appreborn.backend.modules.enrollment.dto.CourseItemDto;
 import com.utc2.appreborn.backend.modules.enrollment.dto.EnrollRequest;
@@ -130,8 +130,9 @@ public class EnrollmentServiceImpl implements EnrollmentService {
             throw new BadRequestException("Bạn đã đăng ký môn \"" + course[2] + "\" rồi!");
         }
 
-        int currentCredits = courseEnrollmentRepository
+        Integer rawCredits = courseEnrollmentRepository
                 .sumCreditsByUserIdAndSemesterId(userId, request.getSemesterId());
+        int currentCredits = (rawCredits != null) ? rawCredits : 0;
         int courseCredits = ((Number) course[3]).intValue();
         if (currentCredits + courseCredits > MAX_CREDITS) {
             throw new BadRequestException(
