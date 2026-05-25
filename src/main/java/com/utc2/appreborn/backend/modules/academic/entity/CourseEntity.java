@@ -6,9 +6,9 @@ import lombok.*;
 @Entity
 @Table(name = "course")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class CourseEntity {
 
     @Id
@@ -16,7 +16,7 @@ public class CourseEntity {
     @Column(name = "course_id")
     private Long courseId;
 
-    @Column(name = "course_code", unique = true)
+    @Column(name = "course_code", unique = true, nullable = false)
     private String courseCode;
 
     @Column(name = "course_name")
@@ -34,6 +34,6 @@ public class CourseEntity {
     @Column(name = "department")
     private String department;
 
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 }

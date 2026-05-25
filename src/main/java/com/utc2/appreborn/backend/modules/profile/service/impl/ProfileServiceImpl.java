@@ -1,9 +1,8 @@
 package com.utc2.appreborn.backend.modules.profile.service.impl;
 
 import com.utc2.appreborn.backend.exception.ResourceNotFoundException;
-import com.utc2.appreborn.backend.modules.auth.entity.User;
-import com.utc2.appreborn.backend.modules.auth.repository.UserRepository;
 import com.utc2.appreborn.backend.modules.profile.dto.ProfileResponse;
+import com.utc2.appreborn.backend.modules.profile.dto.StudentSummaryResponse;
 import com.utc2.appreborn.backend.modules.profile.entity.StudentProfileEntity;
 import com.utc2.appreborn.backend.modules.profile.entity.UserProfileEntity;
 import com.utc2.appreborn.backend.modules.profile.dto.UpdateProfileRequest;
@@ -11,43 +10,36 @@ import com.utc2.appreborn.backend.modules.profile.repository.StudentProfileRepos
 import com.utc2.appreborn.backend.modules.profile.repository.UserProfileRepository;
 import com.utc2.appreborn.backend.modules.profile.service.ProfileService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-import java.util.Optional;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class ProfileServiceImpl implements ProfileService {
 
-    private final UserRepository            userRepository;
-    private final UserProfileRepository     userProfileRepository;
-    private final StudentProfileRepository  studentProfileRepository;
+    private final UserProfileRepository userProfileRepository;
+    private final StudentProfileRepository studentProfileRepository;
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
     public ProfileResponse getMyProfile(String username) {
-        // FIX WARN 1: JWT subject là email (vd: 2211020001@st.utc2.edu.vn)
-        // → extract MSSV trước khi tìm StudentProfile
         String studentCode = extractStudentCode(username);
-
-        StudentProfileEntity  sp = studentProfileRepository.findByStudentCodeWithUser(studentCode)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Không tìm thấy sinh viên với mã định danh: " + studentCode));
-
-        // FIX: dùng findById thay vì findByUserId (userId là @Id)
-        UserProfileEntity  up = userProfileRepository.findById(sp.getUser().getId()).orElse(null);
-
+        StudentProfileEntity sp = studentProfileRepository.findByStudentCode(studentCode)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy profile cho: " + studentCode));
+        UserProfileEntity up = userProfileRepository.findById(sp.getUserId()).orElse(null);
         return toResponse(sp, up);
     }
 
     @Override
     public ProfileResponse getProfileByStudentId(String studentId) {
-        StudentProfileEntity  sp = studentProfileRepository.findByStudentCodeWithUser(studentId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Không tìm thấy sinh viên với mã số: " + studentId));
-
-        // FIX: findById
-        UserProfileEntity  up = userProfileRepository.findById(sp.getUser().getId()).orElse(null);
-
+        StudentProfileEntity sp = studentProfileRepository.findByStudentCode(studentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sinh viên: " + studentId));
+        UserProfileEntity up = userProfileRepository.findById(sp.getUserId()).orElse(null);
         return toResponse(sp, up);
     }
 
@@ -55,68 +47,80 @@ public class ProfileServiceImpl implements ProfileService {
     @Transactional
     public ProfileResponse updateMyProfile(String username, UpdateProfileRequest request) {
         String studentCode = extractStudentCode(username);
+        StudentProfileEntity sp = studentProfileRepository.findByStudentCode(studentCode)
+                .orElseThrow(() -> new ResourceNotFoundException("Profile không tồn tại"));
+        
+        UserProfileEntity up = userProfileRepository.findById(sp.getUserId())
+                .orElseGet(() -> UserProfileEntity.builder().userId(sp.getUserId()).build());
 
-        StudentProfileEntity  sp = studentProfileRepository.findByStudentCodeWithUser(studentCode)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Không tìm thấy thông tin sinh viên cần cập nhật: " + studentCode));
-
-        // FIX: findById thay vì findByUserId
-        UserProfileEntity  up = userProfileRepository.findById(sp.getUser().getId())
-                .orElse(UserProfileEntity.builder()
-                        .userId(sp.getUser().getId())
-                        .user(sp.getUser())
-                        .build());
-
-        if (request.getFullName()    != null) up.setFullName(request.getFullName());
-        if (request.getPhone()       != null) up.setPhoneNumber(request.getPhone());
+        if (request.getFullName() != null) up.setFullName(request.getFullName());
+        if (request.getPhone() != null) up.setPhoneNumber(request.getPhone());
+        if (request.getAddress() != null) up.setAddress(request.getAddress());
         if (request.getDateOfBirth() != null) up.setDateOfBirth(request.getDateOfBirth());
-        if (request.getGender()      != null) up.setGender(request.getGender().toString());
-        if (request.getAvatarUrl()   != null) up.setAvatarUrl(request.getAvatarUrl());
-        if (request.getAddress()     != null) up.setAddress(request.getAddress());
+        if (request.getGender() != null) up.setGender(request.getGender().name());
+        if (request.getAvatarUrl() != null) up.setAvatarUrl(request.getAvatarUrl());
 
-        // save() có sẵn từ JpaRepository
         userProfileRepository.save(up);
         return toResponse(sp, up);
     }
 
-    // ── Helpers ───────────────────────────────────────────────
+    @Override
+    public Page<StudentSummaryResponse> listStudents(String search, String faculty, String cohort, String status, Pageable pageable) {
+        return studentProfileRepository.findAll(pageable).map(sp -> {
+            UserProfileEntity up = userProfileRepository.findById(sp.getUserId()).orElse(null);
+            return StudentSummaryResponse.builder()
+                    .id(sp.getUserId())
+                    .studentCode(sp.getStudentCode())
+                    .fullName(up != null ? up.getFullName() : null)
+                    .faculty(sp.getFaculty())
+                    .cohort(sp.getAcademicYear())
+                    .status(sp.getStatus())
+                    .email(sp.getUser() != null ? sp.getUser().getEmail() : null)
+                    .advisorName(sp.getAdvisor() != null ? sp.getAdvisor().getFullName() : "Chưa phân công")
+                    .build();
+        });
+    }
 
-    /**
-     * FIX WARN 1: JWT subject = email (2211020001@st.utc2.edu.vn)
-     * Nếu username chứa "@" → lấy phần trước "@" = studentCode
-     * Nếu không có "@" → dùng thẳng
-     */
     private String extractStudentCode(String username) {
         return username.contains("@") ? username.split("@")[0] : username;
     }
 
-    private ProfileResponse toResponse(StudentProfileEntity  sp, UserProfileEntity  up) {
-        return ProfileResponse.builder()
-                .id(sp.getUserId())
-                .studentId(sp.getStudentCode())
-                .username(sp.getStudentCode())
-                .email(
-                        sp.getUser() != null
-                                ? sp.getUser().getEmail()
-                                : null
-                )
-                .faculty(sp.getFaculty())
-                .major(sp.getMajor())
-                .academicYear(sp.getAcademicYear())
-                .className(sp.getClassName())
-                .status(sp.getStatus())
-                .studentCardUrl(sp.getStudentCardUrl())
-                .role(
-                        sp.getUser() != null
-                                ? sp.getUser().getRole().name()
-                                : null
-                )
-                .fullName(up != null ? up.getFullName()    : null)
-                .phoneNumber(up != null ? up.getPhoneNumber() : null)
-                .address(up != null ? up.getAddress()      : null)
-                .dateOfBirth(up != null ? up.getDateOfBirth() : null)
-                .gender(up != null ? up.getGender()        : null)
-                .avatarUrl(up != null ? up.getAvatarUrl()  : null)
-                .build();
+    private ProfileResponse toResponse(StudentProfileEntity sp, UserProfileEntity up) {
+    Long userId = sp.getUserId();
+    
+    List<Map<String, Object>> gradesList = new ArrayList<>();
+    List<Map<String, Object>> fees = new ArrayList<>();
+    List<Map<String, Object>> schedules = new ArrayList<>();
+
+    try {
+        // 1. Dùng bảng 'enrollment' (không có s)
+        gradesList = jdbcTemplate.queryForList("SELECT * FROM enrollment WHERE user_id = ?", userId);
+        
+        // 2. Dùng bảng 'fee' (không có s) và query bằng user_id
+        fees = jdbcTemplate.queryForList("SELECT * FROM fee WHERE user_id = ?", userId);
+        
+        // 3. Dùng bảng 'schedule' (không có s)
+        schedules = jdbcTemplate.queryForList("SELECT * FROM schedule WHERE user_id = ?", userId);
+    } catch (Exception e) {
+        System.err.println("Lỗi truy vấn dữ liệu phụ: " + e.getMessage());
     }
+
+    Map<String, List<Map<String, Object>>> gradesMap = new HashMap<>();
+    gradesMap.put("allGrades", gradesList); 
+
+    return ProfileResponse.builder()
+            .id(userId)
+            .studentId(sp.getStudentCode())
+            .fullName(up != null ? up.getFullName() : null)
+            .email(sp.getUser() != null ? sp.getUser().getEmail() : null)
+            .faculty(sp.getFaculty())
+            .major(sp.getMajor())
+            .academicYear(sp.getAcademicYear())
+            .className(sp.getClassName())
+            .status(sp.getStatus())
+            .grades(gradesMap)
+            .fees(fees)
+            .schedules(schedules)
+            .build();
+}
 }

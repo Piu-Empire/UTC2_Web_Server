@@ -1,16 +1,18 @@
 package com.utc2.appreborn.backend.modules.academic.entity;
 
+import com.utc2.appreborn.backend.modules.auth.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "semester")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class SemesterEntity {
 
     @Id
@@ -18,8 +20,9 @@ public class SemesterEntity {
     @Column(name = "semester_id")
     private Long semesterId;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(name = "semester_name")
     private String semesterName;
@@ -36,8 +39,8 @@ public class SemesterEntity {
     @Column(name = "end_date")
     private LocalDate endDate;
 
-    @Column(name = "gpa", columnDefinition = "DECIMAL(4,2)")
-    private java.math.BigDecimal gpa;
+    @Column(name = "gpa", precision = 4, scale = 2)
+    private BigDecimal gpa;
 
     @Column(name = "total_credits")
     private Integer totalCredits;
