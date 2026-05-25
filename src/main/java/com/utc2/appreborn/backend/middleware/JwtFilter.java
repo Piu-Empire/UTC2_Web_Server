@@ -34,7 +34,15 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         String jwt = authHeader.substring(7);
-        String username = jwtService.getUsernameFromToken(jwt);
+        String username = null;
+        try {
+            username = jwtService.getUsernameFromToken(jwt);
+        } catch (Exception e) {
+            // Token hết hạn hoặc không hợp lệ — không set authentication,
+            // để Spring Security trả 401 bình thường qua authenticationEntryPoint
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
