@@ -9,4 +9,6 @@ public interface ImportService {
     ImportResultResponse importCurriculum(MultipartFile file, boolean overwrite);
     ImportResultResponse importCourses(MultipartFile file, boolean overwrite);
     ImportResultResponse importStudents(MultipartFile file, boolean overwrite);
+    ImportResultResponse importDormitoryRooms(MultipartFile file, boolean overwrite);
+    ImportResultResponse importEnrollments(MultipartFile file, boolean overwrite);
 }

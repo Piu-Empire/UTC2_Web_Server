@@ -5,14 +5,17 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface DormitoryRoomRepository extends JpaRepository<DormitoryRoomEntity, Long> {
 
     /**
+     * Tìm phòng theo mã phòng — dùng cho import (check duplicate).
+     */
+    Optional<DormitoryRoomEntity> findByRoomCode(String roomCode);
+
+    /**
      * Lấy toàn bộ phòng KTX, sắp xếp theo tòa rồi mã phòng.
-     * Column order:
-     * 0=room_id, 1=room_code, 2=building, 3=floor, 4=capacity,
-     * 5=current_occupancy, 6=room_type, 7=price_per_month, 8=status, 9=amenities
      */
     @Query(value = """
             SELECT room_id, room_code, building, floor,
