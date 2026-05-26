@@ -33,7 +33,12 @@ public class AcademicServiceImpl implements AcademicService {
 
     // ── Helper ────────────────────────────────────────────────────────────────
 
-    private Long currentUserId() {
+    /**
+     * userId != null → Admin đang xem data của sinh viên cụ thể
+     * userId == null → dùng token của user đang login (App mobile)
+     */
+    private Long resolveUserId(Long userId) {
+        if (userId != null) return userId;
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"))
@@ -45,9 +50,9 @@ public class AcademicServiceImpl implements AcademicService {
     // ════════════════════════════════════════════════════════════════════════
 
     @Override
-    public List<SemesterDto> getSemesters() {
-        Long userId = currentUserId();
-        List<SemesterEntity> list = semesterRepository.findByUser_IdOrderBySemesterNumberAsc(userId);
+    public List<SemesterDto> getSemesters(Long userId) {
+        Long id = resolveUserId(userId);
+        List<SemesterEntity> list = semesterRepository.findByUser_IdOrderBySemesterNumberAsc(id);
         List<SemesterDto> result = new ArrayList<>();
         for (SemesterEntity s : list) {
             result.add(SemesterDto.builder()
@@ -67,12 +72,11 @@ public class AcademicServiceImpl implements AcademicService {
 
     // ════════════════════════════════════════════════════════════════════════
     //  2. GRADES
-    //  semesterId == null  → tất cả các kỳ
     // ════════════════════════════════════════════════════════════════════════
 
     @Override
-    public List<CourseGradeDto> getGrades(Long semesterId) {
-        Long userId = currentUserId();
+    public List<CourseGradeDto> getGrades(Long userId, Long semesterId) {
+        Long id = resolveUserId(userId);
 
         String sql = """
                 SELECT e.enrollment_id, c.course_code, c.course_name, c.credits,
@@ -88,7 +92,7 @@ public class AcademicServiceImpl implements AcademicService {
                 " ORDER BY s.semester_number ASC, c.course_code ASC";
 
         var query = entityManager.createNativeQuery(sql)
-                .setParameter("userId", userId);
+                .setParameter("userId", id);
         if (semesterId != null) {
             query.setParameter("semesterId", semesterId);
         }
@@ -120,15 +124,12 @@ public class AcademicServiceImpl implements AcademicService {
 
     // ════════════════════════════════════════════════════════════════════════
     //  3. LEADERBOARD
-    //  Xếp hạng GPA tích lũy trong cùng academicYear hoặc semesterId.
-    //  Dùng bảng semester (đã có gpa, total_credits sẵn).
     // ════════════════════════════════════════════════════════════════════════
 
     @Override
     public List<LeaderboardEntryDto> getLeaderboard(Long semesterId, String academicYear) {
-        Long currentUserId = currentUserId();
+        Long currentUserId = resolveUserId(null);
 
-        // Xác định academicYear để scope leaderboard
         String targetYear = academicYear;
         if (targetYear == null && semesterId != null) {
             targetYear = semesterRepository.findById(semesterId)
@@ -138,7 +139,6 @@ public class AcademicServiceImpl implements AcademicService {
 
         String sql;
         if (semesterId != null) {
-            // Xếp hạng theo 1 kỳ cụ thể
             sql = """
                     SELECT s.user_id, up.full_name, sp.student_code, s.gpa, s.total_credits
                     FROM semester s
@@ -150,7 +150,6 @@ public class AcademicServiceImpl implements AcademicService {
                     ORDER BY s.gpa DESC, s.total_credits DESC
                     """;
         } else {
-            // Xếp hạng theo năm học — dùng GPA trung bình các kỳ
             sql = """
                     SELECT s.user_id, up.full_name, sp.student_code,
                            AVG(s.gpa) AS gpa, SUM(s.total_credits) AS total_credits
@@ -177,11 +176,11 @@ public class AcademicServiceImpl implements AcademicService {
         AtomicInteger rank = new AtomicInteger(1);
         List<LeaderboardEntryDto> result = new ArrayList<>();
         for (Object[] row : rows) {
-            Long userId  = ((Number) row[0]).longValue();
-            String name  = (String) row[1];
-            String code  = (String) row[2];
-            double gpa   = row[3] != null ? ((Number) row[3]).doubleValue() : 0.0;
-            int credits  = row[4] != null ? ((Number) row[4]).intValue() : 0;
+            Long uid    = ((Number) row[0]).longValue();
+            String name = (String) row[1];
+            String code = (String) row[2];
+            double gpa  = row[3] != null ? ((Number) row[3]).doubleValue() : 0.0;
+            int credits = row[4] != null ? ((Number) row[4]).intValue() : 0;
 
             result.add(LeaderboardEntryDto.builder()
                     .rank(rank.getAndIncrement())
@@ -190,13 +189,12 @@ public class AcademicServiceImpl implements AcademicService {
                     .initials(buildInitials(name))
                     .gpa(gpa)
                     .totalCredits(credits)
-                    .isCurrentUser(userId.equals(currentUserId))
+                    .isCurrentUser(uid.equals(currentUserId))
                     .build());
         }
         return result;
     }
 
-    /** "Nguyễn Văn An" → "VA" (2 chữ cái cuối) */
     private String buildInitials(String fullName) {
         if (fullName == null || fullName.isBlank()) return "??";
         String[] parts = fullName.trim().split("\\s+");
@@ -214,9 +212,9 @@ public class AcademicServiceImpl implements AcademicService {
     // ════════════════════════════════════════════════════════════════════════
 
     @Override
-    public List<ScholarshipDto> getScholarships() {
-        Long userId = currentUserId();
-        List<Object[]> rows = scholarshipRepository.findAllWithStatusByUserId(userId);
+    public List<ScholarshipDto> getScholarships(Long userId) {
+        Long id = resolveUserId(userId);
+        List<Object[]> rows = scholarshipRepository.findAllWithStatusByUserId(id);
         List<ScholarshipDto> result = new ArrayList<>();
         for (Object[] row : rows) {
             result.add(ScholarshipDto.builder()
@@ -236,15 +234,14 @@ public class AcademicServiceImpl implements AcademicService {
 
     // ════════════════════════════════════════════════════════════════════════
     //  5. WARNINGS
-    //  semesterId == null  → tất cả cảnh báo
     // ════════════════════════════════════════════════════════════════════════
 
     @Override
-    public List<AcademicWarningDto> getWarnings(Long semesterId) {
-        Long userId = currentUserId();
+    public List<AcademicWarningDto> getWarnings(Long userId, Long semesterId) {
+        Long id = resolveUserId(userId);
         List<AcademicWarningEntity> list = semesterId != null
-                ? warningRepository.findByUserIdAndSemesterIdOrderByIssuedAtDesc(userId, semesterId)
-                : warningRepository.findByUserIdOrderByIssuedAtDesc(userId);
+                ? warningRepository.findByUserIdAndSemesterIdOrderByIssuedAtDesc(id, semesterId)
+                : warningRepository.findByUserIdOrderByIssuedAtDesc(id);
 
         List<AcademicWarningDto> result = new ArrayList<>();
         for (AcademicWarningEntity w : list) {
