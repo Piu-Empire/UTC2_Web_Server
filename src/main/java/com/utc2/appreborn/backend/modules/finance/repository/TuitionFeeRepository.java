@@ -15,6 +15,12 @@ public interface TuitionFeeRepository extends JpaRepository<TuitionFee, Long> {
     // Sắp xếp theo semesterId giảm dần (kỳ mới nhất lên đầu)
     List<TuitionFee> findByUserIdOrderBySemesterIdDesc(Long userId);
 
+    /** Chỉ lấy học phí môn học (feeType = SUBJECT) */
+    List<TuitionFee> findByUserIdAndFeeTypeOrderBySemesterIdDesc(Long userId, String feeType);
+
+    /** Chỉ lấy kỳ đã đóng đủ của 1 loại phí */
+    List<TuitionFee> findByUserIdAndFeeTypeAndStatus(Long userId, String feeType, String status);
+
     // FIX 2: "semester" → "semesterId", type String → Long
     Optional<TuitionFee> findByUserIdAndSemesterId(Long userId, Long semesterId);
 
@@ -22,6 +28,6 @@ public interface TuitionFeeRepository extends JpaRepository<TuitionFee, Long> {
     List<TuitionFee> findByUserIdAndStatus(Long userId, String status);
 
     @Query("SELECT COALESCE(SUM(t.remainingAmount), 0) FROM TuitionFee t " +
-           "WHERE t.user.id = :userId AND t.status != 'đã đóng đủ'")
+           "WHERE t.userId = :userId AND t.status != 'đã đóng đủ'")
     BigDecimal sumRemainingByUserId(@Param("userId") Long userId);
 }

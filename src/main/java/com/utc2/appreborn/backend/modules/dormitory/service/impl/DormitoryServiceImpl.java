@@ -204,7 +204,53 @@ public class DormitoryServiceImpl implements DormitoryService {
         });
     }
 
-    // ── Helper: format date giống getSemesterDate() trong ScheduleServiceImpl ─
+    // ════════════════════════════════════════════════════════════════════════════
+    //  5. THANH TOÁN PHÍ KTX
+    // ════════════════════════════════════════════════════════════════════════════
+
+    @Override
+    @Transactional
+    public DormRegistrationDto payDorm(Long dormRegId) {
+        Long userId = currentUserId();
+
+        DormitoryRegistrationEntity reg = registrationRepository.findById(dormRegId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đăng ký KTX"));
+
+        // Chỉ sinh viên sở hữu đăng ký mới được thanh toán
+        if (!reg.getUserId().equals(userId)) {
+            throw new BadRequestException("Không có quyền thanh toán đăng ký này");
+        }
+
+        // Kiểm tra đã đóng chưa
+        if ("đã đóng".equals(reg.getPaidStatus())) {
+            throw new BadRequestException("Phí KTX này đã được đóng rồi");
+        }
+
+        // Chỉ đăng ký đã duyệt mới được đóng tiền
+        if (!"đã duyệt".equals(reg.getStatus())) {
+            throw new BadRequestException("Đăng ký KTX chưa được duyệt, chưa thể thanh toán");
+        }
+
+        reg.setPaidStatus("đã đóng");
+        registrationRepository.save(reg);
+
+        // Map lại DTO để trả về — lấy thêm info phòng
+        DormitoryRoomEntity room = roomRepository.findById(reg.getRoomId()).orElse(null);
+        return DormRegistrationDto.builder()
+                .dormRegId(reg.getDormRegId())
+                .roomId(reg.getRoomId())
+                .roomCode(room != null ? room.getRoomCode() : null)
+                .building(room != null ? room.getBuilding() : null)
+                .roomType(room != null ? room.getRoomType() : null)
+                .pricePerMonth(room != null ? room.getPricePerMonth() : null)
+                .startDate(reg.getStartDate() != null ? reg.getStartDate().format(DATE_FMT) : null)
+                .endDate(reg.getEndDate() != null ? reg.getEndDate().format(DATE_FMT) : null)
+                .status(reg.getStatus())
+                .totalFee(reg.getTotalFee())
+                .paidStatus(reg.getPaidStatus())
+                .registeredAt(reg.getRegisteredAt() != null ? reg.getRegisteredAt().toString() : null)
+                .build();
+    }
 
     private String formatDate(Object o) {
         if (o == null) return null;

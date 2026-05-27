@@ -15,4 +15,7 @@ public interface DormitoryService {
     DormRegistrationDto register(DormRegisterRequest request);
 
     void cancelRegistration(Long dormRegId);
+
+    /** Thanh toán toàn bộ phí KTX của 1 đăng ký — chỉ đóng 1 lần đủ */
+    DormRegistrationDto payDorm(Long dormRegId);
 }
