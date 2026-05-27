@@ -49,6 +49,17 @@ public class DormitoryController {
     }
 
     /**
+     * POST /api/v1/dormitory/pay/{dormRegId}
+     * Thanh toán phí KTX 1 lần đủ — cần token.
+     * App gọi sau khi user xác nhận QR thanh toán thành công.
+     */
+    @PostMapping("/pay/{dormRegId}")
+    public ResponseEntity<ApiResponse<DormRegistrationDto>> pay(
+            @PathVariable Long dormRegId) {
+        return ResponseEntity.ok(ApiResponse.success(dormitoryService.payDorm(dormRegId)));
+    }
+
+    /**
      * DELETE /api/v1/dormitory/{dormRegId}
      * Hủy đăng ký KTX — cần token.
      */

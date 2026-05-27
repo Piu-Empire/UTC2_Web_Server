@@ -36,9 +36,12 @@ public class ProfileResponse {
     private String role;
     private String avatarUrl;
 
+    private String advisorName;     // Tên cố vấn học tập
+
     // ─── DATA ĐỔ VÀO CÁC TAB CHI TIẾT TRÊN FRONTEND ───
     private Double gpa;                                     // GPA tích lũy tổng
     private Map<String, List<Map<String, Object>>> grades;  // Bảng điểm nhóm theo học kỳ
     private List<Map<String, Object>> schedules;            // Thời khóa biểu
     private List<Map<String, Object>> fees;                 // Tình hình học phí
+    private List<Map<String, Object>> warnings;             // Cảnh báo học vụ
 }

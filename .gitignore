@@ -88,3 +88,6 @@ lombok.config
 # ============================================================
 
 docker-data/
+
+# Node
+node_modules/

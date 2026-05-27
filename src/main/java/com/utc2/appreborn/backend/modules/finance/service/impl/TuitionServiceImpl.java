@@ -13,8 +13,10 @@ import com.utc2.appreborn.backend.modules.profile.repository.StudentProfileRepos
 import com.utc2.appreborn.backend.modules.profile.repository.UserProfileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,17 +28,20 @@ public class TuitionServiceImpl implements TuitionService {
     private final StudentProfileRepository studentProfileRepository;
     private final UserProfileRepository    userProfileRepository;
 
+    // ── Hằng status — phải khớp DB và V6 migration ───────────
+    private static final String STATUS_UNPAID = "chưa đóng";
+    private static final String STATUS_PAID   = "đã đóng đủ";
+    private static final String FEE_SUBJECT   = "SUBJECT";
+
     @Override
     public TuitionSummaryResponse getMyTuitionSummary(String username) {
         StudentProfileEntity sp = findStudentByUsername(username);
         User user = sp.getUser();
-
-        // FIX: findById thay vì findByUserId (userId là @Id của UserProfile)
         UserProfileEntity up = userProfileRepository.findById(user.getId()).orElse(null);
         String fullName = up != null ? up.getFullName() : user.getEmail();
 
-        List<TuitionFee> fees = tuitionFeeRepository.findByUserIdOrderBySemesterIdDesc(user.getId());
-        BigDecimal totalDebt  = tuitionFeeRepository.sumRemainingByUserId(user.getId());
+        List<TuitionFee> fees    = tuitionFeeRepository.findByUserIdAndFeeTypeOrderBySemesterIdDesc(user.getId(), FEE_SUBJECT);
+        BigDecimal       totalDebt = tuitionFeeRepository.sumRemainingByUserId(user.getId());
 
         return TuitionSummaryResponse.builder()
                 .studentId(sp.getStudentCode())
@@ -51,12 +56,21 @@ public class TuitionServiceImpl implements TuitionService {
     @Override
     public List<TuitionResponse> getMyTuitionHistory(String username) {
         StudentProfileEntity sp = findStudentByUsername(username);
-
-        // FIX: findById
-        UserProfileEntity up = userProfileRepository.findById(sp.getUser().getId()).orElse(null);
-
+        UserProfileEntity    up = userProfileRepository.findById(sp.getUser().getId()).orElse(null);
         return tuitionFeeRepository
-                .findByUserIdOrderBySemesterIdDesc(sp.getUser().getId())
+                .findByUserIdAndFeeTypeOrderBySemesterIdDesc(sp.getUser().getId(), FEE_SUBJECT)
+                .stream()
+                .map(f -> toResponse(f, sp, up))
+                .collect(Collectors.toList());
+    }
+
+    /** Chỉ trả các kỳ đã đóng đủ — dùng cho Invoice screen */
+    @Override
+    public List<TuitionResponse> getMyPaidHistory(String username) {
+        StudentProfileEntity sp = findStudentByUsername(username);
+        UserProfileEntity    up = userProfileRepository.findById(sp.getUser().getId()).orElse(null);
+        return tuitionFeeRepository
+                .findByUserIdAndFeeTypeAndStatus(sp.getUser().getId(), FEE_SUBJECT, STATUS_PAID)
                 .stream()
                 .map(f -> toResponse(f, sp, up))
                 .collect(Collectors.toList());
@@ -65,9 +79,7 @@ public class TuitionServiceImpl implements TuitionService {
     @Override
     public TuitionResponse getTuitionBySemester(String username, String semester) {
         StudentProfileEntity sp = findStudentByUsername(username);
-
-        // FIX: findById
-        UserProfileEntity up = userProfileRepository.findById(sp.getUser().getId()).orElse(null);
+        UserProfileEntity    up = userProfileRepository.findById(sp.getUser().getId()).orElse(null);
 
         Long semesterId;
         try {
@@ -84,16 +96,49 @@ public class TuitionServiceImpl implements TuitionService {
         return toResponse(fee, sp, up);
     }
 
+    /**
+     * Thanh toán toàn bộ học phí còn lại của 1 kỳ.
+     * App chỉ cho đóng online 1 lần đủ — không đóng một phần.
+     * @Transactional đảm bảo nếu save lỗi thì rollback, không mất tiền "ảo"
+     */
+    @Override
+    @Transactional
+    public TuitionResponse payTuition(String username, Long semesterId, String paymentMethod) {
+        StudentProfileEntity sp = findStudentByUsername(username);
+
+        TuitionFee fee = tuitionFeeRepository
+                .findByUserIdAndSemesterId(sp.getUser().getId(), semesterId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Không tìm thấy học phí kỳ: " + semesterId));
+
+        // Kiểm tra đã đóng chưa
+        if (STATUS_PAID.equals(fee.getStatus())) {
+            throw new IllegalStateException("Học phí kỳ này đã được đóng rồi");
+        }
+
+        // Đóng toàn bộ remaining
+        fee.setPaidAmount(fee.getTotalAmount());
+        fee.setRemainingAmount(BigDecimal.ZERO);
+        fee.setStatus(STATUS_PAID);
+        fee.setPaymentMethod(paymentMethod != null ? paymentMethod : "online");
+        fee.setPaidAt(LocalDateTime.now());
+
+        tuitionFeeRepository.save(fee);
+
+        UserProfileEntity up = userProfileRepository.findById(sp.getUser().getId()).orElse(null);
+        return toResponse(fee, sp, up);
+    }
+
     // ── Helpers ───────────────────────────────────────────────
 
-    /**
-     * FIX WARN 1: username từ JWT = email → extract studentCode trước khi tìm
-     */
     private StudentProfileEntity findStudentByUsername(String username) {
-        String studentCode = username.contains("@") ? username.split("@")[0] : username;
+        if (username == null || !username.contains("@")) {
+            throw new ResourceNotFoundException("Không xác định được tài khoản: " + username);
+        }
+        String studentCode = username.split("@")[0];
         return studentProfileRepository.findByStudentCodeWithUser(studentCode)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Không tìm thấy sinh viên MSSV: " + studentCode));
+                        "Tài khoản này không phải sinh viên (MSSV: " + studentCode + ")"));
     }
 
     private TuitionResponse toResponse(TuitionFee fee, StudentProfileEntity sp, UserProfileEntity up) {

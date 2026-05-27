@@ -124,7 +124,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         Long userId = currentUserId();
 
         Object[] course = getCourseById(request.getCourseId());
-        String semesterName = getSemesterName(request.getSemesterId());
+        String semesterName = getSemesterNameForUser(userId, request.getSemesterId());
 
         if (courseEnrollmentRepository.existsByUserIdAndCourseIdAndStatusNot(userId, request.getCourseId(), "đã hủy")) {
             throw new BadRequestException("Bạn đã đăng ký môn \"" + course[2] + "\" rồi!");
@@ -201,6 +201,26 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         }
     }
 
+    private String getSemesterNameForUser(Long userId, Long semesterId) {
+        try {
+            Object result = entityManager
+                    .createNativeQuery(
+                            "SELECT semester_name FROM semester " +
+                            "WHERE semester_id = :id AND user_id = :userId")
+                    .setParameter("id", semesterId)
+                    .setParameter("userId", userId)
+                    .getSingleResult();
+            if (result == null) throw new BadRequestException("Học kỳ không thuộc về tài khoản này");
+            return result.toString();
+        } catch (BadRequestException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ResourceNotFoundException("Học kỳ không tồn tại hoặc không thuộc về bạn");
+        }
+    }
+
+    /** @deprecated Dùng getSemesterNameForUser thay thế để verify ownership */
+    @Deprecated
     private String getSemesterName(Long semesterId) {
         try {
             Object result = entityManager

@@ -33,11 +33,20 @@ public class TuitionController {
     }
 
     @GetMapping("/history")
-    @Operation(summary = "Lịch sử học phí")
+    @Operation(summary = "Toàn bộ lịch sử học phí (cả chưa đóng)")
     public ResponseEntity<ApiResponse<List<TuitionResponse>>> getHistory(
             @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(ApiResponse.success(
                 tuitionService.getMyTuitionHistory(userDetails.getUsername())));
+    }
+
+    /** Dùng cho Invoice screen — chỉ trả kỳ đã đóng đủ */
+    @GetMapping("/paid")
+    @Operation(summary = "Lịch sử các kỳ đã đóng đủ (Invoice screen)")
+    public ResponseEntity<ApiResponse<List<TuitionResponse>>> getPaidHistory(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(ApiResponse.success(
+                tuitionService.getMyPaidHistory(userDetails.getUsername())));
     }
 
     @GetMapping("/semester/{semester}")
@@ -47,5 +56,22 @@ public class TuitionController {
             @PathVariable String semester) {
         return ResponseEntity.ok(ApiResponse.success(
                 tuitionService.getTuitionBySemester(userDetails.getUsername(), semester)));
+    }
+
+    /**
+     * POST /api/v1/tuition/pay/{semesterId}
+     * Đóng toàn bộ học phí còn lại của 1 kỳ — chỉ hỗ trợ đóng 1 lần đủ.
+     * App gọi sau khi người dùng xác nhận QR thanh toán thành công.
+     *
+     * @param paymentMethod optional, default "online" (query param)
+     */
+    @PostMapping("/pay/{semesterId}")
+    @Operation(summary = "Thanh toán học phí 1 kỳ (đóng đủ 1 lần)")
+    public ResponseEntity<ApiResponse<TuitionResponse>> pay(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long semesterId,
+            @RequestParam(required = false, defaultValue = "online") String paymentMethod) {
+        return ResponseEntity.ok(ApiResponse.success(
+                tuitionService.payTuition(userDetails.getUsername(), semesterId, paymentMethod)));
     }
 }
