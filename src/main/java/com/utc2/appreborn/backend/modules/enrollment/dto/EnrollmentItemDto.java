@@ -15,6 +15,8 @@ public class EnrollmentItemDto {
     private String courseName;
     private Integer credits;
     private String semesterName;
+    private Integer semesterNumber;
+    private String academicYear;
     private String status;
     private Double midtermScore;
     private Double finalScore;

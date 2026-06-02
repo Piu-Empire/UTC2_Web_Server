@@ -56,7 +56,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         // 0=enrollment_id, 1=course_code, 2=course_name, 3=credits,
         // 4=semester_name, 5=status, 6=midterm_score, 7=final_score,
         // 8=assignment_score, 9=total_score, 10=letter_grade, 11=grade_point,
-        // 12=is_passed, 13=registered_at
+        // 12=is_passed, 13=registered_at, 14=semester_number, 15=academic_year
         return EnrollmentItemDto.builder()
                 .enrollmentId(((Number) row[0]).longValue())
                 .courseCode((String) row[1])
@@ -72,6 +72,8 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .gradePoint(row[11] != null ? ((Number) row[11]).doubleValue() : null)
                 .isPassed(row[12] != null ? (Boolean) row[12] : null)
                 .registeredAt(row[13] != null ? row[13].toString() : null)
+                .semesterNumber(row[14] != null ? ((Number) row[14]).intValue() : 0)
+                .academicYear((String) row[15])
                 .build();
     }
 
