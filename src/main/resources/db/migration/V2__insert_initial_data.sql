@@ -1,17 +1,17 @@
--- user
+﻿-- user
 INSERT INTO `user`
 (`email`, `password_hash`, `auth_provider`)
 VALUES
-('admin@utc2.edu.vn', 'hashed_admin_123', 'local'),
-('2211020001@st.utc2.edu.vn', 'hashed_sv_123', 'local'),
-('2211020002@st.utc2.edu.vn', 'hashed_sv_456', 'local'),
-('2211030001@st.utc2.edu.vn', 'hashed_sv_789', 'local');
+('admin@utc2.edu.vn', '$2a$12$1r6iM2aHetFoGWmajB1EBegjLTRrjUjyB.SBD85TR/T51hYdDw9CC', 'local'),
+('2211020001@st.utc2.edu.vn', '$2a$12$1r6iM2aHetFoGWmajB1EBegjLTRrjUjyB.SBD85TR/T51hYdDw9CC', 'local'),
+('2211020002@st.utc2.edu.vn', '$2a$12$1r6iM2aHetFoGWmajB1EBegjLTRrjUjyB.SBD85TR/T51hYdDw9CC', 'local'),
+('2211030001@st.utc2.edu.vn', '$2a$12$1r6iM2aHetFoGWmajB1EBegjLTRrjUjyB.SBD85TR/T51hYdDw9CC', 'local');
 
 -- advisor
 INSERT INTO `advisor`
 (`full_name`, `email`, `phone`, `faculty`, `office_room`)
 VALUES
-('Nguyễn Văn Hùng', 'hung.nguyen@utc2.edu.vn', '0909123456', 'Công nghệ thông tin', 'A101'),
+('Nguyễn Văn Hùng', 'hung.nguyen@utc2.edu.vn', '0909123456789', 'Công nghệ thông tin', 'A101'),
 ('Trần Thị Mai', 'mai.tran@utc2.edu.vn', '0911222333', 'Kinh tế vận tải', 'B203');
 
 -- user_profile

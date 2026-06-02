@@ -1,4 +1,4 @@
--- ============================================================
+﻿-- ============================================================
 -- V20250815_03: Hoàn chỉnh phân quyền theo sơ đồ
 --
 -- Sơ đồ roles:
@@ -21,7 +21,7 @@ ALTER TABLE `user`
 -- 2. Thêm account test STAFF level 2 (giảng viên) — còn thiếu từ V20250815_02
 INSERT IGNORE INTO `user` (`email`, `password_hash`, `auth_provider`, `role`, `staff_level`, `enabled`)
 VALUES ('giangvien@utc2.edu.vn',
-        '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lHHi',
+        '$2a$12$1r6iM2aHetFoGWmajB1EBegjLTRrjUjyB.SBD85TR/T51hYdDw9CC',
         'local', 'STAFF', 2, TRUE);
 
 INSERT IGNORE INTO `user_profile` (`user_id`, `full_name`, `phone_number`, `date_of_birth`, `gender`)

@@ -1,4 +1,4 @@
--- V3: Thêm cột updated_at vào bảng schedule để track thời điểm cập nhật lịch
+﻿-- V3: Thêm cột updated_at vào bảng schedule để track thời điểm cập nhật lịch
 -- App sẽ dùng giá trị MAX(updated_at) của user để so sánh với file local
 
 ALTER TABLE `schedule`

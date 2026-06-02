@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `user` (
+﻿CREATE TABLE IF NOT EXISTS `user` (
     `user_id` BIGINT NOT NULL AUTO_INCREMENT UNIQUE COMMENT 'Khóa chính, ID người dùng',
     `email` VARCHAR(255) UNIQUE COMMENT 'Email dùng để đăng nhập',
     `password_hash` VARCHAR(255) COMMENT 'Mật khẩu đã được mã hóa',

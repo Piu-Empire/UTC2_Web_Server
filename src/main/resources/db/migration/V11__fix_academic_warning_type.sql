@@ -1,4 +1,4 @@
--- Fix warning_type values để khớp với App mapping:
+﻿-- Fix warning_type values để khớp với App mapping:
 --   App: "FAILED_EXAM" → "Điểm thi không đạt"
 --   App: "LOW_GPA"     → "GPA thấp"
 --   App: "ATTENDANCE"  → "Vắng mặt quá mức"

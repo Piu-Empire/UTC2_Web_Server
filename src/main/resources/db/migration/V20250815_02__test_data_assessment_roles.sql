@@ -1,7 +1,7 @@
--- ============================================================
+﻿-- ============================================================
 -- V20250815_02: Test data – mỗi role 1 account + assessment data
--- Password tất cả accounts: 123456
--- Hash: $2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lHHi
+-- Password tất cả accounts: 123456789
+-- Hash: $2a$12$1r6iM2aHetFoGWmajB1EBegjLTRrjUjyB.SBD85TR/T51hYdDw9CC
 -- ============================================================
 
 -- ─── 1. Fix các user cũ chưa có role/enabled ─────────────────────────────────
@@ -9,13 +9,13 @@
 -- user_id 1: admin gốc (chưa có role sau V2)
 UPDATE `user`
 SET `role` = 'ADMIN', `enabled` = TRUE,
-    `password_hash` = '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lHHi'
+    `password_hash` = '$2a$12$1r6iM2aHetFoGWmajB1EBegjLTRrjUjyB.SBD85TR/T51hYdDw9CC'
 WHERE `email` = 'admin@utc2.edu.vn';
 
 -- user_id 3,4,5: sinh viên
 UPDATE `user`
 SET `role` = 'STUDENT', `enabled` = TRUE,
-    `password_hash` = '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lHHi'
+    `password_hash` = '$2a$12$1r6iM2aHetFoGWmajB1EBegjLTRrjUjyB.SBD85TR/T51hYdDw9CC'
 WHERE `email` IN (
     '2211020002@st.utc2.edu.vn',
     '2211030001@st.utc2.edu.vn',
@@ -27,37 +27,37 @@ WHERE `email` IN (
 -- user_id 6: ADVISOR (cố vấn học tập)
 INSERT INTO `user` (`email`, `password_hash`, `auth_provider`, `role`, `staff_level`, `enabled`)
 VALUES ('cvht@utc2.edu.vn',
-        '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lHHi',
+        '$2a$12$1r6iM2aHetFoGWmajB1EBegjLTRrjUjyB.SBD85TR/T51hYdDw9CC',
         'local', 'ADVISOR', NULL, TRUE);
 
 -- user_id 7: STAFF level 1 (tập thể lớp)
 INSERT INTO `user` (`email`, `password_hash`, `auth_provider`, `role`, `staff_level`, `enabled`)
 VALUES ('tapthe.lop@utc2.edu.vn',
-        '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lHHi',
+        '$2a$12$1r6iM2aHetFoGWmajB1EBegjLTRrjUjyB.SBD85TR/T51hYdDw9CC',
         'local', 'STAFF', 1, TRUE);
 
 -- user_id 8: STAFF level 2 (giảng viên)
 INSERT INTO `user` (`email`, `password_hash`, `auth_provider`, `role`, `staff_level`, `enabled`)
 VALUES ('giangvien@utc2.edu.vn',
-        '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lHHi',
+        '$2a$12$1r6iM2aHetFoGWmajB1EBegjLTRrjUjyB.SBD85TR/T51hYdDw9CC',
         'local', 'STAFF', 2, TRUE);
 
 -- user_id 9: STAFF level 3 (bộ môn)
 INSERT INTO `user` (`email`, `password_hash`, `auth_provider`, `role`, `staff_level`, `enabled`)
 VALUES ('bomon@utc2.edu.vn',
-        '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lHHi',
+        '$2a$12$1r6iM2aHetFoGWmajB1EBegjLTRrjUjyB.SBD85TR/T51hYdDw9CC',
         'local', 'STAFF', 3, TRUE);
 
 -- user_id 10: STAFF level 4 (khoa)
 INSERT INTO `user` (`email`, `password_hash`, `auth_provider`, `role`, `staff_level`, `enabled`)
 VALUES ('khoa@utc2.edu.vn',
-        '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lHHi',
+        '$2a$12$1r6iM2aHetFoGWmajB1EBegjLTRrjUjyB.SBD85TR/T51hYdDw9CC',
         'local', 'STAFF', 4, TRUE);
 
 -- user_id 11: STAFF level 5 (phòng giáo vụ/trường)
 INSERT INTO `user` (`email`, `password_hash`, `auth_provider`, `role`, `staff_level`, `enabled`)
 VALUES ('pgv@utc2.edu.vn',
-        '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lHHi',
+        '$2a$12$1r6iM2aHetFoGWmajB1EBegjLTRrjUjyB.SBD85TR/T51hYdDw9CC',
         'local', 'STAFF', 5, TRUE);
 
 -- ─── 3. user_profile cho các user mới ────────────────────────────────────────
