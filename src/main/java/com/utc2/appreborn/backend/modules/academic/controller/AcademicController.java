@@ -9,33 +9,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * AcademicController — Kết quả học tập
- *
- * Base: /api/v1/academic
- *
- * userId (optional):
- *   - Không truyền → dùng token của user đang login (App mobile)
- *   - Truyền vào   → xem data của user đó (Admin web)
- */
-/**
- * AcademicController — Kết quả học tập
- *
- * Base: /api/v1/academic
- *
- * Endpoints:
- *  GET /semesters              → danh sách kỳ học của sinh viên
- *  GET /grades?semesterId=     → điểm các môn (null = tất cả kỳ)
- *  GET /leaderboard?semesterId=&academicYear= → bảng xếp hạng GPA
- *  GET /scholarships           → danh sách học bổng + trạng thái
- *  GET /warnings?semesterId=   → cảnh báo học vụ (null = tất cả kỳ)
- */
 @RestController
 @RequestMapping("/api/v1/academic")
 @RequiredArgsConstructor
 public class AcademicController {
 
     private final AcademicService academicService;
+
+    // ── Student / App (GET) ───────────────────────────────────────────────
 
     @GetMapping("/semesters")
     public ResponseEntity<ApiResponse<List<SemesterDto>>> getSemesters(
@@ -69,5 +50,44 @@ public class AcademicController {
             @RequestParam(required = false) Long userId,
             @RequestParam(required = false) Long semesterId) {
         return ResponseEntity.ok(ApiResponse.success(academicService.getWarnings(userId, semesterId)));
+    }
+
+    // ── STAFF lv2: Giảng viên nhập điểm theo môn + lớp ──────────────────
+
+    /** Lấy danh sách sinh viên theo courseId + className để nhập điểm hàng loạt */
+    @GetMapping("/grades/by-course")
+    public ResponseEntity<ApiResponse<List<GradesByCourseDto>>> getGradesByCourse(
+            @RequestParam Long courseId,
+            @RequestParam(required = false) String className) {
+        return ResponseEntity.ok(ApiResponse.success(
+                academicService.getGradesByCourse(courseId, className)));
+    }
+
+    /** Nhập/cập nhật điểm 1 enrollment */
+    @PutMapping("/grades/{enrollmentId}")
+    public ResponseEntity<ApiResponse<CourseGradeDto>> updateGrade(
+            @PathVariable Long enrollmentId,
+            @RequestBody GradeUpdateDto dto) {
+        return ResponseEntity.ok(ApiResponse.success(academicService.updateGrade(enrollmentId, dto)));
+    }
+
+    // ── ADVISOR: Cố vấn học tập quản lý warning + scholarship ────────────
+
+    @PostMapping("/warnings")
+    public ResponseEntity<ApiResponse<AcademicWarningDto>> upsertWarning(
+            @RequestBody WarningUpsertDto dto) {
+        return ResponseEntity.ok(ApiResponse.success(academicService.upsertWarning(dto)));
+    }
+
+    @DeleteMapping("/warnings/{warningId}")
+    public ResponseEntity<ApiResponse<Void>> deleteWarning(@PathVariable Long warningId) {
+        academicService.deleteWarning(warningId);
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
+
+    @PutMapping("/scholarships/status")
+    public ResponseEntity<ApiResponse<ScholarshipDto>> updateScholarshipStatus(
+            @RequestBody ScholarshipUpsertDto dto) {
+        return ResponseEntity.ok(ApiResponse.success(academicService.updateScholarshipStatus(dto)));
     }
 }

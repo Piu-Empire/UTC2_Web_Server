@@ -19,4 +19,7 @@ public class SemesterDto {
     private Double  gpa;
     private Integer totalCredits;
     private Integer passedCredits;
+    // Thông tin sinh viên (dùng cho Admin web)
+    private String  fullName;
+    private String  studentCode;
 }

@@ -45,8 +45,11 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse login(LoginRequest request) {
-        // Ghép email từ MSSV: "2211020001" → "2211020001@st.utc2.edu.vn"
-        String email = request.getStudentCode() + STUDENT_DOMAIN;
+        // Nếu input đã là email đầy đủ (chứa @) thì dùng nguyên,
+        // ngược lại ghép domain sinh viên: "2211020001" → "2211020001@st.utc2.edu.vn"
+        String email = request.getStudentCode().contains("@")
+                ? request.getStudentCode()
+                : request.getStudentCode() + STUDENT_DOMAIN;
 
         // 1. Xác thực email + password
         authenticationManager.authenticate(
@@ -66,6 +69,8 @@ public class AuthServiceImpl implements AuthService {
                 .tokenType("Bearer")
                 .email(email)
                 .studentCode(studentCode)
+                .role(user.getRole() != null ? user.getRole().name() : null)
+                .staffLevel(user.getStaffLevel())
                 .build();
     }
 
@@ -113,6 +118,8 @@ public class AuthServiceImpl implements AuthService {
                     .tokenType("Bearer")
                     .email(email)
                     .studentCode(studentCode)
+                    .role(user.getRole() != null ? user.getRole().name() : null)
+                    .staffLevel(user.getStaffLevel())
                     .build();
 
         } catch (RuntimeException e) {

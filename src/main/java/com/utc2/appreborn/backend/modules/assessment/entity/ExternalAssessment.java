@@ -33,6 +33,9 @@ public class ExternalAssessment {
     @Column(name = "tap_the_score", nullable = false, precision = 5, scale = 2)
     private BigDecimal tapTheScore;
 
+    @Column(name = "bo_mon_score", nullable = false, precision = 5, scale = 2)
+    private BigDecimal boMonScore;
+
     @Column(name = "khoa_score", nullable = false, precision = 5, scale = 2)
     private BigDecimal khoaScore;
 
