@@ -237,41 +237,250 @@ public class ScheduleServiceImpl implements ScheduleService {
     // IMPORT Excel
     // ════════════════════════════════════════════════════════════════════════
 
-    /**
-     * Cột Excel (0-indexed):
-     * 0 section_code (tra ra section_id)
-     * 1 user_id
-     * 2 day_of_week
-     * 3 start_period
-     * 4 end_period
-     * 5 start_time (HH:mm)
-     * 6 end_time (HH:mm)
-     * 7 room
-     * 8 building
-     * 9 lecturer_name (server tự tra lecturer_id từ user_profile)
-     * 10 week_start
-     * 11 week_end
-     * 12 notes
-     */
+    private LocalDate resolveSemesterStartDate(Long sectionId) {
+        try {
+            Object result = em.createNativeQuery(
+                    "SELECT sem.start_date FROM semester sem " +
+                            "JOIN class_section cs ON cs.semester_id = sem.semester_id " +
+                            "WHERE cs.section_id = :sid")
+                    .setParameter("sid", sectionId)
+                    .getSingleResult();
+            if (result instanceof java.sql.Date d) {
+                return d.toLocalDate();
+            } else if (result instanceof java.time.LocalDate ld) {
+                return ld;
+            }
+        } catch (Exception ignored) {
+        }
+        return null;
+    }
+
+    private LocalDate parseDate(String s) {
+        if (s == null || s.isBlank())
+            return null;
+        try {
+            return LocalDate.parse(s.trim(), DATE_FMT);
+        } catch (Exception e) {
+            try {
+                return LocalDate.parse(s.trim());
+            } catch (Exception ignored) {
+            }
+        }
+        return null;
+    }
+
+    private Integer parseDayOfWeek(String s) {
+        if (s == null || s.isBlank())
+            return null;
+        String val = s.trim().toUpperCase();
+        if (val.contains("CN") || val.contains("CHỦ NHẬT"))
+            return 8;
+        String digit = val.replaceAll("\\D+", "");
+        if (!digit.isEmpty()) {
+            try {
+                return Integer.parseInt(digit);
+            } catch (Exception ignored) {
+            }
+        }
+        return null;
+    }
+
+    private LocalTime getStartTimeOfPeriod(Integer period) {
+        if (period == null)
+            return null;
+        return switch (period) {
+            case 1 -> LocalTime.of(7, 0);
+            case 2 -> LocalTime.of(7, 50);
+            case 3 -> LocalTime.of(8, 40);
+            case 4 -> LocalTime.of(9, 35);
+            case 5 -> LocalTime.of(10, 25);
+            case 6 -> LocalTime.of(13, 0);
+            case 7 -> LocalTime.of(13, 50);
+            case 8 -> LocalTime.of(14, 40);
+            case 9 -> LocalTime.of(15, 35);
+            case 10 -> LocalTime.of(16, 25);
+            case 11 -> LocalTime.of(18, 0);
+            case 12 -> LocalTime.of(18, 50);
+            default -> null;
+        };
+    }
+
+    private LocalTime getEndTimeOfPeriod(Integer period) {
+        if (period == null)
+            return null;
+        return switch (period) {
+            case 1 -> LocalTime.of(7, 45);
+            case 2 -> LocalTime.of(8, 35);
+            case 3 -> LocalTime.of(9, 25);
+            case 4 -> LocalTime.of(10, 20);
+            case 5 -> LocalTime.of(11, 10);
+            case 6 -> LocalTime.of(13, 45);
+            case 7 -> LocalTime.of(14, 35);
+            case 8 -> LocalTime.of(15, 25);
+            case 9 -> LocalTime.of(16, 20);
+            case 10 -> LocalTime.of(17, 10);
+            case 11 -> LocalTime.of(18, 45);
+            case 12 -> LocalTime.of(19, 35);
+            default -> null;
+        };
+    }
+
     @Override
     @Transactional
     public void importExcel(MultipartFile file, Integer scheduleType, boolean overwrite) throws IOException {
         try (Workbook wb = WorkbookFactory.create(file.getInputStream())) {
             Sheet sheet = wb.getSheetAt(0);
-            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+
+            // Find header row and map columns
+            int headerRowIndex = -1;
+            int colMãHP = -1;
+            int colLớpHP = -1;
+            int colThứ = -1;
+            int colTiết = -1;
+            int colPhòng = -1;
+            int colNgàyBD = -1;
+            int colNgàyKT = -1;
+            int colGiáoViên = -1;
+            int colGhiChú = -1;
+
+            int scanLimit = Math.min(sheet.getLastRowNum(), 20);
+            int maxMatches = -1;
+            for (int r = 0; r <= scanLimit; r++) {
+                Row row = sheet.getRow(r);
+                if (row == null)
+                    continue;
+                int matches = 0;
+                for (int c = 0; c < row.getLastCellNum(); c++) {
+                    String val = cellStr(row, c);
+                    if (val == null)
+                        continue;
+                    val = val.trim().toLowerCase();
+                    if (val.contains("mã hp") || val.contains("mã môn") || val.contains("mã học phần")
+                            || val.contains("mã hp"))
+                        matches++;
+                    if (val.contains("lớp") || val.contains("lop") || val.contains("section") || val.contains("class"))
+                        matches++;
+                    if (val.contains("thứ") || val.contains("thu") || val.contains("day"))
+                        matches++;
+                    if (val.contains("tiết") || val.contains("tiet") || val.contains("period"))
+                        matches++;
+                    if (val.contains("phòng") || val.contains("phong") || val.equals("phg") || val.equals("room"))
+                        matches++;
+                    if (val.contains("giáo viên") || val.contains("giảng viên") || val.contains("gv")
+                            || val.contains("lecturer") || val.contains("cb giảng"))
+                        matches++;
+                }
+                if (matches >= 3 && matches > maxMatches) {
+                    maxMatches = matches;
+                    headerRowIndex = r;
+                }
+            }
+
+            if (headerRowIndex != -1) {
+                // Map column indices
+                Row headerRow = sheet.getRow(headerRowIndex);
+                for (int c = 0; c < headerRow.getLastCellNum(); c++) {
+                    String header = cellStr(headerRow, c);
+                    if (header == null)
+                        continue;
+                    header = header.trim().toLowerCase();
+                    if (header.contains("mã hp") || header.contains("mã môn") || header.contains("mã học phần")
+                            || header.contains("mãhp"))
+                        colMãHP = c;
+                    else if (header.contains("lớp học phần") || header.contains("lớp hp") || header.contains("mã lớp")
+                            || header.equals("lớp") || header.contains("lớphp") || header.contains("class section"))
+                        colLớpHP = c;
+                    else if (header.contains("thứ") || header.contains("day of week") || header.equals("thứ"))
+                        colThứ = c;
+                    else if (header.contains("tiết") || header.contains("period") || header.contains("tiet")
+                            || header.contains("giờ thi") || header.contains("gio thi") || header.contains("giothi"))
+                        colTiết = c;
+                    else if (header.contains("phòng") || header.equals("room") || header.equals("phg")
+                            || header.contains("phòng học") || header.contains("phòng thi") || header.contains("phong thi") || header.contains("phongthi"))
+                        colPhòng = c;
+                    else if (header.contains("ngày bd") || header.contains("bắt đầu") || header.contains("start date")
+                            || header.contains("ngaybd") || header.contains("ngày thi") || header.contains("ngay thi") || header.contains("ngaythi"))
+                        colNgàyBD = c;
+                    else if (header.contains("ngày kt") || header.contains("kết thúc") || header.contains("end date")
+                            || header.contains("ngaykt"))
+                        colNgàyKT = c;
+                    else if (header.contains("giáo viên") || header.contains("giảng viên") || header.contains("gv")
+                            || header.contains("lecturer") || header.contains("tên gv") || header.contains("cb giảng"))
+                        colGiáoViên = c;
+                    else if (header.contains("nhóm kiểm soát") || header.contains("ghi chú") || header.contains("note"))
+                        colGhiChú = c;
+                }
+            }
+
+            // Fallback default column indices if header not found
+            if (headerRowIndex == -1) {
+                headerRowIndex = 7; // default standard template header row
+                colMãHP = 1;
+                colLớpHP = 3;
+                colThứ = 5;
+                colTiết = 6;
+                colPhòng = 8;
+                colNgàyBD = 9;
+                colNgàyKT = 10;
+                colGiáoViên = 11;
+                colGhiChú = 12;
+            }
+
+            for (int i = headerRowIndex + 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
                 if (row == null)
                     continue;
 
-                String sectionCode = cellStr(row, 0);
+                // If row seems empty or header value is missing, skip
+                String sectionCode = colLớpHP != -1 ? cellStr(row, colLớpHP) : null;
+                if (sectionCode == null || sectionCode.isBlank())
+                    continue;
+
                 Long sectionId = resolveSectionId(sectionCode);
                 if (sectionId == null)
-                    continue; // bỏ qua dòng không tìm được lớp
+                    continue; // skip row if class section code is invalid/not found
 
-                Long userId = cellLong(row, 1);
+                Integer dayOfWeek = colThứ != -1 ? parseDayOfWeek(cellStr(row, colThứ)) : null;
 
-                if (overwrite) {
-                    // Xóa bản ghi cũ cùng section + scheduleType + day + period
+                Integer startPeriod = null;
+                Integer endPeriod = null;
+                LocalTime startTime = null;
+                LocalTime endTime = null;
+
+                if (colTiết != -1) {
+                    String tietStr = cellStr(row, colTiết);
+                    if (tietStr != null && !tietStr.isBlank()) {
+                        if (tietStr.contains(":")) {
+                            // Time format: "07:30 - 09:30" or "07:30"
+                            String[] parts = tietStr.split("->|-");
+                            if (parts.length > 0) {
+                                startTime = parseTime(parts[0].trim());
+                                if (parts.length > 1) {
+                                    endTime = parseTime(parts[1].trim());
+                                } else if (startTime != null) {
+                                    endTime = startTime.plusMinutes(90); // default 90 min duration
+                                }
+                            }
+                        } else {
+                            // Period format: "1->3" or "1"
+                            String[] parts = tietStr.split("->|-");
+                            if (parts.length > 0) {
+                                try {
+                                    startPeriod = Integer.parseInt(parts[0].trim());
+                                    if (parts.length > 1) {
+                                        endPeriod = Integer.parseInt(parts[1].trim());
+                                    } else {
+                                        endPeriod = startPeriod;
+                                    }
+                                    startTime = getStartTimeOfPeriod(startPeriod);
+                                    endTime = getEndTimeOfPeriod(endPeriod);
+                                } catch (Exception ignored) {}
+                            }
+                        }
+                    }
+                }
+
+                if (overwrite && dayOfWeek != null && startPeriod != null) {
                     em.createNativeQuery("""
                             DELETE FROM schedule
                             WHERE section_id = :sid
@@ -281,28 +490,64 @@ public class ScheduleServiceImpl implements ScheduleService {
                             """)
                             .setParameter("sid", sectionId)
                             .setParameter("type", scheduleType)
-                            .setParameter("dow", cellInt(row, 2))
-                            .setParameter("sp", cellInt(row, 3))
+                            .setParameter("dow", dayOfWeek)
+                            .setParameter("sp", startPeriod)
                             .executeUpdate();
                 }
 
-                String lecturerName = cellStr(row, 9);
+                String room = colPhòng != -1 ? cellStr(row, colPhòng) : null;
+                if (room != null) {
+                    room = room.trim();
+                    if (room.equalsIgnoreCase("0e0") || room.equals("0") || room.equals("0.0")) {
+                        room = "";
+                    }
+                }
+                String building = null;
+
+                String dateBDStr = colNgàyBD != -1 ? cellStr(row, colNgàyBD) : null;
+                String dateKTStr = colNgàyKT != -1 ? cellStr(row, colNgàyKT) : null;
+                if (dateKTStr == null) {
+                    dateKTStr = dateBDStr;
+                }
+
+                LocalDate semStart = resolveSemesterStartDate(sectionId);
+                Integer weekStart = null;
+                Integer weekEnd = null;
+
+                if (semStart != null) {
+                    LocalDate dateBD = parseDate(dateBDStr);
+                    LocalDate dateKT = parseDate(dateKTStr);
+                    if (dateBD != null) {
+                        long days = java.time.temporal.ChronoUnit.DAYS.between(semStart, dateBD);
+                        weekStart = (int) (days / 7) + 1;
+                        if (dayOfWeek == null) {
+                            dayOfWeek = dateBD.getDayOfWeek().getValue() + 1;
+                        }
+                    }
+                    if (dateKT != null) {
+                        long days = java.time.temporal.ChronoUnit.DAYS.between(semStart, dateKT);
+                        weekEnd = (int) (days / 7) + 1;
+                    }
+                }
+
+                String lecturerName = colGiáoViên != -1 ? cellStr(row, colGiáoViên) : null;
+                String notes = colGhiChú != -1 ? cellStr(row, colGhiChú) : null;
+
                 ScheduleEntity e = ScheduleEntity.builder()
-                        .userId(userId)
                         .sectionId(sectionId)
-                        .dayOfWeek(cellInt(row, 2))
-                        .startPeriod(cellInt(row, 3))
-                        .endPeriod(cellInt(row, 4))
-                        .startTime(parseTime(cellStr(row, 5)))
-                        .endTime(parseTime(cellStr(row, 6)))
-                        .room(cellStr(row, 7))
-                        .building(cellStr(row, 8))
+                        .dayOfWeek(dayOfWeek)
+                        .startPeriod(startPeriod)
+                        .endPeriod(endPeriod)
+                        .startTime(startTime)
+                        .endTime(endTime)
+                        .room(room)
+                        .building(building)
                         .lecturerName(lecturerName)
                         .lecturerId(resolveLecturerId(lecturerName))
-                        .weekStart(cellInt(row, 10))
-                        .weekEnd(cellInt(row, 11))
+                        .weekStart(weekStart)
+                        .weekEnd(weekEnd)
                         .scheduleType(scheduleType)
-                        .notes(cellStr(row, 12))
+                        .notes(notes)
                         .build();
                 scheduleRepository.save(e);
             }
