@@ -24,6 +24,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -327,7 +328,10 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Override
     @Transactional
-    public void importExcel(MultipartFile file, Integer scheduleType, boolean overwrite) throws IOException {
+    public ImportResultDto importExcel(MultipartFile file, Integer scheduleType, boolean overwrite) throws IOException {
+        List<ImportResultDto.RowError> errors = new ArrayList<>();
+        int successCount = 0;
+
         try (Workbook wb = WorkbookFactory.create(file.getInputStream())) {
             Sheet sheet = wb.getSheetAt(0);
 
@@ -337,182 +341,226 @@ public class ScheduleServiceImpl implements ScheduleService {
             int colLớpHP = -1;
             int colThứ = -1;
             int colTiết = -1;
+            int colSốTiết = -1;
             int colPhòng = -1;
             int colNgàyBD = -1;
             int colNgàyKT = -1;
             int colGiáoViên = -1;
             int colGhiChú = -1;
 
-            int scanLimit = Math.min(sheet.getLastRowNum(), 20);
-            int maxMatches = -1;
-            for (int r = 0; r <= scanLimit; r++) {
-                Row row = sheet.getRow(r);
-                if (row == null)
-                    continue;
-                int matches = 0;
-                for (int c = 0; c < row.getLastCellNum(); c++) {
-                    String val = cellStr(row, c);
-                    if (val == null)
-                        continue;
-                    val = val.trim().toLowerCase();
-                    if (val.contains("mã hp") || val.contains("mã môn") || val.contains("mã học phần")
-                            || val.contains("mã hp"))
-                        matches++;
-                    if (val.contains("lớp") || val.contains("lop") || val.contains("section") || val.contains("class"))
-                        matches++;
-                    if (val.contains("thứ") || val.contains("thu") || val.contains("day"))
-                        matches++;
-                    if (val.contains("tiết") || val.contains("tiet") || val.contains("period"))
-                        matches++;
-                    if (val.contains("phòng") || val.contains("phong") || val.equals("phg") || val.equals("room"))
-                        matches++;
-                    if (val.contains("giáo viên") || val.contains("giảng viên") || val.contains("gv")
-                            || val.contains("lecturer") || val.contains("cb giảng"))
-                        matches++;
-                }
-                if (matches >= 3 && matches > maxMatches) {
-                    maxMatches = matches;
-                    headerRowIndex = r;
+            // For exam schedule: GIỜ THI is time range like "07:30 - 09:30"
+            int colGiờThi = -1;
+            int colNgàyThi = -1;
+            int colPhòngThi = -1;
+
+            // Determine header row: if scheduleType 2 or 3 (exam), header is row index 7
+            // For study schedule (type 1), also row index 7
+            int fixedHeaderRow = 7;
+            if (sheet.getLastRowNum() >= fixedHeaderRow) {
+                Row hRow = sheet.getRow(fixedHeaderRow);
+                if (hRow != null && hRow.getLastCellNum() > 0) {
+                    int matchCount = 0;
+                    for (int c = 0; c < hRow.getLastCellNum(); c++) {
+                        String v = normStr(cellStr(hRow, c));
+                        if (v.contains("lop") || v.contains("ma") || v.contains("phong") || v.contains("tiet") || v.contains("thu") || v.contains("ngay"))
+                            matchCount++;
+                    }
+                    if (matchCount >= 2) headerRowIndex = fixedHeaderRow;
                 }
             }
 
-            if (headerRowIndex != -1) {
-                // Map column indices
-                Row headerRow = sheet.getRow(headerRowIndex);
+            // Fallback: scan first 20 rows
+            if (headerRowIndex == -1) {
+                int scanLimit = Math.min(sheet.getLastRowNum(), 20);
+                int maxMatches = -1;
+                for (int r = 0; r <= scanLimit; r++) {
+                    Row row = sheet.getRow(r);
+                    if (row == null) continue;
+                    int matches = 0;
+                    for (int c = 0; c < row.getLastCellNum(); c++) {
+                        String val = normStr(cellStr(row, c));
+                        if (val.contains("ma hp") || val.contains("ma mon") || val.contains("ma hoc phan")) matches++;
+                        if (val.contains("lop") || val.contains("section") || val.contains("class")) matches++;
+                        if (val.contains("thu") || val.contains("day")) matches++;
+                        if (val.contains("tiet") || val.contains("period") || val.contains("gio thi")) matches++;
+                        if (val.contains("phong") || val.equals("room")) matches++;
+                        if (val.contains("giao vien") || val.contains("giang vien") || val.contains("gv")) matches++;
+                    }
+                    if (matches >= 2 && matches > maxMatches) {
+                        maxMatches = matches;
+                        headerRowIndex = r;
+                    }
+                }
+            }
+
+            if (headerRowIndex == -1) headerRowIndex = 7; // absolute fallback
+
+            // Map column indices from header row
+            Row headerRow = sheet.getRow(headerRowIndex);
+            if (headerRow != null) {
                 for (int c = 0; c < headerRow.getLastCellNum(); c++) {
-                    String header = cellStr(headerRow, c);
-                    if (header == null)
-                        continue;
-                    header = header.trim().toLowerCase();
-                    if (header.contains("mã hp") || header.contains("mã môn") || header.contains("mã học phần")
-                            || header.contains("mãhp"))
+                    String header = normStr(cellStr(headerRow, c));
+                    if (header.isEmpty()) continue;
+
+                    if (header.contains("ma hoc phan") || (header.contains("ma") && header.contains("hp")))
                         colMãHP = c;
-                    else if (header.contains("lớp học phần") || header.contains("lớp hp") || header.contains("mã lớp")
-                            || header.equals("lớp") || header.contains("lớphp") || header.contains("class section"))
+                    else if (header.contains("lop hoc phan") || (header.contains("lop") && !header.contains("phong")))
                         colLớpHP = c;
-                    else if (header.contains("thứ") || header.contains("day of week") || header.equals("thứ"))
+                    else if (header.equals("thu") || header.contains("thu ") || header.equals("day of week"))
                         colThứ = c;
-                    else if (header.contains("tiết") || header.contains("period") || header.contains("tiet")
-                            || header.contains("giờ thi") || header.contains("gio thi") || header.contains("giothi"))
+                    else if (header.contains("tiet hoc") || header.equals("tiet") || header.contains("period") || (header.contains("tiet") && !header.contains("so tiet")))
                         colTiết = c;
-                    else if (header.contains("phòng") || header.equals("room") || header.equals("phg")
-                            || header.contains("phòng học") || header.contains("phòng thi") || header.contains("phong thi") || header.contains("phongthi"))
+                    else if (header.contains("so tiet"))
+                        colSốTiết = c;
+                    else if (header.contains("gio thi") && !header.contains("gio thi 1"))
+                        colGiờThi = c;
+                    else if (header.contains("ngay thi"))
+                        colNgàyThi = c;
+                    else if (header.contains("phong thi"))
+                        colPhòngThi = c;
+                    else if (header.contains("phong hoc") || (header.contains("phong") && !header.contains("thi")))
                         colPhòng = c;
-                    else if (header.contains("ngày bd") || header.contains("bắt đầu") || header.contains("start date")
-                            || header.contains("ngaybd") || header.contains("ngày thi") || header.contains("ngay thi") || header.contains("ngaythi"))
+                    else if (header.contains("ngay bd") || header.contains("ngay bat dau") || header.contains("ngaybd"))
                         colNgàyBD = c;
-                    else if (header.contains("ngày kt") || header.contains("kết thúc") || header.contains("end date")
-                            || header.contains("ngaykt"))
+                    else if (header.contains("ngay kt") || header.contains("ngay ket thuc") || header.contains("ngaykt"))
                         colNgàyKT = c;
-                    else if (header.contains("giáo viên") || header.contains("giảng viên") || header.contains("gv")
-                            || header.contains("lecturer") || header.contains("tên gv") || header.contains("cb giảng"))
+                    else if (header.contains("giao vien") || header.contains("giang vien") || header.contains("lecturer") || header.contains("cb giang"))
                         colGiáoViên = c;
-                    else if (header.contains("nhóm kiểm soát") || header.contains("ghi chú") || header.contains("note"))
+                    else if (header.contains("nhom kiem soat") || header.contains("ghi chu") || header.contains("note"))
                         colGhiChú = c;
                 }
             }
 
-            // Fallback default column indices if header not found
-            if (headerRowIndex == -1) {
-                headerRowIndex = 7; // default standard template header row
-                colMãHP = 1;
-                colLớpHP = 3;
-                colThứ = 5;
-                colTiết = 6;
-                colPhòng = 8;
-                colNgàyBD = 9;
-                colNgàyKT = 10;
-                colGiáoViên = 11;
-                colGhiChú = 12;
+            // Exam schedule: merge colGiờThi → colTiết, colNgàyThi → colNgàyBD, colPhòngThi → colPhòng
+            if (scheduleType != null && (scheduleType == 2 || scheduleType == 3)) {
+                if (colGiờThi != -1 && colTiết == -1) colTiết = colGiờThi;
+                if (colNgàyThi != -1 && colNgàyBD == -1) colNgàyBD = colNgàyThi;
+                if (colPhòngThi != -1 && colPhòng == -1) colPhòng = colPhòngThi;
             }
 
             for (int i = headerRowIndex + 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
-                if (row == null)
+                if (row == null) continue;
+
+                // Skip rows where both section name and course code are blank
+                String rawLớpHP = colLớpHP != -1 ? cellStr(row, colLớpHP) : null;
+                String rawMãHP  = colMãHP  != -1 ? cellStr(row, colMãHP)  : null;
+
+                if ((rawLớpHP == null || rawLớpHP.isBlank()) && (rawMãHP == null || rawMãHP.isBlank()))
                     continue;
 
-                // If row seems empty or header value is missing, skip
-                String sectionCode = colLớpHP != -1 ? cellStr(row, colLớpHP) : null;
-                if (sectionCode == null || sectionCode.isBlank())
-                    continue;
+                // --- resolve sectionId ---
+                Long sectionId = null;
+                String skipReason = null;
 
-                Long sectionId = resolveSectionId(sectionCode);
-                if (sectionId == null)
-                    continue; // skip row if class section code is invalid/not found
+                if (rawLớpHP != null && !rawLớpHP.isBlank()) {
+                    // Try exact match by section_code first
+                    sectionId = resolveSectionId(rawLớpHP.trim());
+                    // If not found, try by partial name match
+                    if (sectionId == null) {
+                        sectionId = resolveSectionIdByName(rawLớpHP.trim());
+                    }
+                    if (sectionId == null && rawMãHP != null && !rawMãHP.isBlank()) {
+                        // Try resolving by course_code from Mã HP + matching section name
+                        sectionId = resolveSectionIdByCourseAndName(rawMãHP.trim(), rawLớpHP.trim());
+                    }
+                    if (sectionId == null) {
+                        skipReason = "Không tìm thấy lớp học phần: \"" + rawLớpHP.trim() + "\"";
+                    }
+                } else if (rawMãHP != null && !rawMãHP.isBlank()) {
+                    sectionId = resolveSectionIdByCourseCode(rawMãHP.trim());
+                    if (sectionId == null) {
+                        skipReason = "Không tìm thấy mã học phần: \"" + rawMãHP.trim() + "\"";
+                    }
+                }
+
+                if (sectionId == null) {
+                    errors.add(ImportResultDto.RowError.builder()
+                            .row(i + 1)
+                            .field(rawLớpHP != null && !rawLớpHP.isBlank() ? "Lớp học phần" : "Mã HP")
+                            .message(skipReason != null ? skipReason : "Thiếu mã lớp học phần hoặc mã học phần")
+                            .build());
+                    continue;
+                }
 
                 Integer dayOfWeek = colThứ != -1 ? parseDayOfWeek(cellStr(row, colThứ)) : null;
 
                 Integer startPeriod = null;
-                Integer endPeriod = null;
+                Integer endPeriod   = null;
                 LocalTime startTime = null;
-                LocalTime endTime = null;
+                LocalTime endTime   = null;
 
                 if (colTiết != -1) {
                     String tietStr = cellStr(row, colTiết);
                     if (tietStr != null && !tietStr.isBlank()) {
                         if (tietStr.contains(":")) {
-                            // Time format: "07:30 - 09:30" or "07:30"
-                            String[] parts = tietStr.split("->|-");
+                            // Time format: "07:30 - 09:30"
+                            String[] parts = tietStr.split("->");
+                            if (parts.length == 1) parts = tietStr.split("-(?=\\s*\\d{2}:)");
                             if (parts.length > 0) {
                                 startTime = parseTime(parts[0].trim());
-                                if (parts.length > 1) {
-                                    endTime = parseTime(parts[1].trim());
-                                } else if (startTime != null) {
-                                    endTime = startTime.plusMinutes(90); // default 90 min duration
-                                }
+                                endTime   = parts.length > 1 ? parseTime(parts[1].trim()) : (startTime != null ? startTime.plusMinutes(90) : null);
                             }
                         } else {
-                            // Period format: "1->3" or "1"
+                            // Period format: "6->10" or "1-5" or "6"
                             String[] parts = tietStr.split("->|-");
-                            if (parts.length > 0) {
-                                try {
-                                    startPeriod = Integer.parseInt(parts[0].trim());
-                                    if (parts.length > 1) {
-                                        endPeriod = Integer.parseInt(parts[1].trim());
-                                    } else {
-                                        endPeriod = startPeriod;
+                            try {
+                                startPeriod = Integer.parseInt(parts[0].trim());
+                                endPeriod   = parts.length > 1 ? Integer.parseInt(parts[1].trim()) : startPeriod;
+                                // If colSốTiết available, override endPeriod
+                                if (colSốTiết != -1) {
+                                    String soTiet = cellStr(row, colSốTiết);
+                                    if (soTiet != null && !soTiet.isBlank()) {
+                                        try { endPeriod = startPeriod + Integer.parseInt(soTiet.trim()) - 1; } catch (Exception ignored) {}
                                     }
-                                    startTime = getStartTimeOfPeriod(startPeriod);
-                                    endTime = getEndTimeOfPeriod(endPeriod);
-                                } catch (Exception ignored) {}
-                            }
+                                }
+                                startTime = getStartTimeOfPeriod(startPeriod);
+                                endTime   = getEndTimeOfPeriod(endPeriod);
+                            } catch (Exception ignored) {}
                         }
                     }
                 }
 
-                if (overwrite && dayOfWeek != null && startPeriod != null) {
-                    em.createNativeQuery("""
-                            DELETE FROM schedule
-                            WHERE section_id = :sid
-                              AND schedule_type = :type
-                              AND day_of_week = :dow
-                              AND start_period = :sp
-                            """)
-                            .setParameter("sid", sectionId)
-                            .setParameter("type", scheduleType)
-                            .setParameter("dow", dayOfWeek)
-                            .setParameter("sp", startPeriod)
-                            .executeUpdate();
+                if (overwrite && sectionId != null) {
+                    if (dayOfWeek != null && startPeriod != null) {
+                        em.createNativeQuery("""
+                                DELETE FROM schedule
+                                WHERE section_id = :sid
+                                  AND schedule_type = :type
+                                  AND day_of_week = :dow
+                                  AND start_period = :sp
+                                """)
+                                .setParameter("sid", sectionId)
+                                .setParameter("type", scheduleType)
+                                .setParameter("dow", dayOfWeek)
+                                .setParameter("sp", startPeriod)
+                                .executeUpdate();
+                    } else if (startTime != null) {
+                        // For exam schedules (time-based)
+                        em.createNativeQuery("""
+                                DELETE FROM schedule
+                                WHERE section_id = :sid
+                                  AND schedule_type = :type
+                                """)
+                                .setParameter("sid", sectionId)
+                                .setParameter("type", scheduleType)
+                                .executeUpdate();
+                    }
                 }
 
                 String room = colPhòng != -1 ? cellStr(row, colPhòng) : null;
                 if (room != null) {
                     room = room.trim();
-                    if (room.equalsIgnoreCase("0e0") || room.equals("0") || room.equals("0.0")) {
-                        room = "";
-                    }
+                    if (room.equalsIgnoreCase("0e0") || room.equals("0") || room.equals("0.0")) room = "";
                 }
-                String building = null;
 
                 String dateBDStr = colNgàyBD != -1 ? cellStr(row, colNgàyBD) : null;
                 String dateKTStr = colNgàyKT != -1 ? cellStr(row, colNgàyKT) : null;
-                if (dateKTStr == null) {
-                    dateKTStr = dateBDStr;
-                }
+                if (dateKTStr == null || dateKTStr.isBlank()) dateKTStr = dateBDStr;
 
                 LocalDate semStart = resolveSemesterStartDate(sectionId);
-                Integer weekStart = null;
-                Integer weekEnd = null;
+                Integer weekStart  = null;
+                Integer weekEnd    = null;
 
                 if (semStart != null) {
                     LocalDate dateBD = parseDate(dateBDStr);
@@ -531,7 +579,7 @@ public class ScheduleServiceImpl implements ScheduleService {
                 }
 
                 String lecturerName = colGiáoViên != -1 ? cellStr(row, colGiáoViên) : null;
-                String notes = colGhiChú != -1 ? cellStr(row, colGhiChú) : null;
+                String notes        = colGhiChú   != -1 ? cellStr(row, colGhiChú)   : null;
 
                 ScheduleEntity e = ScheduleEntity.builder()
                         .sectionId(sectionId)
@@ -541,7 +589,6 @@ public class ScheduleServiceImpl implements ScheduleService {
                         .startTime(startTime)
                         .endTime(endTime)
                         .room(room)
-                        .building(building)
                         .lecturerName(lecturerName)
                         .lecturerId(resolveLecturerId(lecturerName))
                         .weekStart(weekStart)
@@ -550,8 +597,15 @@ public class ScheduleServiceImpl implements ScheduleService {
                         .notes(notes)
                         .build();
                 scheduleRepository.save(e);
+                successCount++;
             }
         }
+
+        return ImportResultDto.builder()
+                .success(successCount)
+                .failed(errors.size())
+                .errors(errors)
+                .build();
     }
 
     // ════════════════════════════════════════════════════════════════════════
@@ -989,13 +1043,73 @@ public class ScheduleServiceImpl implements ScheduleService {
     private Long resolveSectionId(String sectionCode) {
         try {
             Object r = em.createNativeQuery(
-                    "SELECT section_id FROM class_section WHERE section_code = :code")
+                    "SELECT section_id FROM class_section WHERE section_code = :code LIMIT 1")
                     .setParameter("code", sectionCode)
                     .getSingleResult();
             return ((Number) r).longValue();
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /** Tìm section_id theo tên lớp học phần (LIKE) */
+    private Long resolveSectionIdByName(String name) {
+        if (name == null || name.isBlank()) return null;
+        try {
+            @SuppressWarnings("unchecked")
+            List<Object> results = em.createNativeQuery(
+                    "SELECT section_id FROM class_section WHERE section_code LIKE :name ORDER BY section_id LIMIT 1")
+                    .setParameter("name", "%" + name.trim() + "%")
+                    .getResultList();
+            if (!results.isEmpty()) return ((Number) results.get(0)).longValue();
+        } catch (Exception ignored) {}
+        return null;
+    }
+
+    /** Tìm section_id theo mã học phần (course_code) — lấy bản ghi đầu tiên */
+    private Long resolveSectionIdByCourseCode(String courseCode) {
+        if (courseCode == null || courseCode.isBlank()) return null;
+        try {
+            @SuppressWarnings("unchecked")
+            List<Object> results = em.createNativeQuery(
+                    "SELECT cs.section_id FROM class_section cs " +
+                    "JOIN course c ON c.course_id = cs.course_id " +
+                    "WHERE c.course_code = :code ORDER BY cs.section_id LIMIT 1")
+                    .setParameter("code", courseCode.trim())
+                    .getResultList();
+            if (!results.isEmpty()) return ((Number) results.get(0)).longValue();
+        } catch (Exception ignored) {}
+        return null;
+    }
+
+    /** Tìm section_id theo course_code VÀ tên lớp học phần khớp */
+    private Long resolveSectionIdByCourseAndName(String courseCode, String sectionName) {
+        if (courseCode == null || courseCode.isBlank()) return null;
+        try {
+            @SuppressWarnings("unchecked")
+            List<Object> results = em.createNativeQuery(
+                    "SELECT cs.section_id FROM class_section cs " +
+                    "JOIN course c ON c.course_id = cs.course_id " +
+                    "WHERE c.course_code = :code " +
+                    "AND cs.section_code LIKE :name ORDER BY cs.section_id LIMIT 1")
+                    .setParameter("code", courseCode.trim())
+                    .setParameter("name", "%" + sectionName.trim() + "%")
+                    .getResultList();
+            if (!results.isEmpty()) return ((Number) results.get(0)).longValue();
+        } catch (Exception ignored) {}
+        return null;
+    }
+
+    /** Chuẩn hoá chuỗi: bỏ dấu, lowercase, bỏ ký tự thừa */
+    private String normStr(String s) {
+        if (s == null) return "";
+        return java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFD)
+                .replaceAll("[\\p{InCombiningDiacriticalMarks}]", "")
+                .replace("\u0111", "d").replace("\u0110", "D")
+                .replace("*", "")
+                .toLowerCase()
+                .trim()
+                .replaceAll("\\s+", " ");
     }
 
     private String blankToNull(String s) {

@@ -4952,3 +4952,226 @@ Consider defining a bean of type 'com.utc2.appreborn.backend.modules.enrollment.
 	For a stable JSON structure, please use Spring Data's PagedModel (globally via @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO))
 	or Spring HATEOAS and Spring Data's PagedResourcesAssembler as documented in https://docs.spring.io/spring-data/commons/reference/repositories/core-extensions.html#core.web.pageables.
 
+2026-06-04T10:00:07.384Z  INFO 1 --- [main] c.u.a.backend.BackendApplication         : Starting BackendApplication v0.0.1-SNAPSHOT using Java 21.0.11 with PID 1 (/app/app.jar started by root in /app)
+2026-06-04T10:00:07.385Z DEBUG 1 --- [main] c.u.a.backend.BackendApplication         : Running with Spring Boot v3.5.14, Spring v6.2.18
+2026-06-04T10:00:07.387Z  INFO 1 --- [main] c.u.a.backend.BackendApplication         : No active profile set, falling back to 1 default profile: "default"
+2026-06-04T10:00:08.291Z  INFO 1 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-04T10:00:08.402Z  INFO 1 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 95 ms. Found 19 JPA repository interfaces.
+2026-06-04T10:00:08.960Z  INFO 1 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-06-04T10:00:08.976Z  INFO 1 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-04T10:00:08.977Z  INFO 1 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.54]
+2026-06-04T10:00:09.012Z  INFO 1 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-06-04T10:00:09.014Z  INFO 1 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1581 ms
+2026-06-04T10:00:09.276Z  INFO 1 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-06-04T10:00:09.509Z  INFO 1 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@210a26b
+2026-06-04T10:00:09.514Z  INFO 1 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-06-04T10:00:09.578Z  INFO 1 --- [main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://mysql-db:3306/utc2app?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true (MySQL 8.0)
+2026-06-04T10:00:09.627Z  INFO 1 --- [main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table `utc2app`.`flyway_schema_history` does not exist yet
+2026-06-04T10:00:09.631Z  INFO 1 --- [main] o.f.core.internal.command.DbValidate     : Successfully validated 15 migrations (execution time 00:00.029s)
+2026-06-04T10:00:09.649Z  INFO 1 --- [main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table `utc2app`.`flyway_schema_history` ...
+2026-06-04T10:00:09.766Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Current version of schema `utc2app`: << Empty Schema >>
+2026-06-04T10:00:09.795Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "1 - utc2 init schema"
+2026-06-04T10:00:13.620Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "2 - insert initial data"
+2026-06-04T10:00:13.672Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "4 - add student card url"
+2026-06-04T10:00:13.716Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "5 - fix ui breaking columns"
+2026-06-04T10:00:13.796Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "6 - fix service request pk"
+2026-06-04T10:00:13.839Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "7 - add user profile address"
+2026-06-04T10:00:13.881Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "10 - update admin role"
+2026-06-04T10:00:13.903Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "11 - fix academic warning type"
+2026-06-04T10:00:13.925Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "12 - simplify payment status"
+2026-06-04T10:00:14.204Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "13 - add fee type"
+2026-06-04T10:10:38.407Z  INFO 1 --- [main] c.u.a.backend.BackendApplication         : Starting BackendApplication v0.0.1-SNAPSHOT using Java 21.0.11 with PID 1 (/app/app.jar started by root in /app)
+2026-06-04T10:10:38.411Z DEBUG 1 --- [main] c.u.a.backend.BackendApplication         : Running with Spring Boot v3.5.14, Spring v6.2.18
+2026-06-04T10:10:38.412Z  INFO 1 --- [main] c.u.a.backend.BackendApplication         : No active profile set, falling back to 1 default profile: "default"
+2026-06-04T10:10:39.196Z  INFO 1 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-04T10:10:39.300Z  INFO 1 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 96 ms. Found 19 JPA repository interfaces.
+2026-06-04T10:10:39.842Z  INFO 1 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-06-04T10:10:39.862Z  INFO 1 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-04T10:10:39.863Z  INFO 1 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.54]
+2026-06-04T10:10:39.890Z  INFO 1 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-06-04T10:10:39.891Z  INFO 1 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1428 ms
+2026-06-04T10:10:40.137Z  INFO 1 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-06-04T10:10:40.372Z  INFO 1 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@194b9783
+2026-06-04T10:10:40.375Z  INFO 1 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-06-04T10:10:40.424Z  INFO 1 --- [main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://mysql-db:3306/utc2app?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true (MySQL 8.0)
+2026-06-04T10:10:40.475Z  INFO 1 --- [main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table `utc2app`.`flyway_schema_history` does not exist yet
+2026-06-04T10:10:40.480Z  INFO 1 --- [main] o.f.core.internal.command.DbValidate     : Successfully validated 15 migrations (execution time 00:00.035s)
+2026-06-04T10:10:40.502Z  INFO 1 --- [main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table `utc2app`.`flyway_schema_history` ...
+2026-06-04T10:10:40.629Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Current version of schema `utc2app`: << Empty Schema >>
+2026-06-04T10:10:40.691Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "1 - utc2 init schema"
+2026-06-04T10:10:44.951Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "2 - insert initial data"
+2026-06-04T10:10:45.003Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "4 - add student card url"
+2026-06-04T10:10:45.050Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "5 - fix ui breaking columns"
+2026-06-04T10:10:45.134Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "6 - fix service request pk"
+2026-06-04T10:10:45.184Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "7 - add user profile address"
+2026-06-04T10:10:45.233Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "10 - update admin role"
+2026-06-04T10:10:45.253Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "11 - fix academic warning type"
+2026-06-04T10:10:45.278Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "12 - simplify payment status"
+2026-06-04T10:10:45.632Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "13 - add fee type"
+2026-06-04T10:10:45.814Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "20250810.01 - create assessment tables"
+2026-06-04T10:10:45.993Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "20250810.02 - add scholarship tables"
+2026-06-04T10:10:46.342Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "20250815.01 - assessment staff external redesign"
+2026-06-04T10:10:46.499Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "20250815.02 - test data assessment roles"
+2026-06-04T10:10:46.530Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "20250815.03 - fix staff levels complete"
+2026-06-04T10:10:46.609Z  WARN 1 --- [main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: Duplicate entry 'giangvien@utc2.edu.vn' for key 'user.email' (SQL State: 23000 - Error Code: 1062)
+2026-06-04T10:10:46.611Z  WARN 1 --- [main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: Duplicate entry '8' for key 'user_profile.PRIMARY' (SQL State: 23000 - Error Code: 1062)
+2026-06-04T10:10:46.630Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Successfully applied 15 migrations to schema `utc2app`, now at version v20250815.03 (execution time 00:05.640s)
+2026-06-04T10:10:46.708Z  INFO 1 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-06-04T10:10:46.754Z  INFO 1 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.49.Final
+2026-06-04T10:10:46.787Z  INFO 1 --- [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-06-04T10:10:47.009Z  INFO 1 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-04T10:10:47.065Z  WARN 1 --- [main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-04T10:10:47.078Z  INFO 1 --- [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0.46
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-06-04T10:10:48.019Z  INFO 1 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-04T10:10:48.052Z  INFO 1 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-04T10:10:48.288Z DEBUG 1 --- [main] c.u.a.backend.middleware.JwtFilter       : Filter 'jwtFilter' configured for use
+2026-06-04T10:10:48.374Z  INFO 1 --- [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-04T10:10:48.738Z  INFO 1 --- [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-06-04T10:10:49.353Z  WARN 1 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-06-04T10:10:49.880Z  INFO 1 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-06-04T10:10:49.906Z  INFO 1 --- [main] c.u.a.backend.BackendApplication         : Started BackendApplication in 12.034 seconds (process running for 12.566)
+2026-06-04T10:11:26.545Z  INFO 1 --- [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-06-04T10:11:26.546Z  INFO 1 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-04T10:11:26.549Z  INFO 1 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2026-06-04T10:11:27.078Z  WARN 1 --- [http-nio-8080-exec-2] ration$PageModule$WarningLoggingModifier : Serializing PageImpl instances as-is is not supported, meaning that there is no guarantee about the stability of the resulting JSON structure!
+	For a stable JSON structure, please use Spring Data's PagedModel (globally via @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO))
+	or Spring HATEOAS and Spring Data's PagedResourcesAssembler as documented in https://docs.spring.io/spring-data/commons/reference/repositories/core-extensions.html#core.web.pageables.
+
+2026-06-04T10:22:05.482Z  INFO 1 --- [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-04T10:22:05.487Z  INFO 1 --- [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-06-04T10:22:05.494Z  INFO 1 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-06-04T10:22:05.502Z  INFO 1 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-06-04T10:22:05.506Z  INFO 1 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-06-04T10:22:08.011Z  INFO 1 --- [main] c.u.a.backend.BackendApplication         : Starting BackendApplication v0.0.1-SNAPSHOT using Java 21.0.11 with PID 1 (/app/app.jar started by root in /app)
+2026-06-04T10:22:08.013Z DEBUG 1 --- [main] c.u.a.backend.BackendApplication         : Running with Spring Boot v3.5.14, Spring v6.2.18
+2026-06-04T10:22:08.017Z  INFO 1 --- [main] c.u.a.backend.BackendApplication         : No active profile set, falling back to 1 default profile: "default"
+2026-06-04T10:22:08.994Z  INFO 1 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-04T10:22:09.104Z  INFO 1 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 97 ms. Found 19 JPA repository interfaces.
+2026-06-04T10:22:09.790Z  INFO 1 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-06-04T10:22:09.811Z  INFO 1 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-04T10:22:09.812Z  INFO 1 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.54]
+2026-06-04T10:22:09.850Z  INFO 1 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-06-04T10:22:09.851Z  INFO 1 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1793 ms
+2026-06-04T10:22:10.171Z  INFO 1 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-06-04T10:22:10.446Z  INFO 1 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@41d20f06
+2026-06-04T10:22:10.450Z  INFO 1 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-06-04T10:22:10.512Z  INFO 1 --- [main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://mysql-db:3306/utc2app?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true (MySQL 8.0)
+2026-06-04T10:22:10.595Z  INFO 1 --- [main] o.f.core.internal.command.DbValidate     : Successfully validated 15 migrations (execution time 00:00.051s)
+2026-06-04T10:22:10.611Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Current version of schema `utc2app`: 20250815.03
+2026-06-04T10:22:10.618Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Schema `utc2app` is up to date. No migration necessary.
+2026-06-04T10:22:10.755Z  INFO 1 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-06-04T10:22:10.870Z  INFO 1 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.49.Final
+2026-06-04T10:22:10.938Z  INFO 1 --- [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-06-04T10:22:11.356Z  INFO 1 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-04T10:22:11.423Z  WARN 1 --- [main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-04T10:22:11.434Z  INFO 1 --- [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0.46
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-06-04T10:22:12.541Z  INFO 1 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-04T10:22:12.612Z  INFO 1 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-04T10:22:12.929Z DEBUG 1 --- [main] c.u.a.backend.middleware.JwtFilter       : Filter 'jwtFilter' configured for use
+2026-06-04T10:22:13.043Z  INFO 1 --- [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-04T10:22:13.449Z  INFO 1 --- [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-06-04T10:22:14.075Z  WARN 1 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-06-04T10:22:14.963Z  INFO 1 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-06-04T10:22:14.995Z  INFO 1 --- [main] c.u.a.backend.BackendApplication         : Started BackendApplication in 7.602 seconds (process running for 8.316)
+2026-06-04T10:22:54.019Z  INFO 1 --- [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-04T10:22:54.026Z  INFO 1 --- [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-06-04T10:22:54.033Z  INFO 1 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-06-04T10:22:54.038Z  INFO 1 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-06-04T10:22:54.050Z  INFO 1 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-06-04T10:22:56.985Z  INFO 1 --- [main] c.u.a.backend.BackendApplication         : Starting BackendApplication v0.0.1-SNAPSHOT using Java 21.0.11 with PID 1 (/app/app.jar started by root in /app)
+2026-06-04T10:22:56.987Z DEBUG 1 --- [main] c.u.a.backend.BackendApplication         : Running with Spring Boot v3.5.14, Spring v6.2.18
+2026-06-04T10:22:56.988Z  INFO 1 --- [main] c.u.a.backend.BackendApplication         : No active profile set, falling back to 1 default profile: "default"
+2026-06-04T10:22:57.767Z  INFO 1 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-04T10:22:57.861Z  INFO 1 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 88 ms. Found 19 JPA repository interfaces.
+2026-06-04T10:22:58.393Z  INFO 1 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-06-04T10:22:58.406Z  INFO 1 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-04T10:22:58.407Z  INFO 1 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.54]
+2026-06-04T10:22:58.437Z  INFO 1 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-06-04T10:22:58.438Z  INFO 1 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1406 ms
+2026-06-04T10:22:58.667Z  INFO 1 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-06-04T10:22:58.790Z  INFO 1 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@41d20f06
+2026-06-04T10:22:58.792Z  INFO 1 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-06-04T10:22:58.830Z  INFO 1 --- [main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://mysql-db:3306/utc2app?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true (MySQL 8.0)
+2026-06-04T10:22:58.893Z  INFO 1 --- [main] o.f.core.internal.command.DbValidate     : Successfully validated 15 migrations (execution time 00:00.034s)
+2026-06-04T10:22:58.908Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Current version of schema `utc2app`: 20250815.03
+2026-06-04T10:22:58.913Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Schema `utc2app` is up to date. No migration necessary.
+2026-06-04T10:22:58.999Z  INFO 1 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-06-04T10:22:59.041Z  INFO 1 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.49.Final
+2026-06-04T10:22:59.064Z  INFO 1 --- [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-06-04T10:22:59.291Z  INFO 1 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-04T10:22:59.345Z  WARN 1 --- [main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-04T10:22:59.360Z  INFO 1 --- [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0.46
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-06-04T10:23:00.614Z  INFO 1 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-04T10:23:00.652Z  INFO 1 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-04T10:23:00.874Z DEBUG 1 --- [main] c.u.a.backend.middleware.JwtFilter       : Filter 'jwtFilter' configured for use
+2026-06-04T10:23:00.954Z  INFO 1 --- [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-04T10:23:01.333Z  INFO 1 --- [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-06-04T10:23:01.934Z  WARN 1 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-06-04T10:23:02.468Z  INFO 1 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-06-04T10:23:02.480Z  INFO 1 --- [main] c.u.a.backend.BackendApplication         : Started BackendApplication in 5.96 seconds (process running for 6.434)
+2026-06-04T10:25:13.812Z  INFO 1 --- [main] c.u.a.backend.BackendApplication         : Starting BackendApplication v0.0.1-SNAPSHOT using Java 21.0.11 with PID 1 (/app/app.jar started by root in /app)
+2026-06-04T10:25:13.814Z DEBUG 1 --- [main] c.u.a.backend.BackendApplication         : Running with Spring Boot v3.5.14, Spring v6.2.18
+2026-06-04T10:25:13.816Z  INFO 1 --- [main] c.u.a.backend.BackendApplication         : No active profile set, falling back to 1 default profile: "default"
+2026-06-04T10:25:14.659Z  INFO 1 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-04T10:25:14.753Z  INFO 1 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 84 ms. Found 19 JPA repository interfaces.
+2026-06-04T10:25:15.256Z  INFO 1 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-06-04T10:25:15.268Z  INFO 1 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-04T10:25:15.269Z  INFO 1 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.54]
+2026-06-04T10:25:15.301Z  INFO 1 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-06-04T10:25:15.302Z  INFO 1 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1445 ms
+2026-06-04T10:25:15.548Z  INFO 1 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-06-04T10:25:15.737Z  INFO 1 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@46c662f2
+2026-06-04T10:25:15.739Z  INFO 1 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-06-04T10:25:15.792Z  INFO 1 --- [main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://mysql-db:3306/utc2app?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true (MySQL 8.0)
+2026-06-04T10:25:15.868Z  INFO 1 --- [main] o.f.core.internal.command.DbValidate     : Successfully validated 15 migrations (execution time 00:00.047s)
+2026-06-04T10:25:15.885Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Current version of schema `utc2app`: 20250815.03
+2026-06-04T10:25:15.890Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Schema `utc2app` is up to date. No migration necessary.
+2026-06-04T10:25:15.976Z  INFO 1 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-06-04T10:25:16.029Z  INFO 1 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.49.Final
+2026-06-04T10:25:16.087Z  INFO 1 --- [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-06-04T10:25:16.355Z  INFO 1 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-04T10:25:16.400Z  WARN 1 --- [main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-04T10:25:16.412Z  INFO 1 --- [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0.46
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-06-04T10:25:17.361Z  INFO 1 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-04T10:25:17.397Z  INFO 1 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-04T10:25:17.663Z DEBUG 1 --- [main] c.u.a.backend.middleware.JwtFilter       : Filter 'jwtFilter' configured for use
+2026-06-04T10:25:17.764Z  INFO 1 --- [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-04T10:25:18.132Z  INFO 1 --- [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-06-04T10:25:18.729Z  WARN 1 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-06-04T10:25:19.308Z  INFO 1 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-06-04T10:25:19.320Z  INFO 1 --- [main] c.u.a.backend.BackendApplication         : Started BackendApplication in 5.967 seconds (process running for 6.39)
+2026-06-04T10:26:11.158Z  INFO 1 --- [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-06-04T10:26:11.160Z  INFO 1 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-04T10:26:11.165Z  INFO 1 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 4 ms
+2026-06-04T10:26:11.561Z  WARN 1 --- [http-nio-8080-exec-1] ration$PageModule$WarningLoggingModifier : Serializing PageImpl instances as-is is not supported, meaning that there is no guarantee about the stability of the resulting JSON structure!
+	For a stable JSON structure, please use Spring Data's PagedModel (globally via @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO))
+	or Spring HATEOAS and Spring Data's PagedResourcesAssembler as documented in https://docs.spring.io/spring-data/commons/reference/repositories/core-extensions.html#core.web.pageables.
+

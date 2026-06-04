@@ -197,13 +197,13 @@ public class ScheduleController {
      * Import Excel. Form-data: file, scheduleType (1/2/3), overwrite (true/false).
      */
     @PostMapping("/api/v1/admin/schedules/import")
-    public ResponseEntity<ApiResponse<String>> importExcel(
+    public ResponseEntity<ApiResponse<ImportResultDto>> importExcel(
             @RequestParam("file") MultipartFile file,
             @RequestParam("scheduleType") Integer scheduleType,
             @RequestParam(value = "overwrite", defaultValue = "false") boolean overwrite) throws IOException {
 
-        scheduleService.importExcel(file, scheduleType, overwrite);
-        return ResponseEntity.ok(ApiResponse.success("Import thành công"));
+        ImportResultDto result = scheduleService.importExcel(file, scheduleType, overwrite);
+        return ResponseEntity.ok(ApiResponse.success(result));
     }
 
     /**

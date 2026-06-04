@@ -56,7 +56,7 @@ public interface ScheduleService {
         void delete(Long id);
 
         // ── ADMIN: Import / Export ────────────────────────────────────────────────
-        void importExcel(MultipartFile file, Integer scheduleType, boolean overwrite) throws IOException;
+        ImportResultDto importExcel(MultipartFile file, Integer scheduleType, boolean overwrite) throws IOException;
 
         void exportExcel(Long semesterId, Integer scheduleType,
                         String lecturerName, String room,
