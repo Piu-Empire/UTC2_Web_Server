@@ -28,4 +28,23 @@ public interface DormitoryRegistrationRepository extends JpaRepository<Dormitory
     List<Object[]> findRegistrationsByUserId(@Param("userId") Long userId);
 
     boolean existsByUserIdAndStatusNot(Long userId, String status);
+
+    /**
+     * Lấy toàn bộ đăng ký KTX của TẤT CẢ sinh viên kèm thông tin profile — dùng cho export Excel.
+     * Column order:
+     * 0=student_code, 1=full_name, 2=class_name, 3=faculty,
+     * 4=room_code, 5=building, 6=room_type,
+     * 7=start_date, 8=end_date, 9=status, 10=total_fee, 11=paid_status, 12=registered_at
+     */
+    @Query(value = """
+            SELECT sp.student_code, up.full_name, sp.class_name, sp.faculty,
+                   r.room_code, r.building, r.room_type,
+                   dr.start_date, dr.end_date, dr.status, dr.total_fee, dr.paid_status, dr.registered_at
+            FROM dormitory_registration dr
+            JOIN dormitory_room r ON r.room_id = dr.room_id
+            JOIN student_profile sp ON sp.user_id = dr.user_id
+            JOIN user_profile up ON up.user_id = dr.user_id
+            ORDER BY r.building ASC, r.room_code ASC, sp.student_code ASC
+            """, nativeQuery = true)
+    List<Object[]> findAllDormRegistrationsForExport();
 }

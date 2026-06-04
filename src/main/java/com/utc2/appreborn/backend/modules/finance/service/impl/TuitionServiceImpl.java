@@ -11,6 +11,7 @@ import com.utc2.appreborn.backend.modules.profile.entity.StudentProfileEntity;
 import com.utc2.appreborn.backend.modules.profile.entity.UserProfileEntity;
 import com.utc2.appreborn.backend.modules.profile.repository.StudentProfileRepository;
 import com.utc2.appreborn.backend.modules.profile.repository.UserProfileRepository;
+import com.utc2.appreborn.backend.modules.academic.repository.SemesterRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,11 +28,12 @@ public class TuitionServiceImpl implements TuitionService {
     private final TuitionFeeRepository     tuitionFeeRepository;
     private final StudentProfileRepository studentProfileRepository;
     private final UserProfileRepository    userProfileRepository;
+    private final SemesterRepository       semesterRepository;
 
-    // ── Hằng status — phải khớp DB và V6 migration ───────────
-    private static final String STATUS_UNPAID = "chưa đóng";
-    private static final String STATUS_PAID   = "đã đóng đủ";
-    private static final String FEE_SUBJECT   = "SUBJECT";
+    private static final String STATUS_UNPAID  = "chưa đóng";
+    private static final String STATUS_PAID    = "đã đóng đủ";
+    private static final String FEE_SUBJECT    = "SUBJECT";
+    private static final String FEE_DORMITORY  = "DORMITORY";
 
     @Override
     public TuitionSummaryResponse getMyTuitionSummary(String username) {
@@ -40,14 +42,20 @@ public class TuitionServiceImpl implements TuitionService {
         UserProfileEntity up = userProfileRepository.findById(user.getId()).orElse(null);
         String fullName = up != null ? up.getFullName() : user.getEmail();
 
-        List<TuitionFee> fees    = tuitionFeeRepository.findByUserIdAndFeeTypeOrderBySemesterIdDesc(user.getId(), FEE_SUBJECT);
-        BigDecimal       totalDebt = tuitionFeeRepository.sumRemainingByUserId(user.getId());
+        List<TuitionFee> subjectFees = tuitionFeeRepository
+                .findByUserIdAndFeeTypeOrderBySemesterIdDesc(user.getId(), FEE_SUBJECT);
+        List<TuitionFee> dormFees = tuitionFeeRepository
+                .findByUserIdAndFeeTypeOrderBySemesterIdDesc(user.getId(), FEE_DORMITORY);
+        BigDecimal totalDebt = tuitionFeeRepository.sumRemainingByUserId(user.getId());
 
         return TuitionSummaryResponse.builder()
                 .studentId(sp.getStudentCode())
                 .fullName(fullName)
                 .totalDebt(totalDebt)
-                .semesters(fees.stream()
+                .semesters(subjectFees.stream()
+                        .map(f -> toResponse(f, sp, up))
+                        .collect(Collectors.toList()))
+                .dormitory(dormFees.stream()
                         .map(f -> toResponse(f, sp, up))
                         .collect(Collectors.toList()))
                 .build();
@@ -64,7 +72,6 @@ public class TuitionServiceImpl implements TuitionService {
                 .collect(Collectors.toList());
     }
 
-    /** Chỉ trả các kỳ đã đóng đủ — dùng cho Invoice screen */
     @Override
     public List<TuitionResponse> getMyPaidHistory(String username) {
         StudentProfileEntity sp = findStudentByUsername(username);
@@ -88,8 +95,10 @@ public class TuitionServiceImpl implements TuitionService {
             throw new ResourceNotFoundException("semester phải là số: " + semester);
         }
 
+        // FIX: dùng findFirstUnpaidByUserIdAndSemesterId để ưu tiên record chưa đóng
+        // khi có nhiều fee records trên cùng 1 kỳ (đăng ký thêm môn sau khi đã đóng tiền)
         TuitionFee fee = tuitionFeeRepository
-                .findByUserIdAndSemesterId(sp.getUser().getId(), semesterId)
+                .findFirstUnpaidByUserIdAndSemesterId(sp.getUser().getId(), semesterId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Không có dữ liệu học phí kỳ: " + semester));
 
@@ -97,26 +106,25 @@ public class TuitionServiceImpl implements TuitionService {
     }
 
     /**
-     * Thanh toán toàn bộ học phí còn lại của 1 kỳ.
-     * App chỉ cho đóng online 1 lần đủ — không đóng một phần.
-     * @Transactional đảm bảo nếu save lỗi thì rollback, không mất tiền "ảo"
+     * Thanh toán học phí còn lại của 1 kỳ.
+     * FIX: dùng findFirstUnpaidByUserIdAndSemesterId thay vì findByUserIdAndSemesterId
+     * để đảm bảo đóng đúng record "chưa đóng" khi có nhiều records cùng kỳ.
      */
     @Override
     @Transactional
     public TuitionResponse payTuition(String username, Long semesterId, String paymentMethod) {
         StudentProfileEntity sp = findStudentByUsername(username);
 
+        // FIX: ưu tiên lấy record chưa đóng đủ
         TuitionFee fee = tuitionFeeRepository
-                .findByUserIdAndSemesterId(sp.getUser().getId(), semesterId)
+                .findFirstUnpaidByUserIdAndSemesterId(sp.getUser().getId(), semesterId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Không tìm thấy học phí kỳ: " + semesterId));
 
-        // Kiểm tra đã đóng chưa
         if (STATUS_PAID.equals(fee.getStatus())) {
             throw new IllegalStateException("Học phí kỳ này đã được đóng rồi");
         }
 
-        // Đóng toàn bộ remaining
         fee.setPaidAmount(fee.getTotalAmount());
         fee.setRemainingAmount(BigDecimal.ZERO);
         fee.setStatus(STATUS_PAID);
@@ -129,7 +137,7 @@ public class TuitionServiceImpl implements TuitionService {
         return toResponse(fee, sp, up);
     }
 
-    // ── Helpers ───────────────────────────────────────────────
+    // ── Helpers ───────────────────────────────────────────────────────────────
 
     private StudentProfileEntity findStudentByUsername(String username) {
         if (username == null || !username.contains("@")) {
@@ -142,11 +150,16 @@ public class TuitionServiceImpl implements TuitionService {
     }
 
     private TuitionResponse toResponse(TuitionFee fee, StudentProfileEntity sp, UserProfileEntity up) {
+        String semName = fee.getSemesterId() != null
+                ? semesterRepository.findById(fee.getSemesterId())
+                .map(s -> s.getSemesterName()).orElse("Học kỳ " + fee.getSemesterId())
+                : null;
         return TuitionResponse.builder()
                 .id(fee.getId())
                 .studentId(sp.getStudentCode())
                 .fullName(up != null ? up.getFullName() : null)
                 .semesterId(fee.getSemesterId())
+                .semesterName(semName)
                 .totalAmount(fee.getTotalAmount())
                 .paidAmount(fee.getPaidAmount())
                 .remainingAmount(fee.getRemainingAmount())

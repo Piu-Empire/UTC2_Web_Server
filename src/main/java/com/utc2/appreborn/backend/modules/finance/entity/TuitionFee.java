@@ -30,8 +30,14 @@ public class TuitionFee {
     @Column(name = "user_id", insertable = false, updatable = false)
     private Long userId;
 
-    @Column(name = "semester_id")       // ← FK → SEMESTER
+    @Column(name = "semester_id")       // ← FK → SEMESTER (nullable với DORMITORY)
     private Long semesterId;
+
+    /**
+     * FK → dormitory_registration — chỉ set khi feeType = DORMITORY.
+     */
+    @Column(name = "dorm_reg_id")
+    private Long dormRegId;
 
     /**
      * Loại phí: "SUBJECT" (học phí môn học) / "DORMITORY" / "OTHER"

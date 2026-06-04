@@ -15,6 +15,7 @@ public class TuitionResponse {
     private String     studentId;
     private String     fullName;
     private Long       semesterId;
+    private String     semesterName;
     private BigDecimal totalAmount;
     private BigDecimal paidAmount;
     private BigDecimal remainingAmount;

@@ -60,6 +60,15 @@ public class JwtService {
         return List.of();
     }
 
+    public boolean isTokenValid(String token, UserDetails userDetails) {
+        try {
+            String username = getUsernameFromToken(token);
+            return username.equals(userDetails.getUsername());
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public boolean isTokenValid(String token) {
         try {
             Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token);
