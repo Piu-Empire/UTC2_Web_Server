@@ -83,6 +83,12 @@ public class ScheduleEntity {
     @Column(name = "schedule_type", nullable = false)
     private Integer scheduleType;
 
+    @Column(name = "exam_date_start")
+    private java.time.LocalDate examDateStart;
+
+    @Column(name = "exam_date_end")
+    private java.time.LocalDate examDateEnd;
+
     @Column(name = "notes")
     private String notes;
 

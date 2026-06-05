@@ -127,11 +127,12 @@ public class ProfileServiceImpl implements ProfileService {
                 userId
             );
 
-            // FIX: JOIN schedule với course để có courseCode và courseName
+            // FIX: JOIN schedule với class_section và course để có courseCode và courseName
             schedules = jdbcTemplate.queryForList(
                 "SELECT sc.*, c.course_code AS courseCode, c.course_name AS courseName " +
                 "FROM schedule sc " +
-                "LEFT JOIN course c ON sc.course_id = c.course_id " +
+                "LEFT JOIN class_section cs ON sc.section_id = cs.section_id " +
+                "LEFT JOIN course c ON cs.course_id = c.course_id " +
                 "WHERE sc.user_id = ?",
                 userId
             );

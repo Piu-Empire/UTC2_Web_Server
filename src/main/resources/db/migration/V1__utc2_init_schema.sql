@@ -114,6 +114,8 @@ CREATE TABLE IF NOT EXISTS `schedule` (
     `week_start`    INTEGER          NULL COMMENT 'Tuần bắt đầu áp dụng trong học kỳ',
     `week_end`      INTEGER          NULL COMMENT 'Tuần kết thúc áp dụng trong học kỳ',
     `schedule_type` INT          NOT NULL DEFAULT 1 COMMENT '1=Lịch học, 2=Lịch thi, 3=Lịch thi lại',
+    `exam_date_start` DATE       NULL COMMENT 'Ngày thi/thi lại (bắt đầu)',
+    `exam_date_end`   DATE       NULL COMMENT 'Ngày thi/thi lại (kết thúc)',
     `notes`         TEXT             NULL COMMENT 'Ghi chú',
     `updated_at`    TIMESTAMP        NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `section_id`    BIGINT      NOT NULL COMMENT 'Khóa ngoại -> class_section',

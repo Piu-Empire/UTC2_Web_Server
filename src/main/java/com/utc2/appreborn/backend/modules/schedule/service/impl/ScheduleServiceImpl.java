@@ -982,6 +982,17 @@ public class ScheduleServiceImpl implements ScheduleService {
         } catch (Exception ignored) {
         }
 
+        // Handle dates: use exam dates for exams, else use semester dates
+        String startDateStr = "";
+        String endDateStr = "";
+        if (s.getScheduleType() != null && (s.getScheduleType() == 2 || s.getScheduleType() == 3)) {
+            startDateStr = s.getExamDateStart() != null ? s.getExamDateStart().format(DATE_FMT) : "";
+            endDateStr = s.getExamDateEnd() != null ? s.getExamDateEnd().format(DATE_FMT) : "";
+        } else {
+            startDateStr = getSemesterDate(s.getSectionId(), "start_date");
+            endDateStr = getSemesterDate(s.getSectionId(), "end_date");
+        }
+
         return ScheduleItemDto.builder()
                 .subjectCode(courseCode)
                 .subjectName(courseName)
@@ -992,8 +1003,8 @@ public class ScheduleServiceImpl implements ScheduleService {
                 .endPeriod(s.getEndPeriod() != null ? s.getEndPeriod() : 0)
                 .startTime(s.getStartTime() != null ? s.getStartTime().format(TIME_FMT) : "")
                 .endTime(s.getEndTime() != null ? s.getEndTime().format(TIME_FMT) : "")
-                .startDate(getSemesterDate(s.getSectionId(), "start_date"))
-                .endDate(getSemesterDate(s.getSectionId(), "end_date"))
+                .startDate(startDateStr)
+                .endDate(endDateStr)
                 .weekStart(s.getWeekStart())
                 .weekEnd(s.getWeekEnd())
                 .room(s.getRoom())

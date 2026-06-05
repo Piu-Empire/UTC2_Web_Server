@@ -33,22 +33,31 @@ INSERT INTO `semester` (`user_id`, `semester_name`, `academic_year`, `semester_n
 (2, 'Học kỳ 1 năm 2025-2026', '2025-2026', 1, '2025-09-01', '2026-01-15', 3.45, 18, 18),  -- semester_id=1
 (3, 'Học kỳ 1 năm 2025-2026', '2025-2026', 1, '2025-09-01', '2026-01-15', 3.10, 17, 15),  -- semester_id=2
 (4, 'Học kỳ 1 năm 2025-2026', '2025-2026', 1, '2025-09-01', '2026-01-15', 2.85, 16, 14),  -- semester_id=3
-(5, 'Học kỳ 1 năm 2025-2026', '2025-2026', 1, '2025-09-01', '2026-01-15', 3.75, 19, 19);  -- semester_id=4
+(5, 'Học kỳ 1 năm 2025-2026', '2025-2026', 1, '2025-09-01', '2026-01-15', 3.75, 19, 19),  -- semester_id=4
+(5, 'Học kỳ 2 năm 2025-2026', '2025-2026', 2, '2026-03-02', '2026-06-20', 0.00, 15, 0),   -- semester_id=5 (HK2 user 5)
+(5, 'Học kỳ Hè năm 2025-2026','2025-2026', 3, '2026-07-01', '2026-08-20', 0.00, 3, 0);    -- semester_id=6 (HK Hè user 5)
 
 -- ── course ─────────────────────────────────────────────────────────────────────
 INSERT INTO `course` (`course_code`, `course_name`, `credits`, `theory_hours`, `practice_hours`, `department`, `description`) VALUES
 ('INT101', 'Nhập môn lập trình', 3, 30, 30, 'CNTT', 'Môn học cơ sở lập trình'),   -- course_id=1
 ('DBS201', 'Cơ sở dữ liệu',      3, 30, 30, 'CNTT', 'Thiết kế và quản trị CSDL'), -- course_id=2
 ('WEB301', 'Lập trình Web',       4, 45, 30, 'CNTT', 'Xây dựng ứng dụng web'),     -- course_id=3
-('LOG101', 'Nhập môn Logistics',  3, 30, 15, 'KTVT', 'Kiến thức cơ bản logistics');-- course_id=4
+('LOG101', 'Nhập môn Logistics',  3, 30, 15, 'KTVT', 'Kiến thức cơ bản logistics'),-- course_id=4
+('IT1.222.3','An toàn bảo mật TT',3, 30, 15, 'CNTT', 'Bảo mật thông tin'),         -- course_id=5
+('IT1.333.1','Mạng máy tính',     3, 30, 15, 'CNTT', 'Kiến trúc mạng'),            -- course_id=6
+('WEB401', 'Lập trình di động',   3, 30, 30, 'CNTT', 'Android/iOS app');           -- course_id=7
 
 -- ── class_section ──────────────────────────────────────────────────────────────
 -- Lớp học phần: mỗi môn trong 1 học kỳ có thể mở nhiều lớp (01, 02...)
 INSERT INTO `class_section` (`course_id`, `semester_id`, `section_code`, `lecturer_name`, `max_capacity`, `current_enrollment`, `room`, `building`, `section_type`, `status`) VALUES
-(1, 1, 'INT101-01', 'TS. Phạm Minh',  40, 35, 'A101', 'Nhà A', 'lý thuyết', 'đang học'), -- section_id=1
-(2, 1, 'DBS201-01', 'ThS. Lê Huy',    40, 30, 'B202', 'Nhà B', 'lý thuyết', 'đang học'), -- section_id=2
-(1, 2, 'INT101-02', 'TS. Phạm Minh',  40, 28, 'A102', 'Nhà A', 'lý thuyết', 'đang học'), -- section_id=3
-(4, 3, 'LOG101-01', 'ThS. Nguyễn An', 35, 30, 'C301', 'Nhà C', 'lý thuyết', 'đang học'); -- section_id=4
+(1, 1, 'INT101-01', 'TS. Phạm Minh',  40, 35, 'A101', 'Nhà A', 'lý thuyết', 'đang học'), -- section_id=1 (HK1)
+(2, 1, 'DBS201-01', 'ThS. Lê Huy',    40, 30, 'B202', 'Nhà B', 'lý thuyết', 'đang học'), -- section_id=2 (HK1)
+(1, 2, 'INT101-02', 'TS. Phạm Minh',  40, 28, 'A102', 'Nhà A', 'lý thuyết', 'đang học'), -- section_id=3 (HK1)
+(4, 3, 'LOG101-01', 'ThS. Nguyễn An', 35, 30, 'C301', 'Nhà C', 'lý thuyết', 'đang học'), -- section_id=4 (HK1)
+(5, 5, 'IT1.222.3-01','TS. Nguyễn Hoàng',40, 39, 'P104C2','C2', 'lý thuyết', 'đang học'), -- section_id=5 (HK2)
+(6, 5, 'IT1.333.1-01','TS. Phạm Minh',   40, 35, 'P201A', 'A1', 'lý thuyết', 'đang học'), -- section_id=6 (HK2)
+(7, 5, 'WEB401-01',   'ThS. Lê Huy',     40, 40, 'P305B', 'B1', 'thực hành', 'đang học'), -- section_id=7 (HK2)
+(1, 6, 'INT101-TL',   'TS. Phạm Minh',   20, 10, 'P101A', 'A1', 'lý thuyết', 'đang học'); -- section_id=8 (HKHè - Thi lại)
 
 -- ── enrollment ─────────────────────────────────────────────────────────────────
 INSERT INTO `enrollment` (`user_id`, `course_id`, `semester_id`, `section_id`, `status`, `midterm_score`, `final_score`, `assignment_score`, `total_score`, `letter_grade`, `grade_point`, `is_passed`) VALUES
@@ -58,18 +67,32 @@ INSERT INTO `enrollment` (`user_id`, `course_id`, `semester_id`, `section_id`, `
 (4, 4, 3, 4, 'hoàn thành', 5.5, 6.0, 6.5, 6.0, 'C',  2.0, true),
 (5, 1, 4, NULL, 'hoàn thành', 9.0, 9.5, 9.0, 9.2, 'A',  4.0, true),
 (5, 2, 4, NULL, 'hoàn thành', 8.0, 8.5, 8.5, 8.3, 'B+', 3.5, true),
-(5, 3, 4, NULL, 'đang học',   0,   0,   0,   0,   NULL, NULL, false);
+(5, 3, 4, NULL, 'đang học',   0,   0,   0,   0,   NULL, NULL, false),
+(5, 5, 5, 5, 'đang học',   0,   0,   0,   0,   NULL, NULL, false),
+(5, 6, 5, 6, 'đang học',   0,   0,   0,   0,   NULL, NULL, false),
+(5, 7, 5, 7, 'đang học',   0,   0,   0,   0,   NULL, NULL, false);
 
 -- ── schedule ───────────────────────────────────────────────────────────────────
 -- Dùng section_id (FK -> class_section), KHÔNG còn course_id / semester_id trực tiếp
-INSERT INTO `schedule` (`user_id`, `section_id`, `day_of_week`, `start_period`, `end_period`, `start_time`, `end_time`, `room`, `building`, `lecturer_name`, `week_start`, `week_end`, `schedule_type`) VALUES
-(NULL, 1, 2, 1, 3, '07:00:00', '09:30:00', 'A101', 'Nhà A', 'TS. Phạm Minh',  1, 15, 1),
-(NULL, 2, 4, 4, 6, '09:40:00', '12:00:00', 'B202', 'Nhà B', 'ThS. Lê Huy',    1, 15, 1),
-(NULL, 3, 3, 1, 3, '07:00:00', '09:30:00', 'A102', 'Nhà A', 'TS. Phạm Minh',  1, 15, 1),
-(NULL, 4, 5, 7, 9, '13:00:00', '15:30:00', 'C301', 'Nhà C', 'ThS. Nguyễn An', 1, 15, 1),
-(5,    1, 2, 1, 3, '07:00:00', '09:30:00', 'A103', 'Nhà A', 'TS. Phạm Minh',  1, 15, 1),
-(5,    2, 5, 4, 6, '09:40:00', '12:00:00', 'B201', 'Nhà B', 'ThS. Lê Huy',    1, 15, 1),
-(5,    3, 6, 7, 9, '13:00:00', '15:30:00', 'C302', 'Nhà C', 'TS. Nguyễn Hoàng', 1, 15, 1);
+INSERT INTO `schedule` (`user_id`, `section_id`, `day_of_week`, `start_period`, `end_period`, `start_time`, `end_time`, `room`, `building`, `lecturer_name`, `week_start`, `week_end`, `schedule_type`, `exam_date_start`, `exam_date_end`) VALUES
+(NULL, 1, 2, 1, 3, '07:00:00', '09:30:00', 'A101', 'Nhà A', 'TS. Phạm Minh',  1, 15, 1, NULL, NULL),
+(NULL, 2, 4, 4, 6, '09:40:00', '12:00:00', 'B202', 'Nhà B', 'ThS. Lê Huy',    1, 15, 1, NULL, NULL),
+(NULL, 3, 3, 1, 3, '07:00:00', '09:30:00', 'A102', 'Nhà A', 'TS. Phạm Minh',  1, 15, 1, NULL, NULL),
+(NULL, 4, 5, 7, 9, '13:00:00', '15:30:00', 'C301', 'Nhà C', 'ThS. Nguyễn An', 1, 15, 1, NULL, NULL),
+-- Lịch học HK1 của user 5
+(5,    1, 2, 1, 3, '07:00:00', '09:30:00', 'A103', 'Nhà A', 'TS. Phạm Minh',  1, 15, 1, NULL, NULL),
+(5,    2, 5, 4, 6, '09:40:00', '12:00:00', 'B201', 'Nhà B', 'ThS. Lê Huy',    1, 15, 1, NULL, NULL),
+(5,    3, 6, 7, 9, '13:00:00', '15:30:00', 'C302', 'Nhà C', 'TS. Nguyễn Hoàng', 1, 15, 1, NULL, NULL),
+-- Lịch học rải rác HK2 của user 5 (schedule_type=1)
+(5,    5, 2, 6, 10,'12:30:00', '16:50:00', 'P104C2', 'C2',  'TS. Nguyễn Hoàng', 1, 15, 1, NULL, NULL), -- T2, tiết 6-10
+(5,    6, 3, 1, 5, '07:00:00', '11:20:00', 'P201A',  'A1',  'TS. Phạm Minh',    1, 15, 1, NULL, NULL), -- T3, tiết 1-5
+(5,    7, 5, 7, 9, '13:20:00', '15:50:00', 'P305B',  'B1',  'ThS. Lê Huy',      1, 15, 1, NULL, NULL), -- T5, tiết 7-9
+-- Lịch thi (schedule_type=2) - Cỡ tháng 6, tháng 7
+(5,    5, 2, 1, 3, '07:00:00', '09:30:00', 'P104C2', 'C2',  'TS. Nguyễn Hoàng', NULL, NULL, 2, '2026-06-15', '2026-06-15'),
+(5,    6, 5, 4, 6, '09:40:00', '12:00:00', 'P201A',  'A1',  'TS. Phạm Minh',    NULL, NULL, 2, '2026-06-25', '2026-06-25'),
+(5,    7, 4, 7, 9, '13:20:00', '15:50:00', 'P305B',  'B1',  'ThS. Lê Huy',      NULL, NULL, 2, '2026-07-05', '2026-07-05'),
+-- Lịch thi lại (schedule_type=3) - HK Hè
+(5,    8, 6, 1, 3, '07:00:00', '09:30:00', 'P101A',  'A1',  'TS. Phạm Minh',    NULL, NULL, 3, '2026-08-10', '2026-08-10');
 -- ── fee ────────────────────────────────────────────────────────────────────────
 INSERT INTO `fee` (`user_id`, `semester_id`, `total_amount`, `paid_amount`, `remaining_amount`, `due_date`, `status`, `payment_method`, `paid_at`) VALUES
 (2, 1, 12000000, 12000000,       0, '2025-10-01', 'đã đóng đủ',    'chuyển khoản', '2025-09-15 10:00:00'),
