@@ -1,16 +1,13 @@
 package com.utc2.appreborn.backend.modules.schedule.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-// App gọi endpoint này trước — chỉ lấy timestamp để quyết định có cần download file mới không
+/** Mobile gọi trước để check version — tránh download file không cần thiết */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ScheduleMetaDto {
     private String studentCode;
-    private String lastUpdated;  // ISO-8601
+    private String lastUpdated;   // ISO-8601
 }

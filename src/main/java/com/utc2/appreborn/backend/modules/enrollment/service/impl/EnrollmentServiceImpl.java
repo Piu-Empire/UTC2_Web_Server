@@ -25,7 +25,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     private static final int MAX_CREDITS = 24;
 
     private final CourseEnrollmentRepository courseEnrollmentRepository;
-    private final UserRepository             userRepository;
+    private final UserRepository userRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -40,7 +40,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     }
 
     // ════════════════════════════════════════════════════════════════════════════
-    //  1. DANH SÁCH MÔN ĐÃ ĐĂNG KÝ + ĐIỂM
+    // 1. DANH SÁCH MÔN ĐÃ ĐĂNG KÝ + ĐIỂM
     // ════════════════════════════════════════════════════════════════════════════
 
     @Override
@@ -78,7 +78,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     }
 
     // ════════════════════════════════════════════════════════════════════════════
-    //  2. DANH SÁCH MÔN CÓ THỂ ĐĂNG KÝ
+    // 2. DANH SÁCH MÔN CÓ THỂ ĐĂNG KÝ
     // ════════════════════════════════════════════════════════════════════════════
 
     @Override
@@ -87,8 +87,8 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
         List<Object[]> rows = entityManager.createNativeQuery(
                 "SELECT course_id, course_code, course_name, credits, " +
-                        "theory_hours, practice_hours, department, description FROM course ORDER BY course_code ASC"
-        ).getResultList();
+                        "theory_hours, practice_hours, department, description FROM course ORDER BY course_code ASC")
+                .getResultList();
 
         return rows.stream()
                 .map(row -> {
@@ -117,7 +117,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     }
 
     // ════════════════════════════════════════════════════════════════════════════
-    //  3. ĐĂNG KÝ MÔN HỌC
+    // 3. ĐĂNG KÝ MÔN HỌC
     // ════════════════════════════════════════════════════════════════════════════
 
     @Override
@@ -147,8 +147,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                         .courseId(request.getCourseId())
                         .semesterId(request.getSemesterId())
                         .status("đã đăng ký")
-                        .build()
-        );
+                        .build());
 
         return EnrollmentItemDto.builder()
                 .enrollmentId(saved.getEnrollmentId())
@@ -162,7 +161,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     }
 
     // ════════════════════════════════════════════════════════════════════════════
-    //  4. HỦY ĐĂNG KÝ MÔN HỌC
+    // 4. HỦY ĐĂNG KÝ MÔN HỌC
     // ════════════════════════════════════════════════════════════════════════════
 
     @Override
@@ -208,11 +207,12 @@ public class EnrollmentServiceImpl implements EnrollmentService {
             Object result = entityManager
                     .createNativeQuery(
                             "SELECT semester_name FROM semester " +
-                            "WHERE semester_id = :id AND user_id = :userId")
+                                    "WHERE semester_id = :id AND user_id = :userId")
                     .setParameter("id", semesterId)
                     .setParameter("userId", userId)
                     .getSingleResult();
-            if (result == null) throw new BadRequestException("Học kỳ không thuộc về tài khoản này");
+            if (result == null)
+                throw new BadRequestException("Học kỳ không thuộc về tài khoản này");
             return result.toString();
         } catch (BadRequestException e) {
             throw e;
