@@ -339,7 +339,42 @@
             <version>2.2.0</version>
         </dependency>
 
+        <!-- ================================================= -->
+        <!-- Gmail API v1                                       -->
+        <!-- Gọi Gmail API để đọc email sinh viên              -->
+        <!-- ================================================= -->
+        <dependency>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-gmail</artifactId>
+            <version>v1-rev20220404-2.0.0</version>
+        </dependency>
+
+        <!-- Google Auth Library — HttpCredentialsAdapter cho Gmail API -->
+        <dependency>
+            <groupId>com.google.auth</groupId>
+            <artifactId>google-auth-library-oauth2-http</artifactId>
+            <version>1.23.0</version>
+        </dependency>
+
+        <!-- Gson factory cho Google API client -->
+        <dependency>
+            <groupId>com.google.http-client</groupId>
+            <artifactId>google-http-client-gson</artifactId>
+            <version>1.44.1</version>
+        </dependency>
+
+        <!-- ================================================= -->
+        <!-- Firebase Admin SDK                                 -->
+        <!-- Gửi FCM push notification từ server               -->
+        <!-- ================================================= -->
+        <dependency>
+            <groupId>com.google.firebase</groupId>
+            <artifactId>firebase-admin</artifactId>
+            <version>9.2.0</version>
+        </dependency>
+
     </dependencies>
+
 
 
     <!-- ===================================================== -->

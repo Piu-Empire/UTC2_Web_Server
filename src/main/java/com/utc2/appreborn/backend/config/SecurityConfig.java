@@ -31,8 +31,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Auth
                         .requestMatchers("/api/v1/auth/**").permitAll()
-                        // Mobile — public (không cần token)
-                        .requestMatchers("/api/v1/notification/**").permitAll()
+                        // OTP — public (không cần token, dùng để xác thực email)
+                        .requestMatchers("/api/v1/notifications/send-otp").permitAll()
+                        .requestMatchers("/api/v1/notifications/verify-otp").permitAll()
+                        // Schedule public
                         .requestMatchers("/api/v1/schedule/meta", "/api/v1/schedule/file").permitAll()
                         // Swagger / API docs
                         .requestMatchers("/v3/api-docs/**", "/api-docs/**",
