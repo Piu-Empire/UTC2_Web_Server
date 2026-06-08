@@ -22,4 +22,14 @@ public class DormRegistrationDto {
     private Double totalFee;
     private String paidStatus;
     private String registeredAt;
+    // Thông tin sinh viên — dùng cho admin view
+    private String studentName;
+    private String studentCode;
+    private String email;
+    private String className;
+
+    // Alias cho frontend — frontend dùng item.id ở mọi chỗ
+    public Long getId() {
+        return dormRegId;
+    }
 }

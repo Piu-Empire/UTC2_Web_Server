@@ -8,6 +8,7 @@ import com.utc2.appreborn.backend.modules.enrollment.service.EnrollmentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +27,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/enrollment")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('STUDENT', 'ADMIN', 'STAFF_LEVEL_5')")
 public class EnrollmentController {
 
     private final EnrollmentService enrollmentService;

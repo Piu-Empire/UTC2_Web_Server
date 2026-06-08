@@ -18,11 +18,11 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 @Tag(name = "Admin - Import", description = "Import dữ liệu từ file CSV/Excel")
 @SecurityRequirement(name = "bearerAuth")
-@PreAuthorize("hasRole('ADMIN')")
 public class ImportController {
 
     private final ImportService importService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/profiles", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Import profile sinh viên")
     public ResponseEntity<ApiResponse<ImportResultResponse>> importProfiles(
@@ -32,6 +32,7 @@ public class ImportController {
                 importService.importProfiles(file, overwrite)));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/fees", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Import học phí")
     public ResponseEntity<ApiResponse<ImportResultResponse>> importFees(
@@ -41,6 +42,7 @@ public class ImportController {
                 importService.importTuition(file, overwrite)));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/curriculum", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Import chương trình đào tạo")
     public ResponseEntity<ApiResponse<ImportResultResponse>> importCurriculum(
@@ -50,6 +52,7 @@ public class ImportController {
                 importService.importCurriculum(file, overwrite)));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/courses", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Import học phần")
     public ResponseEntity<ApiResponse<ImportResultResponse>> importCourses(
@@ -59,6 +62,7 @@ public class ImportController {
                 importService.importCourses(file, overwrite)));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/students", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Import sinh viên")
     public ResponseEntity<ApiResponse<ImportResultResponse>> importStudents(
@@ -73,6 +77,7 @@ public class ImportController {
      * Required cols: room_code, building, capacity, room_type, price_per_month
      * Optional cols: floor, status (mặc định: available), amenities
      */
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF_LEVEL_5')")
     @PostMapping(value = "/dormitory-rooms", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Import phòng ký túc xá")
     public ResponseEntity<ApiResponse<ImportResultResponse>> importDormitoryRooms(
@@ -88,6 +93,7 @@ public class ImportController {
      * Optional cols: status, midterm_score, final_score, assignment_score,
      *                total_score, letter_grade, grade_point, is_passed
      */
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF_LEVEL_5')")
     @PostMapping(value = "/enrollments", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Import đăng ký học phần & điểm")
     public ResponseEntity<ApiResponse<ImportResultResponse>> importEnrollments(
