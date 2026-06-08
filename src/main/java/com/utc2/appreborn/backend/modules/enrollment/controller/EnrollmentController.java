@@ -50,6 +50,7 @@ public class EnrollmentController {
         return ResponseEntity.ok(ApiResponse.success(enrollmentService.getAvailableCourses()));
     }
 
+    
     /**
      * POST /api/v1/enrollment
      * Đăng ký 1 môn học.
