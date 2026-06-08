@@ -29,6 +29,27 @@ public interface AssessmentService {
     /** App lấy điểm readonly Tập thể lớp / Khoa/BM / Trường */
     ExternalAssessmentResponse getExternalAssessment(Long userId, String periodId);
 
+    /** Staff lv1 nhập tap_the_score */
+    void setTapTheScore(SetExternalScoreRequest request);
+
+    /** Staff lv3 nhập bo_mon_score */
+    void setBoMonScore(SetExternalScoreRequest request);
+
+    /** Staff lv4 nhập khoa_score */
+    void setKhoaScore(SetExternalScoreRequest request);
+
+    /** Staff lv5 / Admin nhập truong_score */
+    void setTruongScore(SetExternalScoreRequest request);
+
+    /** Advisor duyệt */
+    void approveAdvisor(ApproveRequest request);
+
+    /** Khoa duyệt */
+    void approveKhoa(ApproveRequest request);
+
+    /** Trường duyệt */
+    void approveTruong(ApproveRequest request);
+
     // ─── Admin xem dữ liệu ────────────────────────────────────────────────────
 
     /** Admin lấy toàn bộ đánh giá SV trong 1 học kỳ */
@@ -36,4 +57,7 @@ public interface AssessmentService {
 
     /** Admin lấy toàn bộ đánh giá CVHT trong 1 học kỳ */
     List<StudentAssessmentResponse> getAllAdvisorAssessments(String periodId);
+
+    /** Admin/Staff xem overview tất cả SV (gồm external scores + approval) */
+    List<StudentOverviewResponse> getStudentOverview(String periodId);
 }

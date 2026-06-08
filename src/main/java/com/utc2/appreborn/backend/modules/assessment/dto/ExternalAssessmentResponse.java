@@ -20,6 +20,7 @@ public class ExternalAssessmentResponse {
     public static class ExternalScoreDto {
         private int criteriaId;
         private BigDecimal tapTheScore;
+        private BigDecimal boMonScore;
         private BigDecimal khoaScore;
         private BigDecimal truongScore;
     }

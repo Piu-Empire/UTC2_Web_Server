@@ -17,6 +17,7 @@ public class ImportExternalAssessmentRequest {
     public static class ExternalScoreItem {
         private int criteriaId;
         private BigDecimal tapTheScore;
+        private BigDecimal boMonScore;
         private BigDecimal khoaScore;
         private BigDecimal truongScore;
     }

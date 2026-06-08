@@ -29,13 +29,19 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
+                        // Auth
                         .requestMatchers("/api/v1/auth/**").permitAll()
-                        .requestMatchers("/api/v1/notification/**").permitAll()
-                        .requestMatchers("/api/v1/schedule/**").permitAll()
-                        // Đã thêm "/api-docs/**" vào danh sách dưới đây
-                        .requestMatchers("/v3/api-docs/**", "/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
-                        .permitAll()
-                        .anyRequest().authenticated())
+                        // OTP — public (không cần token, dùng để xác thực email)
+                        .requestMatchers("/api/v1/notifications/send-otp").permitAll()
+                        .requestMatchers("/api/v1/notifications/verify-otp").permitAll()
+                        // Schedule public
+                        .requestMatchers("/api/v1/schedule/meta", "/api/v1/schedule/file").permitAll()
+                        // Swagger / API docs
+                        .requestMatchers("/v3/api-docs/**", "/api-docs/**",
+                                         "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        // Admin schedule — yêu cầu token (anyRequest bên dưới cover)
+                        .anyRequest().authenticated()
+                )
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(entryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `scholarship` (
+﻿CREATE TABLE IF NOT EXISTS `scholarship` (
     `scholarship_id` BIGINT NOT NULL AUTO_INCREMENT UNIQUE COMMENT 'Khóa chính',
     `name`           VARCHAR(255) NOT NULL COMMENT 'Tên học bổng',
     `organization`   VARCHAR(255) COMMENT 'Tổ chức cấp học bổng',

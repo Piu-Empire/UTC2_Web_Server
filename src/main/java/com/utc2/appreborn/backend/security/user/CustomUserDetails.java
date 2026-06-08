@@ -36,4 +36,9 @@ public class CustomUserDetails implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    /** Expose User entity để controller lấy userId, role, v.v. */
+    public User getUser() {
+        return user;
+    }
 }

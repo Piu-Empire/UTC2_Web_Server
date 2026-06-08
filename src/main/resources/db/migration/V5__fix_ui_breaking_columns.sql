@@ -1,4 +1,4 @@
--- ============================================================
+﻿-- ============================================================
 -- V4__fix_ui_breaking_columns.sql
 -- Migration chỉ sửa các cột ảnh hưởng trực tiếp đến UI
 -- Áp dụng trên DB đang chạy, không cần drop/recreate
