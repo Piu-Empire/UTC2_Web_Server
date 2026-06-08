@@ -20,12 +20,12 @@ public class TuitionResponse {
     private BigDecimal paidAmount;
     private BigDecimal remainingAmount;
 
-    // FIX BUG 3: @JsonFormat đảm bảo Jackson luôn serialize thành
-    // ISO String "2024-05-10", không phải array [2024,5,10].
+    /** Tổng tín chỉ đã đăng ký trong kỳ (status != 'đã hủy') — hiển thị "X TC" trên app */
+    private Integer    totalCredits;
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate dueDate;
 
-    // FIX BUG 3: tương tự cho LocalDateTime paidAt.
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime paidAt;
 
