@@ -12,6 +12,7 @@ import com.utc2.appreborn.backend.modules.profile.entity.UserProfileEntity;
 import com.utc2.appreborn.backend.modules.profile.repository.StudentProfileRepository;
 import com.utc2.appreborn.backend.modules.profile.repository.UserProfileRepository;
 import com.utc2.appreborn.backend.modules.academic.repository.SemesterRepository;
+import com.utc2.appreborn.backend.modules.enrollment.repository.CourseEnrollmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,10 +26,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TuitionServiceImpl implements TuitionService {
 
-    private final TuitionFeeRepository     tuitionFeeRepository;
-    private final StudentProfileRepository studentProfileRepository;
-    private final UserProfileRepository    userProfileRepository;
-    private final SemesterRepository       semesterRepository;
+    private final TuitionFeeRepository        tuitionFeeRepository;
+    private final StudentProfileRepository    studentProfileRepository;
+    private final UserProfileRepository       userProfileRepository;
+    private final SemesterRepository          semesterRepository;
+    private final CourseEnrollmentRepository  enrollmentRepository;
 
     private static final String STATUS_UNPAID  = "chưa đóng";
     private static final String STATUS_PAID    = "đã đóng đủ";
@@ -95,8 +97,6 @@ public class TuitionServiceImpl implements TuitionService {
             throw new ResourceNotFoundException("semester phải là số: " + semester);
         }
 
-        // FIX: dùng findFirstUnpaidByUserIdAndSemesterId để ưu tiên record chưa đóng
-        // khi có nhiều fee records trên cùng 1 kỳ (đăng ký thêm môn sau khi đã đóng tiền)
         TuitionFee fee = tuitionFeeRepository
                 .findFirstUnpaidByUserIdAndSemesterId(sp.getUser().getId(), semesterId)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -105,17 +105,11 @@ public class TuitionServiceImpl implements TuitionService {
         return toResponse(fee, sp, up);
     }
 
-    /**
-     * Thanh toán học phí còn lại của 1 kỳ.
-     * FIX: dùng findFirstUnpaidByUserIdAndSemesterId thay vì findByUserIdAndSemesterId
-     * để đảm bảo đóng đúng record "chưa đóng" khi có nhiều records cùng kỳ.
-     */
     @Override
     @Transactional
     public TuitionResponse payTuition(String username, Long semesterId, String paymentMethod) {
         StudentProfileEntity sp = findStudentByUsername(username);
 
-        // FIX: ưu tiên lấy record chưa đóng đủ
         TuitionFee fee = tuitionFeeRepository
                 .findFirstUnpaidByUserIdAndSemesterId(sp.getUser().getId(), semesterId)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -154,6 +148,15 @@ public class TuitionServiceImpl implements TuitionService {
                 ? semesterRepository.findById(fee.getSemesterId())
                 .map(s -> s.getSemesterName()).orElse("Học kỳ " + fee.getSemesterId())
                 : null;
+
+        // FIX: tính tổng tín chỉ đăng ký trong kỳ để trả về cho app hiển thị "X TC"
+        Integer totalCredits = 0;
+        if (fee.getSemesterId() != null && fee.getUserId() != null) {
+            totalCredits = enrollmentRepository.sumCreditsByUserIdAndSemesterId(
+                    fee.getUserId(), fee.getSemesterId());
+            if (totalCredits == null) totalCredits = 0;
+        }
+
         return TuitionResponse.builder()
                 .id(fee.getId())
                 .studentId(sp.getStudentCode())
@@ -163,6 +166,7 @@ public class TuitionServiceImpl implements TuitionService {
                 .totalAmount(fee.getTotalAmount())
                 .paidAmount(fee.getPaidAmount())
                 .remainingAmount(fee.getRemainingAmount())
+                .totalCredits(totalCredits)
                 .dueDate(fee.getDueDate())
                 .paidAt(fee.getPaidAt())
                 .status(fee.getStatus())
