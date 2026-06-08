@@ -28,4 +28,60 @@ public interface DormitoryRegistrationRepository extends JpaRepository<Dormitory
     List<Object[]> findRegistrationsByUserId(@Param("userId") Long userId);
 
     boolean existsByUserIdAndStatusNot(Long userId, String status);
+
+    /**
+     * Lấy toàn bộ đăng ký KTX kèm thông tin sinh viên và phòng — dùng cho Admin web.
+     * Column order:
+     * 0=dorm_reg_id, 1=user_id, 2=status, 3=total_fee, 4=paid_status,
+     * 5=start_date,  6=end_date, 7=registered_at,
+     * 8=room_code,   9=building, 10=room_type, 11=price_per_month,
+     * 12=full_name,  13=student_code, 14=email, 15=class_name
+     */
+    @Query(value = """
+            SELECT dr.dorm_reg_id, dr.user_id, dr.status, dr.total_fee, dr.paid_status,
+                   dr.start_date, dr.end_date, dr.registered_at,
+                   r.room_code, r.building, r.room_type, r.price_per_month,
+                   up.full_name, sp.student_code, u.email, sp.class_name
+            FROM dormitory_registration dr
+            JOIN dormitory_room r ON r.room_id = dr.room_id
+            JOIN user u ON u.user_id = dr.user_id
+            LEFT JOIN user_profile up ON up.user_id = dr.user_id
+            LEFT JOIN student_profile sp ON sp.user_id = dr.user_id
+            ORDER BY dr.registered_at DESC
+            """, nativeQuery = true)
+    List<Object[]> findAllRegistrationsForAdmin();
+
+    @Query(value = """
+            SELECT dr.dorm_reg_id, dr.user_id, dr.status, dr.total_fee, dr.paid_status,
+                   dr.start_date, dr.end_date, dr.registered_at,
+                   r.room_code, r.building, r.room_type, r.price_per_month,
+                   up.full_name, sp.student_code, u.email, sp.class_name
+            FROM dormitory_registration dr
+            JOIN dormitory_room r ON r.room_id = dr.room_id
+            JOIN user u ON u.user_id = dr.user_id
+            LEFT JOIN user_profile up ON up.user_id = dr.user_id
+            LEFT JOIN student_profile sp ON sp.user_id = dr.user_id
+            WHERE dr.status = :status
+            ORDER BY dr.registered_at DESC
+            """, nativeQuery = true)
+    List<Object[]> findAllRegistrationsForAdminByStatus(@Param("status") String status);
+
+    /**
+     * Lấy toàn bộ đăng ký KTX của TẤT CẢ sinh viên kèm thông tin profile — dùng cho export Excel.
+     * Column order:
+     * 0=student_code, 1=full_name, 2=class_name, 3=faculty,
+     * 4=room_code, 5=building, 6=room_type,
+     * 7=start_date, 8=end_date, 9=status, 10=total_fee, 11=paid_status, 12=registered_at
+     */
+    @Query(value = """
+            SELECT sp.student_code, up.full_name, sp.class_name, sp.faculty,
+                   r.room_code, r.building, r.room_type,
+                   dr.start_date, dr.end_date, dr.status, dr.total_fee, dr.paid_status, dr.registered_at
+            FROM dormitory_registration dr
+            JOIN dormitory_room r ON r.room_id = dr.room_id
+            JOIN student_profile sp ON sp.user_id = dr.user_id
+            JOIN user_profile up ON up.user_id = dr.user_id
+            ORDER BY r.building ASC, r.room_code ASC, sp.student_code ASC
+            """, nativeQuery = true)
+    List<Object[]> findAllDormRegistrationsForExport();
 }

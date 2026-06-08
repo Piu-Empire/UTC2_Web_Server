@@ -13,4 +13,6 @@ public class TuitionSummaryResponse {
     private String fullName;
     private BigDecimal totalDebt;
     private List<TuitionResponse> semesters;
+    /** Học phí KTX — null nếu không có đăng ký KTX nào */
+    private List<TuitionResponse> dormitory;
 }

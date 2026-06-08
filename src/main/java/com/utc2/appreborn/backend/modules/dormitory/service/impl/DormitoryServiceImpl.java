@@ -2,6 +2,7 @@ package com.utc2.appreborn.backend.modules.dormitory.service.impl;
 
 import com.utc2.appreborn.backend.exception.BadRequestException;
 import com.utc2.appreborn.backend.exception.ResourceNotFoundException;
+import com.utc2.appreborn.backend.modules.auth.entity.User;
 import com.utc2.appreborn.backend.modules.auth.repository.UserRepository;
 import com.utc2.appreborn.backend.modules.dormitory.dto.DormRegisterRequest;
 import com.utc2.appreborn.backend.modules.dormitory.dto.DormRegistrationDto;
@@ -11,6 +12,8 @@ import com.utc2.appreborn.backend.modules.dormitory.entity.DormitoryRoomEntity;
 import com.utc2.appreborn.backend.modules.dormitory.repository.DormitoryRegistrationRepository;
 import com.utc2.appreborn.backend.modules.dormitory.repository.DormitoryRoomRepository;
 import com.utc2.appreborn.backend.modules.dormitory.service.DormitoryService;
+import com.utc2.appreborn.backend.modules.finance.entity.TuitionFee;
+import com.utc2.appreborn.backend.modules.finance.repository.TuitionFeeRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -26,9 +30,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DormitoryServiceImpl implements DormitoryService {
 
+    private static final String FEE_TYPE_DORMITORY = "DORMITORY";
+    private static final String FEE_STATUS_UNPAID  = "chưa đóng";
+
     private final DormitoryRoomRepository         roomRepository;
     private final DormitoryRegistrationRepository registrationRepository;
     private final UserRepository                  userRepository;
+    private final TuitionFeeRepository            tuitionFeeRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -37,11 +45,14 @@ public class DormitoryServiceImpl implements DormitoryService {
 
     // ── Helper: lấy userId từ JWT — giống pattern trong ScheduleServiceImpl ──
 
-    private Long currentUserId() {
+    private User currentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"))
-                .getId();
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
+
+    private Long currentUserId() {
+        return currentUser().getId();
     }
 
     // ════════════════════════════════════════════════════════════════════════════
@@ -117,7 +128,8 @@ public class DormitoryServiceImpl implements DormitoryService {
     @Override
     @Transactional
     public DormRegistrationDto register(DormRegisterRequest request) {
-        Long userId = currentUserId();
+        User user = currentUser();
+        Long userId = user.getId();
 
         DormitoryRoomEntity room = roomRepository.findById(request.getRoomId())
                 .orElseThrow(() -> new ResourceNotFoundException("Phòng KTX không tồn tại"));
@@ -152,6 +164,23 @@ public class DormitoryServiceImpl implements DormitoryService {
             room.setStatus("đã đầy");
         }
         roomRepository.save(room);
+
+        // ── Tạo fee record cho KTX ────────────────────────────────────────────
+        BigDecimal dormTotal = BigDecimal.valueOf(totalFee);
+        tuitionFeeRepository.findByDormRegId(saved.getDormRegId())
+                .ifPresentOrElse(
+                        fee -> { /* đã có fee — không tạo lại */ },
+                        () -> tuitionFeeRepository.save(TuitionFee.builder()
+                                .user(user)
+                                .dormRegId(saved.getDormRegId())
+                                .feeType(FEE_TYPE_DORMITORY)
+                                .totalAmount(dormTotal)
+                                .paidAmount(BigDecimal.ZERO)
+                                .remainingAmount(dormTotal)
+                                .dueDate(endDate)
+                                .status(FEE_STATUS_UNPAID)
+                                .build())
+                );
 
         return DormRegistrationDto.builder()
                 .dormRegId(saved.getDormRegId())
@@ -191,6 +220,9 @@ public class DormitoryServiceImpl implements DormitoryService {
 
         reg.setStatus("đã hủy");
         registrationRepository.save(reg);
+
+        // ── Xóa fee KTX nếu chưa đóng tiền ────────────────────────────────
+        tuitionFeeRepository.deleteByDormRegIdAndStatus(reg.getDormRegId(), FEE_STATUS_UNPAID);
 
         // Giảm current_occupancy và mở lại phòng nếu trước đó đã đầy
         roomRepository.findById(reg.getRoomId()).ifPresent(room -> {
@@ -233,6 +265,18 @@ public class DormitoryServiceImpl implements DormitoryService {
 
         reg.setPaidStatus("đã đóng");
         registrationRepository.save(reg);
+
+        // ── Cập nhật fee record tương ứng ────────────────────────────────────
+        tuitionFeeRepository.findByDormRegId(dormRegId).ifPresent(fee -> {
+            if (!"đã đóng đủ".equals(fee.getStatus())) {
+                fee.setPaidAmount(fee.getTotalAmount());
+                fee.setRemainingAmount(java.math.BigDecimal.ZERO);
+                fee.setStatus("đã đóng đủ");
+                fee.setPaymentMethod("online");
+                fee.setPaidAt(java.time.LocalDateTime.now());
+                tuitionFeeRepository.save(fee);
+            }
+        });
 
         // Map lại DTO để trả về — lấy thêm info phòng
         DormitoryRoomEntity room = roomRepository.findById(reg.getRoomId()).orElse(null);

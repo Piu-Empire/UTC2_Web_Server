@@ -15,6 +15,11 @@ public class TuitionResponse {
     private String     studentId;
     private String     fullName;
     private Long       semesterId;
+    private String     semesterName;
+    /** FK → dormitory_registration — chỉ có giá trị khi feeType = DORMITORY */
+    private Long       dormRegId;
+    /** Tổng tín chỉ của kỳ này — dùng để hiển thị "X TC" trên Android */
+    private Integer    totalCredits;
     private BigDecimal totalAmount;
     private BigDecimal paidAmount;
     private BigDecimal remainingAmount;

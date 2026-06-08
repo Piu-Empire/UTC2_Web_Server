@@ -6,6 +6,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,13 +21,15 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
+    private static final Logger log = LoggerFactory.getLogger(JwtFilter.class);
+
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
-            @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain) throws ServletException, IOException {
+                                    @NonNull HttpServletResponse response,
+                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -38,18 +42,27 @@ public class JwtFilter extends OncePerRequestFilter {
         try {
             username = jwtService.getUsernameFromToken(jwt);
         } catch (Exception e) {
-            // Token hết hạn hoặc không hợp lệ — không set authentication,
-            // để Spring Security trả 401 bình thường qua authenticationEntryPoint
+            // TOKEN KHÔNG HỢP LỆ HOẶC HẾT HẠN
+            log.warn("[JwtFilter] Token invalid/expired for {} {}: {}",
+                    request.getMethod(), request.getRequestURI(), e.getMessage());
             filterChain.doFilter(request, response);
             return;
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            if (jwtService.isTokenValid(jwt)) {
+            if (jwtService.isTokenValid(jwt, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
+                authToken.setDetails(new org.springframework.security.web.authentication.WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+                log.debug("[JwtFilter] Authenticated: {} → {} {}", username,
+                        request.getMethod(), request.getRequestURI());
+            } else {
+                // TOKEN PARSE ĐƯỢC NHƯNG isTokenValid = FALSE
+                log.warn("[JwtFilter] isTokenValid=false for user={} token_sub={} uri={} {}",
+                        userDetails.getUsername(), username,
+                        request.getMethod(), request.getRequestURI());
             }
         }
         filterChain.doFilter(request, response);

@@ -3,12 +3,17 @@ package com.utc2.appreborn.backend.modules.enrollment.service.impl;
 import com.utc2.appreborn.backend.exception.BadRequestException;
 import com.utc2.appreborn.backend.exception.ResourceNotFoundException;
 import com.utc2.appreborn.backend.modules.enrollment.entity.EnrollmentEntity;
+import com.utc2.appreborn.backend.modules.auth.entity.User;
 import com.utc2.appreborn.backend.modules.auth.repository.UserRepository;
 import com.utc2.appreborn.backend.modules.enrollment.dto.CourseItemDto;
 import com.utc2.appreborn.backend.modules.enrollment.dto.EnrollRequest;
 import com.utc2.appreborn.backend.modules.enrollment.dto.EnrollmentItemDto;
 import com.utc2.appreborn.backend.modules.enrollment.repository.CourseEnrollmentRepository;
 import com.utc2.appreborn.backend.modules.enrollment.service.EnrollmentService;
+import com.utc2.appreborn.backend.modules.finance.entity.TuitionFee;
+import com.utc2.appreborn.backend.modules.finance.repository.TuitionFeeRepository;
+import com.utc2.appreborn.backend.modules.finance.repository.TuitionRateRepository;
+import com.utc2.appreborn.backend.modules.academic.repository.SemesterRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
@@ -16,27 +21,36 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class EnrollmentServiceImpl implements EnrollmentService {
 
-    private static final int MAX_CREDITS = 24;
+    private static final int    MAX_CREDITS       = 24;
+    private static final String FEE_TYPE_SUBJECT  = "SUBJECT";
+    private static final String FEE_STATUS_UNPAID = "chưa đóng";
 
     private final CourseEnrollmentRepository courseEnrollmentRepository;
-    private final UserRepository userRepository;
+    private final UserRepository             userRepository;
+    private final TuitionFeeRepository       tuitionFeeRepository;
+    private final TuitionRateRepository      tuitionRateRepository;
+    private final SemesterRepository         semesterRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    // ── Helper: lấy userId từ JWT ─────────────────────────────────────────────
-
-    private Long currentUserId() {
+    // ── Helper: lấy User hiện tại từ SecurityContext ──────────────────────────
+    private User currentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"))
-                .getId();
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
+
+    private Long currentUserId() {
+        return currentUser().getId();
     }
 
     // ════════════════════════════════════════════════════════════════════════════
@@ -87,8 +101,8 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
         List<Object[]> rows = entityManager.createNativeQuery(
                 "SELECT course_id, course_code, course_name, credits, " +
-                        "theory_hours, practice_hours, department, description FROM course ORDER BY course_code ASC")
-                .getResultList();
+                        "theory_hours, practice_hours, department, description FROM course ORDER BY course_code ASC"
+        ).getResultList();
 
         return rows.stream()
                 .map(row -> {
@@ -117,21 +131,24 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     }
 
     // ════════════════════════════════════════════════════════════════════════════
-    // 3. ĐĂNG KÝ MÔN HỌC
+    // 3. ĐĂNG KÝ MÔN HỌC (có tạo/cập nhật học phí)
     // ════════════════════════════════════════════════════════════════════════════
 
     @Override
     @Transactional
     public EnrollmentItemDto enroll(EnrollRequest request) {
-        Long userId = currentUserId();
+        User user = currentUser();
+        Long userId = user.getId();
 
         Object[] course = getCourseById(request.getCourseId());
-        String semesterName = getSemesterNameForUser(userId, request.getSemesterId());
+        String semesterName = getSemesterNameForUser(userId, request.getSemesterId()); // có kiểm tra user_id
 
+        // Kiểm tra đã đăng ký chưa
         if (courseEnrollmentRepository.existsByUserIdAndCourseIdAndStatusNot(userId, request.getCourseId(), "đã hủy")) {
             throw new BadRequestException("Bạn đã đăng ký môn \"" + course[2] + "\" rồi!");
         }
 
+        // Kiểm tra tín chỉ
         Integer rawCredits = courseEnrollmentRepository
                 .sumCreditsByUserIdAndSemesterId(userId, request.getSemesterId());
         int currentCredits = (rawCredits != null) ? rawCredits : 0;
@@ -141,13 +158,74 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                     "Vượt quá số tín chỉ tối đa (" + MAX_CREDITS + " tín chỉ/học kỳ)!");
         }
 
+        // Lưu enrollment
         EnrollmentEntity saved = courseEnrollmentRepository.save(
                 EnrollmentEntity.builder()
                         .userId(userId)
                         .courseId(request.getCourseId())
                         .semesterId(request.getSemesterId())
                         .status("đã đăng ký")
-                        .build());
+                        .build()
+        );
+
+        // ── Cập nhật học phí ──────────────────────────────────────────────
+        Integer newTotalCredits = courseEnrollmentRepository
+                .sumCreditsByUserIdAndSemesterId(userId, request.getSemesterId());
+        if (newTotalCredits == null) newTotalCredits = courseCredits;
+
+        String academicYear = semesterRepository.findById(request.getSemesterId())
+                .map(s -> s.getAcademicYear())
+                .orElse(null);
+        BigDecimal pricePerCredit = tuitionRateRepository
+                .findByAcademicYearOrDefault(academicYear)
+                .map(r -> r.getPricePerCredit())
+                .orElse(BigDecimal.valueOf(550_000));
+
+        BigDecimal newTotal = BigDecimal.valueOf(newTotalCredits).multiply(pricePerCredit);
+        LocalDate dueDate = LocalDate.now().plusMonths(1).withDayOfMonth(15);
+
+        tuitionFeeRepository.findFirstByUserIdAndSemesterIdAndFeeType(userId, request.getSemesterId(), FEE_TYPE_SUBJECT)
+                .ifPresentOrElse(
+                        existingFee -> {
+                            if ("đã đóng đủ".equals(existingFee.getStatus())) {
+                                // Đã đóng đủ trước đó → tạo fee mới cho phần tăng thêm
+                                BigDecimal alreadyPaid = existingFee.getTotalAmount() != null
+                                        ? existingFee.getTotalAmount() : BigDecimal.ZERO;
+                                BigDecimal extraAmount = newTotal.subtract(alreadyPaid);
+                                if (extraAmount.compareTo(BigDecimal.ZERO) > 0) {
+                                    tuitionFeeRepository.save(TuitionFee.builder()
+                                            .user(user)
+                                            .semesterId(request.getSemesterId())
+                                            .feeType(FEE_TYPE_SUBJECT)
+                                            .totalAmount(extraAmount)
+                                            .paidAmount(BigDecimal.ZERO)
+                                            .remainingAmount(extraAmount)
+                                            .dueDate(dueDate)
+                                            .status(FEE_STATUS_UNPAID)
+                                            .build());
+                                }
+                            } else {
+                                // Chưa đóng đủ → cập nhật tổng tiền
+                                existingFee.setTotalAmount(newTotal);
+                                existingFee.setRemainingAmount(newTotal.subtract(
+                                        existingFee.getPaidAmount() != null ? existingFee.getPaidAmount() : BigDecimal.ZERO));
+                                tuitionFeeRepository.save(existingFee);
+                            }
+                        },
+                        () -> {
+                            // Chưa có fee → tạo mới
+                            tuitionFeeRepository.save(TuitionFee.builder()
+                                    .user(user)
+                                    .semesterId(request.getSemesterId())
+                                    .feeType(FEE_TYPE_SUBJECT)
+                                    .totalAmount(newTotal)
+                                    .paidAmount(BigDecimal.ZERO)
+                                    .remainingAmount(newTotal)
+                                    .dueDate(dueDate)
+                                    .status(FEE_STATUS_UNPAID)
+                                    .build());
+                        }
+                );
 
         return EnrollmentItemDto.builder()
                 .enrollmentId(saved.getEnrollmentId())
@@ -161,7 +239,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     }
 
     // ════════════════════════════════════════════════════════════════════════════
-    // 4. HỦY ĐĂNG KÝ MÔN HỌC
+    // 4. HỦY ĐĂNG KÝ MÔN HỌC (có cập nhật học phí)
     // ════════════════════════════════════════════════════════════════════════════
 
     @Override
@@ -186,6 +264,40 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
         enrollment.setStatus("đã hủy");
         courseEnrollmentRepository.save(enrollment);
+
+        // ── Cập nhật lại fee khi hủy môn ────────────────────────────────────
+        Integer remainingCredits = courseEnrollmentRepository
+                .sumCreditsByUserIdAndSemesterId(userId, enrollment.getSemesterId());
+
+        if (remainingCredits == null || remainingCredits == 0) {
+            // Không còn môn nào trong kỳ → xóa fee SUBJECT nếu chưa đóng
+            tuitionFeeRepository.findFirstByUserIdAndSemesterIdAndFeeType(userId, enrollment.getSemesterId(), FEE_TYPE_SUBJECT)
+                    .ifPresent(fee -> {
+                        if (!"đã đóng đủ".equals(fee.getStatus())) {
+                            tuitionFeeRepository.delete(fee);
+                        }
+                    });
+        } else {
+            // Còn môn → tính lại totalAmount
+            String academicYear = semesterRepository.findById(enrollment.getSemesterId())
+                    .map(s -> s.getAcademicYear())
+                    .orElse(null);
+            BigDecimal pricePerCredit = tuitionRateRepository
+                    .findByAcademicYearOrDefault(academicYear)
+                    .map(r -> r.getPricePerCredit())
+                    .orElse(BigDecimal.valueOf(550_000));
+
+            BigDecimal newTotal = BigDecimal.valueOf(remainingCredits).multiply(pricePerCredit);
+            tuitionFeeRepository.findFirstByUserIdAndSemesterIdAndFeeType(userId, enrollment.getSemesterId(), FEE_TYPE_SUBJECT)
+                    .ifPresent(fee -> {
+                        if (!"đã đóng đủ".equals(fee.getStatus())) {
+                            fee.setTotalAmount(newTotal);
+                            fee.setRemainingAmount(newTotal.subtract(
+                                    fee.getPaidAmount() != null ? fee.getPaidAmount() : BigDecimal.ZERO));
+                            tuitionFeeRepository.save(fee);
+                        }
+                    });
+        }
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
@@ -202,12 +314,15 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         }
     }
 
+    /**
+     * Lấy tên học kỳ, đồng thời kiểm tra học kỳ đó có thuộc về user hiện tại không.
+     * Tránh trường hợp sinh viên đăng ký môn vào học kỳ của người khác.
+     */
     private String getSemesterNameForUser(Long userId, Long semesterId) {
         try {
             Object result = entityManager
                     .createNativeQuery(
-                            "SELECT semester_name FROM semester " +
-                                    "WHERE semester_id = :id AND user_id = :userId")
+                            "SELECT semester_name FROM semester WHERE semester_id = :id AND user_id = :userId")
                     .setParameter("id", semesterId)
                     .setParameter("userId", userId)
                     .getSingleResult();
@@ -218,20 +333,6 @@ public class EnrollmentServiceImpl implements EnrollmentService {
             throw e;
         } catch (Exception e) {
             throw new ResourceNotFoundException("Học kỳ không tồn tại hoặc không thuộc về bạn");
-        }
-    }
-
-    /** @deprecated Dùng getSemesterNameForUser thay thế để verify ownership */
-    @Deprecated
-    private String getSemesterName(Long semesterId) {
-        try {
-            Object result = entityManager
-                    .createNativeQuery("SELECT semester_name FROM semester WHERE semester_id = :id")
-                    .setParameter("id", semesterId)
-                    .getSingleResult();
-            return result != null ? result.toString() : "";
-        } catch (Exception e) {
-            throw new ResourceNotFoundException("Học kỳ không tồn tại");
         }
     }
 }

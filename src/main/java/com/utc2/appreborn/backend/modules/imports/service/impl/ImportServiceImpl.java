@@ -584,7 +584,8 @@ public class ImportServiceImpl implements ImportService {
                     room.setCapacity(Integer.parseInt(capacityStr));
                     room.setRoomType(roomType);
                     room.setPricePerMonth(Double.parseDouble(priceStr.replace(",", "")));
-                    room.setStatus(status.isEmpty() ? "available" : status);
+                    // Normalize status: map English/raw → Vietnamese cho khớp với app
+                    room.setStatus(normalizeRoomStatus(status));
                     if (!floorStr.isEmpty())  room.setFloor(Integer.parseInt(floorStr));
                     if (!amenities.isEmpty()) room.setAmenities(amenities);
 
@@ -799,4 +800,17 @@ public class ImportServiceImpl implements ImportService {
             }
         }
     }
+    /**
+     * Chuyển status từ Excel (English hoặc tiếng Việt) → đúng format trong DB.
+     * DB dùng: "còn chỗ", "đã đầy"
+     */
+    private String normalizeRoomStatus(String raw) {
+        if (raw == null || raw.isBlank()) return "còn chỗ";
+        return switch (raw.trim().toLowerCase()) {
+            case "available", "con cho", "còn chỗ", "trống"    -> "còn chỗ";
+            case "full", "da day", "đã đầy", "day", "đầy"      -> "đã đầy";
+            default -> "còn chỗ"; // fallback an toàn
+        };
+    }
+
 }

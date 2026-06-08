@@ -36,6 +36,26 @@ public interface CourseEnrollmentRepository extends JpaRepository<EnrollmentEnti
     boolean existsByUserIdAndCourseIdAndStatusNot(Long userId, Long courseId, String status);
 
     /**
+     * Lấy toàn bộ đăng ký học phần của TẤT CẢ sinh viên kèm thông tin profile — dùng cho export Excel.
+     * Column order:
+     * 0=student_code, 1=full_name, 2=class_name, 3=faculty,
+     * 4=course_code, 5=course_name, 6=credits,
+     * 7=semester_name, 8=academic_year, 9=status, 10=registered_at
+     */
+    @Query(value = """
+            SELECT sp.student_code, up.full_name, sp.class_name, sp.faculty,
+                   c.course_code, c.course_name, c.credits,
+                   s.semester_name, s.academic_year, e.status, e.registered_at
+            FROM enrollment e
+            JOIN course c ON c.course_id = e.course_id
+            JOIN semester s ON s.semester_id = e.semester_id
+            JOIN student_profile sp ON sp.user_id = e.user_id
+            JOIN user_profile up ON up.user_id = e.user_id
+            ORDER BY s.academic_year ASC, s.semester_number ASC, sp.student_code ASC, c.course_code ASC
+            """, nativeQuery = true)
+    List<Object[]> findAllEnrollmentsForExport();
+
+    /**
      * Tính tổng tín chỉ đã đăng ký trong học kỳ (status != 'đã hủy').
      */
     @Query(value = """

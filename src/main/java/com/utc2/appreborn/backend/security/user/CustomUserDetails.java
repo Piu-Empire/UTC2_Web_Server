@@ -15,9 +15,12 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Đọc role thật từ User entity thay vì hardcode ROLE_STUDENT
         if (user.getRole() == null) {
             return List.of(new SimpleGrantedAuthority("ROLE_STUDENT"));
+        }
+        // STAFF level 5 → authority riêng để phân quyền KTX + học phần
+        if (user.getRole().name().equals("STAFF") && Integer.valueOf(5).equals(user.getStaffLevel())) {
+            return List.of(new SimpleGrantedAuthority("ROLE_STAFF_LEVEL_5"));
         }
         return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
     }
