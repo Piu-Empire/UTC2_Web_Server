@@ -21,6 +21,8 @@ public interface AssessmentService {
 
     void saveAdvisorAssessment(Long userId, SaveAdvisorAssessmentRequest request);
 
+    AdvisorAssessmentResponse getAdvisorAssessment(Long userId, String periodId);
+
     // ─── Điểm external (Admin → Server → App) ────────────────────────────────
 
     /** Admin import điểm Khoa/Lớp/Trường cho một sinh viên */
@@ -56,7 +58,7 @@ public interface AssessmentService {
     List<StudentAssessmentResponse> getAllStudentAssessments(String periodId);
 
     /** Admin lấy toàn bộ đánh giá CVHT trong 1 học kỳ */
-    List<StudentAssessmentResponse> getAllAdvisorAssessments(String periodId);
+    List<AdvisorAssessmentResponse> getAllAdvisorAssessments(String periodId);
 
     /** Admin/Staff xem overview tất cả SV (gồm external scores + approval) */
     List<StudentOverviewResponse> getStudentOverview(String periodId);

@@ -17,7 +17,11 @@ public class ScholarshipDto {
     private String unit;
     private Double minGpa;
     private String description;
-    /** "received" | "not_received" | null */
+    /**
+     * pendingStatus: pending | approved | received
+     * App chỉ thấy approved và received
+     */
     private String status;
     private String receivedAt;
+    private Boolean approved;
 }

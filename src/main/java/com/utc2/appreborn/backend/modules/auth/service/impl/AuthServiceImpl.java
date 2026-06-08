@@ -63,11 +63,14 @@ public class AuthServiceImpl implements AuthService {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(email, request.getPassword()));
 
-        var userDetails = userDetailsService.loadUserByUsername(email);
-        String token = jwtService.generateToken(userDetails);
-
+        // 2. Lấy user để có staffLevel trước khi tạo token
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User không tồn tại"));
+
+        // 3. Tạo JWT token (nhúng staffLevel vào claim)
+        var userDetails = userDetailsService.loadUserByUsername(email);
+        String token = jwtService.generateToken(userDetails, user.getStaffLevel());
+
         String studentCode = getStudentCode(user.getId());
 
         return AuthResponse.builder()
@@ -111,7 +114,9 @@ public class AuthServiceImpl implements AuthService {
             });
 
             var userDetails = userDetailsService.loadUserByUsername(email);
-            String token = jwtService.generateToken(userDetails);
+            String token = jwtService.generateToken(userDetails, user.getStaffLevel());
+
+            // 5. Lấy studentCode
             String studentCode = getStudentCode(user.getId());
 
             return AuthResponse.builder()

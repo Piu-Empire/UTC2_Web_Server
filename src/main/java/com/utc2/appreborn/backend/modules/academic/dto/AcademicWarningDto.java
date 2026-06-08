@@ -17,4 +17,7 @@ public class AcademicWarningDto {
     private String issuedAt;
     private String resolvedAt;
     private String status;
+    private String approvedAt;
+    /** true = đã duyệt (hiển thị app), false = pending (ẩn app) */
+    private Boolean approved;
 }

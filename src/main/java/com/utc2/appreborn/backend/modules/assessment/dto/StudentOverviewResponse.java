@@ -11,6 +11,7 @@ import java.util.List;
 @Builder
 public class StudentOverviewResponse {
     private Long userId;
+    private String studentCode; // MSSV
     private String periodId;
     private BigDecimal studentTotalScore;
     private BigDecimal tapTheScore;

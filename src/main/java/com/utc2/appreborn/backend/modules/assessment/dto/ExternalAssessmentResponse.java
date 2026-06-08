@@ -15,6 +15,11 @@ public class ExternalAssessmentResponse {
     private String periodId;
     private List<ExternalScoreDto> items;
 
+    // Trạng thái duyệt — App dùng để show/hide tab
+    private boolean advisorApproved;
+    private boolean khoaApproved;
+    private boolean truongApproved;
+
     @Data
     @Builder
     public static class ExternalScoreDto {

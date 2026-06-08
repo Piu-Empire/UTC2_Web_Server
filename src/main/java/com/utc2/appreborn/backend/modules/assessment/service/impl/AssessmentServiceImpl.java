@@ -4,6 +4,7 @@ import com.utc2.appreborn.backend.modules.assessment.dto.*;
 import com.utc2.appreborn.backend.modules.assessment.entity.*;
 import com.utc2.appreborn.backend.modules.assessment.repository.*;
 import com.utc2.appreborn.backend.modules.assessment.service.AssessmentService;
+import com.utc2.appreborn.backend.modules.profile.repository.StudentProfileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,7 @@ public class AssessmentServiceImpl implements AssessmentService {
     private final AdvisorAssessmentRepository       advisorRepo;
     private final ExternalAssessmentRepository      externalRepo;
     private final ExternalAssessmentStatusRepository statusRepo;
+    private final StudentProfileRepository          studentProfileRepo;
 
     // ─── Học kỳ ───────────────────────────────────────────────────────────────
 
@@ -81,7 +83,11 @@ public class AssessmentServiceImpl implements AssessmentService {
         advisorRepo.saveAll(entities);
     }
 
-    // ─── External (Admin import) ──────────────────────────────────────────────
+    @Override
+    public AdvisorAssessmentResponse getAdvisorAssessment(Long userId, String periodId) {
+        List<AdvisorAssessment> rows = advisorRepo.findByUserIdAndPeriodId(userId, periodId);
+        return buildAdvisorResponse(userId, periodId, rows);
+    }
 
     @Override
     @Transactional
@@ -116,10 +122,17 @@ public class AssessmentServiceImpl implements AssessmentService {
                         .build())
                 .collect(Collectors.toList());
 
+        ExternalAssessmentStatus status = statusRepo
+                .findById(new ExternalAssessmentStatusId(userId, periodId))
+                .orElse(null);
+
         return ExternalAssessmentResponse.builder()
                 .userId(userId)
                 .periodId(periodId)
                 .items(dtos)
+                .advisorApproved(status != null && status.isAdvisorApproved())
+                .khoaApproved(status != null && status.isKhoaApproved())
+                .truongApproved(status != null && status.isTruongApproved())
                 .build();
     }
 
@@ -225,6 +238,8 @@ public class AssessmentServiceImpl implements AssessmentService {
 
             return StudentOverviewResponse.builder()
                     .userId(userId)
+                    .studentCode(studentProfileRepo.findById(userId)
+                            .map(p -> p.getStudentCode()).orElse(""))
                     .periodId(periodId)
                     .studentTotalScore(svTotal)
                     .tapTheScore(tapThe)
@@ -258,7 +273,7 @@ public class AssessmentServiceImpl implements AssessmentService {
     }
 
     @Override
-    public List<StudentAssessmentResponse> getAllAdvisorAssessments(String periodId) {
+    public List<AdvisorAssessmentResponse> getAllAdvisorAssessments(String periodId) {
         List<AdvisorAssessment> all = advisorRepo.findByPeriodId(periodId);
         Map<Long, List<AdvisorAssessment>> byUser = all.stream()
                 .collect(Collectors.groupingBy(AdvisorAssessment::getUserId));
@@ -289,20 +304,27 @@ public class AssessmentServiceImpl implements AssessmentService {
                 .build();
     }
 
-    private StudentAssessmentResponse buildAdvisorResponse(
+    private AdvisorAssessmentResponse buildAdvisorResponse(
             Long userId, String periodId, List<AdvisorAssessment> rows) {
 
-        List<StudentAssessmentResponse.CriteriaScoreDto> dtos = rows.stream()
-                .map(r -> StudentAssessmentResponse.CriteriaScoreDto.builder()
+        List<AdvisorAssessmentResponse.CriteriaScoreDto> dtos = rows.stream()
+                .map(r -> AdvisorAssessmentResponse.CriteriaScoreDto.builder()
                         .criteriaId(r.getCriteriaId())
                         .score(r.getScore())
-                        .evidenceUris(Collections.emptyList())
                         .build())
                 .collect(Collectors.toList());
 
-        return StudentAssessmentResponse.builder()
+        // studentOpinion là giống nhau cho tất cả row cùng (userId, periodId)
+        String opinion = rows.stream()
+                .map(AdvisorAssessment::getStudentOpinion)
+                .filter(o -> o != null && !o.isBlank())
+                .findFirst()
+                .orElse(null);
+
+        return AdvisorAssessmentResponse.builder()
                 .userId(userId)
                 .periodId(periodId)
+                .studentOpinion(opinion)
                 .items(dtos)
                 .submittedAt(rows.isEmpty() ? null : rows.get(0).getSubmittedAt())
                 .build();

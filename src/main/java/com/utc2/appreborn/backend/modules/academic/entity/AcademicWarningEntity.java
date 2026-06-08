@@ -38,4 +38,10 @@ public class AcademicWarningEntity {
 
     @Column(name = "status")
     private String status;
+
+    @Column(name = "approved_by")
+    private Long approvedBy;
+
+    @Column(name = "approved_at")
+    private LocalDateTime approvedAt;
 }

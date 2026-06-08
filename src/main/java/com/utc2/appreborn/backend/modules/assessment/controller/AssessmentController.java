@@ -58,6 +58,14 @@ public class AssessmentController {
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 
+    @GetMapping("/advisor")
+    public ResponseEntity<ApiResponse<AdvisorAssessmentResponse>> getAdvisorAssessment(
+            @AuthenticationPrincipal CustomUserDetails principal,
+            @RequestParam String periodId) {
+        return ResponseEntity.ok(ApiResponse.success(
+                assessmentService.getAdvisorAssessment(resolveUserId(principal), periodId)));
+    }
+
     // ─── External: App đọc (readonly) ─────────────────────────────────────────
 
     @GetMapping("/external")
@@ -145,7 +153,7 @@ public class AssessmentController {
     }
 
     @GetMapping("/admin/advisor")
-    public ResponseEntity<ApiResponse<List<StudentAssessmentResponse>>> adminGetAllAdvisor(
+    public ResponseEntity<ApiResponse<List<AdvisorAssessmentResponse>>> adminGetAllAdvisor(
             @RequestParam String periodId) {
         return ResponseEntity.ok(ApiResponse.success(
                 assessmentService.getAllAdvisorAssessments(periodId)));

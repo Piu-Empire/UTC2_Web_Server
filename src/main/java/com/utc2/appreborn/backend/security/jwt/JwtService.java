@@ -27,18 +27,25 @@ public class JwtService {
     }
 
     public String generateToken(UserDetails userDetails) {
-        // Nhúng roles vào claim "roles" để Spring Security đọc được sau này
+        return generateToken(userDetails, null);
+    }
+
+    public String generateToken(UserDetails userDetails, Integer staffLevel) {
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
-        return Jwts.builder()
+        var builder = Jwts.builder()
                 .subject(userDetails.getUsername())
-                .claim("roles", roles)          // ← thêm dòng này
+                .claim("roles", roles)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
-                .signWith(getSigningKey())
-                .compact();
+                .expiration(new Date(System.currentTimeMillis() + jwtExpiration));
+
+        if (staffLevel != null) {
+            builder.claim("staffLevel", staffLevel);
+        }
+
+        return builder.signWith(getSigningKey()).compact();
     }
 
     public String getUsernameFromToken(String token) {
@@ -67,6 +74,12 @@ public class JwtService {
         } catch (Exception e) {
             return false;
         }
+    }
+    public Integer getStaffLevelFromToken(String token) {
+        Object level = getClaims(token).get("staffLevel");
+        if (level instanceof Integer) return (Integer) level;
+        if (level instanceof Number) return ((Number) level).intValue();
+        return null;
     }
 
     public boolean isTokenValid(String token) {
