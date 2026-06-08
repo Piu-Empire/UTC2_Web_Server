@@ -15,8 +15,11 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Tạm thời gán mặc định quyền ROLE_STUDENT để phục vụ việc test
-        return List.of(new SimpleGrantedAuthority("ROLE_STUDENT"));
+        // Đọc role thật từ User entity thay vì hardcode ROLE_STUDENT
+        if (user.getRole() == null) {
+            return List.of(new SimpleGrantedAuthority("ROLE_STUDENT"));
+        }
+        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
     }
 
     @Override
@@ -26,11 +29,16 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return user.getEmail(); // Dùng email làm username đăng nhập
+        return user.getEmail();
     }
 
     @Override
     public boolean isEnabled() {
-        return true; // Mặc định tài khoản luôn hoạt động
+        return true;
+    }
+
+    /** Expose User entity để controller lấy userId, role, v.v. */
+    public User getUser() {
+        return user;
     }
 }

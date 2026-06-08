@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
 
 @Data
 @Builder
@@ -21,8 +23,6 @@ public class ProfileResponse {
     private String phoneNumber;
     private String address;
 
-    // FIX BUG 1+3: Đảm bảo Jackson serialize LocalDate thành "yyyy-MM-dd" (String)
-    // thay vì array số [2003,8,15] khi JavaTimeModule chưa được config toàn cục.
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth;
 
@@ -32,7 +32,16 @@ public class ProfileResponse {
     private String academicYear;
     private String className;
     private String status;
-    private String avatarUrl;
     private String studentCardUrl;
     private String role;
+    private String avatarUrl;
+
+    private String advisorName;     // Tên cố vấn học tập
+
+    // ─── DATA ĐỔ VÀO CÁC TAB CHI TIẾT TRÊN FRONTEND ───
+    private Double gpa;                                     // GPA tích lũy tổng
+    private Map<String, List<Map<String, Object>>> grades;  // Bảng điểm nhóm theo học kỳ
+    private List<Map<String, Object>> schedules;            // Thời khóa biểu
+    private List<Map<String, Object>> fees;                 // Tình hình học phí
+    private List<Map<String, Object>> warnings;             // Cảnh báo học vụ
 }

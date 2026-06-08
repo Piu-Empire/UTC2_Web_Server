@@ -1,26 +1,32 @@
 package com.utc2.appreborn.backend.modules.schedule.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+/** Response cho mobile — tra lịch theo sinh viên (file JSON) */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ScheduleItemDto {
+
     private String subjectCode;
     private String subjectName;
-    private String type;         // "LÝ THUYẾT" / "THỰC HÀNH"
+    /** "LÝ THUYẾT" hoặc "THỰC HÀNH" */
+    private String type;
     private String lecturer;
-    private int dayOfWeek;       // 0=Thứ 2 ... 5=Thứ 7
+
+    private int dayOfWeek;
     private int startPeriod;
     private int endPeriod;
-    private String startTime;    // "07:00"
-    private String endTime;      // "09:30"
-    private String startDate;    // "dd/MM/yyyy"
+    private String startTime;   // "HH:mm"
+    private String endTime;     // "HH:mm"
+    private String startDate;   // "dd/MM/yyyy" — lấy từ SEMESTER
     private String endDate;
+
+    private Integer weekStart;
+    private Integer weekEnd;
     private String room;
     private String building;
+    private Integer scheduleType;
+    private String notes;
 }

@@ -13,5 +13,7 @@ public class AuthResponse {
     private String accessToken;
     private String tokenType;
     private String email;
-    private String studentCode; // MSSV — app cần để gọi schedule API
+    private String studentCode;
+    private String role;
+    private Integer staffLevel;
 }

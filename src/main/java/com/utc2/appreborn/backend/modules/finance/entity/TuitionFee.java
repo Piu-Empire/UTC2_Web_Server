@@ -25,8 +25,21 @@ public class TuitionFee {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    // FIX: field riêng để repository findByUserId/sumRemainingByUserId hoạt động
+    // insertable=false, updatable=false vì user_id do @JoinColumn quản lý
+    @Column(name = "user_id", insertable = false, updatable = false)
+    private Long userId;
+
     @Column(name = "semester_id")       // ← FK → SEMESTER
     private Long semesterId;
+
+    /**
+     * Loại phí: "SUBJECT" (học phí môn học) / "DORMITORY" / "OTHER"
+     * Mặc định SUBJECT để tương thích ngược với data cũ.
+     * Dùng để phân biệt khi query — tránh lẫn các loại phí trong cùng bảng fee.
+     */
+    @Column(name = "fee_type", length = 50)
+    private String feeType;
 
     @Column(name = "total_amount", precision = 15, scale = 2)
     private BigDecimal totalAmount;
@@ -52,6 +65,7 @@ public class TuitionFee {
     @PrePersist
     protected void onCreate() {
         if (status == null) status = "chưa đóng";
+        if (feeType == null) feeType = "SUBJECT"; // mặc định học phí môn học
         if (paidAmount == null) paidAmount = BigDecimal.ZERO;
         if (totalAmount != null) {
             remainingAmount = totalAmount.subtract(paidAmount);

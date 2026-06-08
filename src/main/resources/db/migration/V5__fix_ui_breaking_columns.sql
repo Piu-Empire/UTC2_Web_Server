@@ -1,4 +1,4 @@
--- ============================================================
+﻿-- ============================================================
 -- V4__fix_ui_breaking_columns.sql
 -- Migration chỉ sửa các cột ảnh hưởng trực tiếp đến UI
 -- Áp dụng trên DB đang chạy, không cần drop/recreate
@@ -9,17 +9,13 @@
 -- Spring Security UserDetails cần field `role` và `enabled` tồn tại trong bảng.
 -- Thiếu 2 cột này → Hibernate map lỗi → đăng nhập không được.
 ALTER TABLE `user`
-    ADD COLUMN IF NOT EXISTS `role`    VARCHAR(50) NOT NULL DEFAULT 'STUDENT'
+    ADD COLUMN `role`    VARCHAR(50) NOT NULL DEFAULT 'STUDENT'
         COMMENT 'Vai trò: STUDENT / ADMIN / STAFF',
-    ADD COLUMN IF NOT EXISTS `enabled` BOOLEAN     NOT NULL DEFAULT true
+    ADD COLUMN `enabled` BOOLEAN     NOT NULL DEFAULT true
         COMMENT '1: tài khoản đang hoạt động, 0: bị khoá';
 
 -- ── 2. STUDENT_PROFILE ───────────────────────────────────────
--- InfoFragment, CardReissueActivity... đọc ProfileResponse.studentCardUrl
--- ProfileResponse map từ StudentProfile entity — thiếu cột này Hibernate lỗi.
-ALTER TABLE `student_profile`
-    ADD COLUMN IF NOT EXISTS `student_card_url` TEXT
-        COMMENT 'Đường dẫn ảnh thẻ sinh viên';
+-- student_card_url đã được thêm ở V4__add_student_card_url.sql, bỏ qua.
 
 -- ── 3. fee ───────────────────────────────────────────────────
 -- SubjectTuitionActivity / DormitoryTuitionActivity / InvoiceActivity

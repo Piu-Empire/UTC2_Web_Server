@@ -3,12 +3,12 @@
 <!-- ========================================================= -->
 <!-- Maven Project Configuration File                          -->
 <!-- File cấu hình toàn bộ project Spring Boot backend         -->
-<!-- Quản lý:                                                   -->
-<!-- - Dependency                                               -->
-<!-- - Build                                                    -->
-<!-- - Plugin                                                   -->
-<!-- - Version Java                                             -->
-<!-- - Packaging                                                -->
+<!-- Quản lý:                                                  -->
+<!-- - Dependency                                              -->
+<!-- - Build                                                   -->
+<!-- - Plugin                                                  -->
+<!-- - Version Java                                            -->
+<!-- - Packaging                                               -->
 <!-- ========================================================= -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -30,8 +30,6 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-
-        <!-- Phiên bản Spring Boot -->
         <version>3.5.14</version>
 
         <!-- Tìm parent trong repository -->
@@ -102,24 +100,39 @@
 
 
     <!-- ===================================================== -->
-    <!-- Dependencies                                           -->
+    <!-- Dependencies                                          -->
     <!-- Thư viện sử dụng trong project                        -->
     <!-- ===================================================== -->
     <dependencies>
 
-<dependency>
-    <groupId>me.paulschwarz</groupId>
-    <artifactId>spring-dotenv</artifactId>
-    <version>4.0.0</version>
-</dependency>
+        <dependency>
+            <groupId>me.paulschwarz</groupId>
+            <artifactId>spring-dotenv</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+
         <!-- ================================================= -->
-        <!-- Spring Web                                         -->
-        <!-- Dùng tạo REST API / Web Server                     -->
-        <!-- Chức năng:                                         -->
-        <!-- - HTTP Request/Response                            -->
-        <!-- - REST Controller                                  -->
-        <!-- - JSON API                                         -->
-        <!-- - Embedded Tomcat Server                           -->
+        <!-- Apache POI - Xử lý file Excel                     -->
+        <!-- ================================================= -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>5.2.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.2.5</version>
+        </dependency>
+
+        <!-- ================================================= -->
+        <!-- Spring Web                                        -->
+        <!-- Dùng tạo REST API / Web Server                    -->
+        <!-- Chức năng:                                        -->
+        <!-- - HTTP Request/Response                           -->
+        <!-- - REST Controller                                 -->
+        <!-- - JSON API                                        -->
+        <!-- - Embedded Tomcat Server                          -->
         <!-- ================================================= -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -128,13 +141,13 @@
 
 
         <!-- ================================================= -->
-        <!-- Spring Data JPA                                    -->
-        <!-- ORM framework dùng thao tác database               -->
-        <!-- Chức năng:                                         -->
-        <!-- - Mapping Entity ↔ Table                           -->
-        <!-- - CRUD tự động                                     -->
-        <!-- - Query database                                   -->
-        <!-- - Hibernate ORM                                    -->
+        <!-- Spring Data JPA                                   -->
+        <!-- ORM framework dùng thao tác database              -->
+        <!-- Chức năng:                                        -->
+        <!-- - Mapping Entity ↔ Table                          -->
+        <!-- - CRUD tự động                                    -->
+        <!-- - Query database                                  -->
+        <!-- - Hibernate ORM                                   -->
         <!-- ================================================= -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -143,11 +156,11 @@
 
 
         <!-- ================================================= -->
-        <!-- MySQL JDBC Driver                                  -->
-        <!-- Driver kết nối Java ↔ MySQL                        -->
-        <!-- Chức năng:                                         -->
-        <!-- - JDBC connection                                  -->
-        <!-- - Gửi SQL tới MySQL                                -->
+        <!-- MySQL JDBC Driver                                 -->
+        <!-- Driver kết nối Java ↔ MySQL                       -->
+        <!-- Chức năng:                                        -->
+        <!-- - JDBC connection                                 -->
+        <!-- - Gửi SQL tới MySQL                               -->
         <!-- ================================================= -->
         <dependency>
             <groupId>com.mysql</groupId>
@@ -159,14 +172,14 @@
 
 
         <!-- ================================================= -->
-        <!-- Spring Security                                    -->
-        <!-- Framework bảo mật hệ thống                         -->
-        <!-- Chức năng:                                         -->
-        <!-- - Authentication                                   -->
-        <!-- - Authorization                                    -->
-        <!-- - Filter request                                   -->
-        <!-- - Bảo vệ API                                       -->
-        <!-- - Kết hợp JWT                                      -->
+        <!-- Spring Security                                   -->
+        <!-- Framework bảo mật hệ thống                        -->
+        <!-- Chức năng:                                        -->
+        <!-- - Authentication                                  -->
+        <!-- - Authorization                                   -->
+        <!-- - Filter request                                  -->
+        <!-- - Bảo vệ API                                      -->
+        <!-- - Kết hợp JWT                                     -->
         <!-- ================================================= -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -175,27 +188,31 @@
 
 
         <!-- ================================================= -->
-        <!-- Validation                                          -->
-        <!-- Validate request data                              -->
-        <!-- Chức năng:                                         -->
-        <!-- - @NotBlank                                        -->
-        <!-- - @Email                                           -->
-        <!-- - @Size                                            -->
-        <!-- - Validate DTO                                     -->
+        <!-- Validation                                        -->
+        <!-- Validate request data                             -->
+        <!-- Chức năng:                                        -->
+        <!-- - @NotBlank                                       -->
+        <!-- - @Email                                          -->
+        <!-- - @Size                                           -->
+        <!-- - Validate DTO                                    -->
         <!-- ================================================= -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
 
 
         <!-- ================================================= -->
-        <!-- JWT API                                             -->
-        <!-- Thư viện JWT                                       -->
-        <!-- Chức năng:                                         -->
-        <!-- - Tạo token                                        -->
-        <!-- - Verify token                                     -->
-        <!-- - Parse token                                      -->
+        <!-- JWT API                                           -->
+        <!-- Thư viện JWT                                      -->
+        <!-- Chức năng:                                        -->
+        <!-- - Tạo token                                       -->
+        <!-- - Verify token                                    -->
+        <!-- - Parse token                                     -->
         <!-- ================================================= -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
@@ -205,8 +222,8 @@
 
 
         <!-- ================================================= -->
-        <!-- JWT Implementation                                  -->
-        <!-- Logic runtime JWT                                  -->
+        <!-- JWT Implementation                                -->
+        <!-- Logic runtime JWT                                 -->
         <!-- ================================================= -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
@@ -217,8 +234,8 @@
 
 
         <!-- ================================================= -->
-        <!-- JWT Jackson                                         -->
-        <!-- Convert object ↔ JSON trong JWT                    -->
+        <!-- JWT Jackson                                       -->
+        <!-- Convert object ↔ JSON trong JWT                   -->
         <!-- ================================================= -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
@@ -229,14 +246,14 @@
 
 
         <!-- ================================================= -->
-        <!-- Swagger / OpenAPI                                   -->
-        <!-- Tự sinh tài liệu API                               -->
-        <!-- Chức năng:                                         -->
-        <!-- - Xem danh sách API                                -->
-        <!-- - Test API trực tiếp                               -->
-        <!-- - API Documentation                                -->
-        <!-- URL:                                               -->
-        <!-- /swagger-ui.html                                   -->
+        <!-- Swagger / OpenAPI                                 -->
+        <!-- Tự sinh tài liệu API                              -->
+        <!-- Chức năng:                                        -->
+        <!-- - Xem danh sách API                               -->
+        <!-- - Test API trực tiếp                              -->
+        <!-- - API Documentation                               -->
+        <!-- URL:                                              -->
+        <!-- /swagger-ui.html                                  -->
         <!-- ================================================= -->
         <dependency>
             <groupId>org.springdoc</groupId>
@@ -246,11 +263,11 @@
 
 
         <!-- ================================================= -->
-        <!-- Flyway Core                                         -->
-        <!-- Database migration system                          -->
-        <!-- Chức năng:                                         -->
-        <!-- - Version database                                 -->
-        <!-- - Auto run SQL migration                           -->
+        <!-- Flyway Core                                       -->
+        <!-- Database migration system                         -->
+        <!-- Chức năng:                                        -->
+        <!-- - Version database                                -->
+        <!-- - Auto run SQL migration                          -->
         <!-- ================================================= -->
         <dependency>
             <groupId>org.flywaydb</groupId>
@@ -259,23 +276,23 @@
 
 
         <!-- ================================================= -->
-        <!-- Flyway MySQL                                        -->
-        <!-- Flyway support cho MySQL                           -->
+        <!-- Flyway MySQL                                      -->
+        <!-- Flyway support cho MySQL                          -->
         <!-- ================================================= -->
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-mysql</artifactId>
-        </dependency>
+    </dependency>
 
 
         <!-- ================================================= -->
-        <!-- Lombok                                              -->
-        <!-- Giảm code boilerplate                              -->
-        <!-- Chức năng:                                         -->
-        <!-- - Auto Getter/Setter                               -->
-        <!-- - Constructor                                      -->
-        <!-- - Builder                                           -->
-        <!-- - toString                                         -->
+        <!-- Lombok                                            -->
+        <!-- Giảm code boilerplate                             -->
+        <!-- Chức năng:                                        -->
+        <!-- - Auto Getter/Setter                              -->
+        <!-- - Constructor                                     -->
+        <!-- - Builder                                         -->
+        <!-- - toString                                        -->
         <!-- ================================================= -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -287,12 +304,12 @@
 
 
         <!-- ================================================= -->
-        <!-- Spring Boot Test                                    -->
-        <!-- Framework test                                     -->
-        <!-- Chức năng:                                         -->
-        <!-- - Unit Test                                        -->
-        <!-- - Integration Test                                 -->
-        <!-- - MockMvc                                          -->
+        <!-- Spring Boot Test                                  -->
+        <!-- Framework test                                    -->
+        <!-- Chức năng:                                        -->
+        <!-- - Unit Test                                       -->
+        <!-- - Integration Test                                -->
+        <!-- - MockMvc                                         -->
         <!-- ================================================= -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -304,8 +321,8 @@
 
 
         <!-- ================================================= -->
-        <!-- Spring Security Test                                -->
-        <!-- Test security/authentication                        -->
+        <!-- Spring Security Test                              -->
+        <!-- Test security/authentication                      -->
         <!-- ================================================= -->
         <dependency>
             <groupId>org.springframework.security</groupId>
@@ -322,7 +339,42 @@
             <version>2.2.0</version>
         </dependency>
 
+        <!-- ================================================= -->
+        <!-- Gmail API v1                                       -->
+        <!-- Gọi Gmail API để đọc email sinh viên              -->
+        <!-- ================================================= -->
+        <dependency>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-gmail</artifactId>
+            <version>v1-rev20220404-2.0.0</version>
+        </dependency>
+
+        <!-- Google Auth Library — HttpCredentialsAdapter cho Gmail API -->
+        <dependency>
+            <groupId>com.google.auth</groupId>
+            <artifactId>google-auth-library-oauth2-http</artifactId>
+            <version>1.23.0</version>
+        </dependency>
+
+        <!-- Gson factory cho Google API client -->
+        <dependency>
+            <groupId>com.google.http-client</groupId>
+            <artifactId>google-http-client-gson</artifactId>
+            <version>1.44.1</version>
+        </dependency>
+
+        <!-- ================================================= -->
+        <!-- Firebase Admin SDK                                 -->
+        <!-- Gửi FCM push notification từ server               -->
+        <!-- ================================================= -->
+        <dependency>
+            <groupId>com.google.firebase</groupId>
+            <artifactId>firebase-admin</artifactId>
+            <version>9.2.0</version>
+        </dependency>
+
     </dependencies>
+
 
 
     <!-- ===================================================== -->
@@ -334,8 +386,8 @@
 
 
             <!-- ============================================= -->
-            <!-- Spring Boot Maven Plugin                       -->
-            <!-- Plugin build/run Spring Boot                   -->
+            <!-- Spring Boot Maven Plugin                      -->
+            <!-- Plugin build/run Spring Boot                  -->
             <!-- ============================================= -->
             <plugin>
 
@@ -357,8 +409,8 @@
 
 
             <!-- ============================================= -->
-            <!-- Maven Compiler Plugin                          -->
-            <!-- Compile Java source code                       -->
+            <!-- Maven Compiler Plugin                         -->
+            <!-- Compile Java source code                      -->
             <!-- ============================================= -->
             <plugin>
 
@@ -370,7 +422,7 @@
 
 
                     <!-- ===================================== -->
-                    <!-- Compile source code                    -->
+                    <!-- Compile source code                   -->
                     <!-- ===================================== -->
                     <execution>
 
@@ -401,7 +453,7 @@
 
 
                     <!-- ===================================== -->
-                    <!-- Compile test source                    -->
+                    <!-- Compile test source                   -->
                     <!-- ===================================== -->
                     <execution>
 

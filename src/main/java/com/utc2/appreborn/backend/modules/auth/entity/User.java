@@ -30,6 +30,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(name = "staff_level")
+    private Integer staffLevel; // 1=tập thể lớp, 3=bộ môn, 4=khoa, 5=trường. NULL nếu không phải STAFF
+
     private boolean enabled;
 
     private LocalDateTime createdAt;
