@@ -1,5 +1,5 @@
 -- ============================================================
--- V14__fee_link_enrollment_and_dormitory.sql
+-- V17__fee_link_enrollment_and_dormitory.sql
 -- Cho phép bảng fee lưu học phí KTX (không cần semester_id)
 -- và liên kết với dorm_reg_id để xác định đăng ký KTX tương ứng.
 -- ============================================================

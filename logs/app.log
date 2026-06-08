@@ -12894,3 +12894,96 @@ Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
 2026-06-08T14:25:06.874Z DEBUG 1 --- [http-nio-8080-exec-1] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/tuition/summary
 2026-06-08T14:25:08.777Z DEBUG 1 --- [http-nio-8080-exec-2] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/dormitory/my
 2026-06-08T14:25:08.783Z DEBUG 1 --- [http-nio-8080-exec-3] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/tuition/paid
+2026-06-08T15:19:04.781Z  INFO 1 --- [main] c.u.a.backend.BackendApplication         : Starting BackendApplication v0.0.1-SNAPSHOT using Java 21.0.11 with PID 1 (/app/app.jar started by root in /app)
+2026-06-08T15:19:04.785Z DEBUG 1 --- [main] c.u.a.backend.BackendApplication         : Running with Spring Boot v3.5.14, Spring v6.2.18
+2026-06-08T15:19:04.792Z  INFO 1 --- [main] c.u.a.backend.BackendApplication         : No active profile set, falling back to 1 default profile: "default"
+2026-06-08T15:19:06.374Z  INFO 1 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-08T15:19:06.582Z  INFO 1 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 190 ms. Found 23 JPA repository interfaces.
+2026-06-08T15:19:07.606Z  INFO 1 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-06-08T15:19:07.639Z  INFO 1 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-08T15:19:07.640Z  INFO 1 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.54]
+2026-06-08T15:19:07.713Z  INFO 1 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-06-08T15:19:07.715Z  INFO 1 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2830 ms
+2026-06-08T15:19:08.147Z  INFO 1 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-06-08T15:19:08.502Z  INFO 1 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@8af1c49
+2026-06-08T15:19:08.507Z  INFO 1 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-06-08T15:19:08.581Z  INFO 1 --- [main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://mysql-db:3306/utc2app?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true (MySQL 8.0)
+2026-06-08T15:19:08.658Z  INFO 1 --- [main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table `utc2app`.`flyway_schema_history` does not exist yet
+2026-06-08T15:19:08.666Z  INFO 1 --- [main] o.f.core.internal.command.DbValidate     : Successfully validated 21 migrations (execution time 00:00.041s)
+2026-06-08T15:19:08.695Z  INFO 1 --- [main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table `utc2app`.`flyway_schema_history` ...
+2026-06-08T15:19:08.832Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Current version of schema `utc2app`: << Empty Schema >>
+2026-06-08T15:19:08.888Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "1 - utc2 init schema"
+2026-06-08T15:19:10.750Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "2 - insert initial data"
+2026-06-08T15:19:10.810Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "4 - add student card url"
+2026-06-08T15:19:10.853Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "5 - fix ui breaking columns"
+2026-06-08T15:19:10.931Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "6 - fix service request pk"
+2026-06-08T15:19:10.966Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "7 - add user profile address"
+2026-06-08T15:19:11.003Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "8 - add password reset token"
+2026-06-08T15:19:11.053Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "9 - insert test"
+2026-06-08T15:19:11.074Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "10 - update admin role"
+2026-06-08T15:19:11.100Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "11 - fix academic warning type"
+2026-06-08T15:19:11.126Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "12 - simplify payment status"
+2026-06-08T15:19:11.282Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "13 - add fee type"
+2026-06-08T15:19:11.377Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "14 - notification fcm gmail"
+2026-06-08T15:19:11.493Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "15 - create tuition rate"
+2026-06-08T15:19:11.536Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "16 - fix fee data and recalculate"
+2026-06-08T15:19:11.564Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "17 - fee link enrollment and dormitory"
+2026-06-08T15:19:11.728Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "20250810.01 - create assessment tables"
+2026-06-08T15:19:11.841Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "20250810.02 - add scholarship tables"
+2026-06-08T15:19:12.025Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "20250815.01 - assessment staff external redesign"
+2026-06-08T15:19:12.147Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "20250815.02 - test data assessment roles"
+2026-06-08T15:19:12.209Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `utc2app` to version "20250815.03 - fix staff levels complete"
+2026-06-08T15:19:12.333Z  WARN 1 --- [main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: Duplicate entry 'giangvien@utc2.edu.vn' for key 'user.email' (SQL State: 23000 - Error Code: 1062)
+2026-06-08T15:19:12.336Z  WARN 1 --- [main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: Duplicate entry '8' for key 'user_profile.PRIMARY' (SQL State: 23000 - Error Code: 1062)
+2026-06-08T15:19:12.365Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Successfully applied 21 migrations to schema `utc2app`, now at version v20250815.03 (execution time 00:03.065s)
+2026-06-08T15:19:12.464Z  INFO 1 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-06-08T15:19:12.543Z  INFO 1 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.49.Final
+2026-06-08T15:19:12.599Z  INFO 1 --- [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-06-08T15:19:12.971Z  INFO 1 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-08T15:19:13.054Z  WARN 1 --- [main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-08T15:19:13.077Z  INFO 1 --- [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0.46
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-06-08T15:19:14.505Z  INFO 1 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-08T15:19:14.554Z  INFO 1 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-08T15:19:14.912Z DEBUG 1 --- [main] c.u.a.backend.middleware.JwtFilter       : Filter 'jwtFilter' configured for use
+2026-06-08T15:19:15.059Z  INFO 1 --- [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-08T15:19:15.620Z  INFO 1 --- [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-06-08T15:19:16.717Z  WARN 1 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-06-08T15:19:17.777Z  INFO 1 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-06-08T15:19:17.813Z  INFO 1 --- [main] c.u.a.backend.BackendApplication         : Started BackendApplication in 13.941 seconds (process running for 14.989)
+2026-06-08T15:20:00.893Z  INFO 1 --- [http-nio-8080-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-06-08T15:20:00.894Z  INFO 1 --- [http-nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-08T15:20:00.898Z  INFO 1 --- [http-nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2026-06-08T15:20:01.180Z DEBUG 1 --- [http-nio-8080-exec-1] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-08T15:20:01.180Z DEBUG 1 --- [http-nio-8080-exec-2] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-08T15:20:01.480Z DEBUG 1 --- [http-nio-8080-exec-3] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → POST /api/v1/notifications/fcm/token
+2026-06-08T15:20:14.130Z DEBUG 1 --- [http-nio-8080-exec-5] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/dormitory/rooms
+2026-06-08T15:20:15.751Z DEBUG 1 --- [http-nio-8080-exec-4] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → POST /api/v1/dormitory/register
+2026-06-08T15:20:18.994Z DEBUG 1 --- [http-nio-8080-exec-6] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/dormitory/rooms
+2026-06-08T15:20:34.695Z DEBUG 1 --- [http-nio-8080-exec-7] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/assessment/periods
+2026-06-08T15:20:38.520Z DEBUG 1 --- [http-nio-8080-exec-8] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/interaction/feedback/my
+2026-06-08T15:20:40.121Z DEBUG 1 --- [http-nio-8080-exec-10] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/academic/semesters
+2026-06-08T15:20:43.728Z DEBUG 1 --- [http-nio-8080-exec-9] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/enrollment/my
+2026-06-08T15:20:46.526Z DEBUG 1 --- [http-nio-8080-exec-1] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-08T15:20:46.535Z DEBUG 1 --- [http-nio-8080-exec-2] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-08T15:20:56.874Z DEBUG 1 --- [http-nio-8080-exec-3] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-08T15:20:56.875Z DEBUG 1 --- [http-nio-8080-exec-5] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-08T15:20:58.702Z DEBUG 1 --- [http-nio-8080-exec-4] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/tuition/summary
+2026-06-08T15:21:10.517Z DEBUG 1 --- [http-nio-8080-exec-7] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-08T15:21:10.517Z DEBUG 1 --- [http-nio-8080-exec-6] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-08T15:21:12.296Z DEBUG 1 --- [http-nio-8080-exec-8] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/tuition/summary
+2026-06-08T15:21:26.677Z DEBUG 1 --- [http-nio-8080-exec-10] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/tuition/summary
+2026-06-08T15:21:31.232Z DEBUG 1 --- [http-nio-8080-exec-9] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/tuition/paid
+2026-06-08T15:21:31.235Z DEBUG 1 --- [http-nio-8080-exec-1] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/dormitory/my
+2026-06-08T15:21:58.892Z DEBUG 1 --- [http-nio-8080-exec-5] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-08T15:21:58.892Z DEBUG 1 --- [http-nio-8080-exec-2] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-08T15:22:01.068Z DEBUG 1 --- [http-nio-8080-exec-3] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/dormitory/rooms
+2026-06-08T15:22:04.243Z DEBUG 1 --- [http-nio-8080-exec-4] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/dormitory/my
+2026-06-08T15:22:04.359Z DEBUG 1 --- [http-nio-8080-exec-6] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/tuition/summary
+2026-06-08T15:22:06.308Z DEBUG 1 --- [http-nio-8080-exec-7] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/tuition/summary

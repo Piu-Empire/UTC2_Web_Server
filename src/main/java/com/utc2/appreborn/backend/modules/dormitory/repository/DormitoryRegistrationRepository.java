@@ -47,4 +47,32 @@ public interface DormitoryRegistrationRepository extends JpaRepository<Dormitory
             ORDER BY r.building ASC, r.room_code ASC, sp.student_code ASC
             """, nativeQuery = true)
     List<Object[]> findAllDormRegistrationsForExport();
+    @Query(value = """
+        SELECT dr.dorm_reg_id, dr.user_id, dr.status, dr.total_fee, dr.paid_status,
+               dr.start_date, dr.end_date, dr.registered_at,
+               r.room_code, r.building, r.room_type, r.price_per_month,
+               up.full_name, sp.student_code, u.email, sp.class_name
+        FROM dormitory_registration dr
+        JOIN dormitory_room r ON r.room_id = dr.room_id
+        JOIN student_profile sp ON sp.user_id = dr.user_id
+        JOIN user_profile up ON up.user_id = dr.user_id
+        JOIN user u ON u.user_id = dr.user_id
+        ORDER BY dr.registered_at DESC
+        """, nativeQuery = true)
+    List<Object[]> findAllRegistrationsForAdmin();
+
+    @Query(value = """
+        SELECT dr.dorm_reg_id, dr.user_id, dr.status, dr.total_fee, dr.paid_status,
+               dr.start_date, dr.end_date, dr.registered_at,
+               r.room_code, r.building, r.room_type, r.price_per_month,
+               up.full_name, sp.student_code, u.email, sp.class_name
+        FROM dormitory_registration dr
+        JOIN dormitory_room r ON r.room_id = dr.room_id
+        JOIN student_profile sp ON sp.user_id = dr.user_id
+        JOIN user_profile up ON up.user_id = dr.user_id
+        JOIN user u ON u.user_id = dr.user_id
+        WHERE dr.status = :status
+        ORDER BY dr.registered_at DESC
+        """, nativeQuery = true)
+    List<Object[]> findAllRegistrationsForAdminByStatus(@Param("status") String status);
 }
