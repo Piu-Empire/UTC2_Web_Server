@@ -13,6 +13,7 @@ import com.utc2.appreborn.backend.modules.profile.repository.StudentProfileRepos
 import com.utc2.appreborn.backend.modules.profile.repository.UserProfileRepository;
 import com.utc2.appreborn.backend.modules.academic.repository.SemesterRepository;
 import com.utc2.appreborn.backend.modules.enrollment.repository.CourseEnrollmentRepository;
+import com.utc2.appreborn.backend.modules.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,7 @@ public class TuitionServiceImpl implements TuitionService {
     private final UserProfileRepository       userProfileRepository;
     private final SemesterRepository          semesterRepository;
     private final CourseEnrollmentRepository  enrollmentRepository;
+    private final NotificationService         notificationService;
 
     private static final String STATUS_UNPAID  = "chưa đóng";
     private static final String STATUS_PAID    = "đã đóng đủ";
@@ -128,7 +130,21 @@ public class TuitionServiceImpl implements TuitionService {
         tuitionFeeRepository.save(fee);
 
         UserProfileEntity up = userProfileRepository.findById(sp.getUser().getId()).orElse(null);
-        return toResponse(fee, sp, up);
+        TuitionResponse result = toResponse(fee, sp, up);
+        
+        // Push notification
+        try {
+            notificationService.createSystemNotification(
+                    sp.getUser().getId(),
+                    "TUITION_PAID",
+                    "Thanh toán học phí thành công",
+                    "Bạn đã thanh toán thành công " + fee.getPaidAmount() + " cho kỳ " + (result.getSemesterName() != null ? result.getSemesterName() : semesterId),
+                    "TUITION",
+                    fee.getId()
+            );
+        } catch (Exception ignored) {}
+        
+        return result;
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

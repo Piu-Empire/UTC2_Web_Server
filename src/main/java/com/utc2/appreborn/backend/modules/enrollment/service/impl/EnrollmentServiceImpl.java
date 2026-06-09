@@ -14,6 +14,7 @@ import com.utc2.appreborn.backend.modules.finance.entity.TuitionFee;
 import com.utc2.appreborn.backend.modules.finance.repository.TuitionFeeRepository;
 import com.utc2.appreborn.backend.modules.finance.repository.TuitionRateRepository;
 import com.utc2.appreborn.backend.modules.academic.repository.SemesterRepository;
+import com.utc2.appreborn.backend.modules.notification.service.NotificationService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     private final TuitionFeeRepository       tuitionFeeRepository;
     private final TuitionRateRepository      tuitionRateRepository;
     private final SemesterRepository         semesterRepository;
+    private final NotificationService        notificationService;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -238,7 +240,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                         }
                 );
 
-        return EnrollmentItemDto.builder()
+        EnrollmentItemDto result = EnrollmentItemDto.builder()
                 .enrollmentId(saved.getEnrollmentId())
                 .courseCode((String) course[1])
                 .courseName((String) course[2])
@@ -247,6 +249,20 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .status(saved.getStatus())
                 .registeredAt(saved.getRegisteredAt() != null ? saved.getRegisteredAt().toString() : null)
                 .build();
+                
+        // Push notification
+        try {
+            notificationService.createSystemNotification(
+                    userId,
+                    "COURSE_ENROLLED",
+                    "Đăng ký môn học thành công",
+                    "Bạn đã đăng ký thành công môn " + course[2] + " (" + course[1] + ").",
+                    "ENROLLMENT",
+                    saved.getEnrollmentId()
+            );
+        } catch (Exception ignored) {}
+        
+        return result;
     }
 
     // ═════════════════════════════════════════════════════════════════════════

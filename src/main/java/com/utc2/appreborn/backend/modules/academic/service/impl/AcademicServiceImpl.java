@@ -9,6 +9,7 @@ import com.utc2.appreborn.backend.modules.academic.repository.*;
 import com.utc2.appreborn.backend.modules.academic.service.AcademicService;
 import com.utc2.appreborn.backend.modules.auth.entity.User;
 import com.utc2.appreborn.backend.modules.auth.repository.UserRepository;
+import com.utc2.appreborn.backend.modules.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class AcademicServiceImpl implements AcademicService {
     private final UserRepository               userRepository;
     private final TeacherCourseRepository      teacherCourseRepository;
     private final LeaderboardApprovalRepository leaderboardApprovalRepository;
+    private final NotificationService          notificationService;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -206,7 +208,22 @@ public class AcademicServiceImpl implements AcademicService {
             "JOIN semester s ON s.semester_id=e.semester_id WHERE e.enrollment_id=:id")
             .setParameter("id",enrollmentId).getResultList();
         if (rows.isEmpty()) throw new ResourceNotFoundException("Enrollment not found: "+enrollmentId);
-        return mapToGradeDto(rows).get(0);
+        
+        CourseGradeDto result = mapToGradeDto(rows).get(0);
+        
+        // Push notification
+        try {
+            Long studentUserId = null;
+            var uidQuery = entityManager.createNativeQuery("SELECT user_id FROM enrollment WHERE enrollment_id=:id").setParameter("id", enrollmentId).getResultList();
+            if (!uidQuery.isEmpty()) {
+                studentUserId = ((Number) uidQuery.get(0)).longValue();
+                String title = "Điểm môn học mới";
+                String body = "Môn " + result.getCourseName() + " đã có điểm. Tổng điểm: " + result.getTotalScore();
+                notificationService.createSystemNotification(studentUserId, "GRADE_UPDATE", title, body, "ENROLLMENT", enrollmentId);
+            }
+        } catch (Exception ignored) {}
+        
+        return result;
     }
 
     // ════════════════════════════════════════════════════════════════════════
@@ -355,8 +372,17 @@ public class AcademicServiceImpl implements AcademicService {
         entityManager.createNativeQuery(
             "UPDATE student_scholarship SET pending_status='approved',approved_at=NOW() WHERE user_id=:uid AND scholarship_id=:sid")
             .setParameter("uid",userId).setParameter("sid",scholarshipId).executeUpdate();
-        return getScholarships(userId).stream().filter(s->s.getScholarshipId().equals(scholarshipId))
+            
+        ScholarshipDto result = getScholarships(userId).stream().filter(s->s.getScholarshipId().equals(scholarshipId))
                 .findFirst().orElseThrow(()->new ResourceNotFoundException("Scholarship not found"));
+                
+        // Push notification
+        try {
+            notificationService.createSystemNotification(userId, "SCHOLARSHIP_APPROVED", 
+                "Học bổng được duyệt", "Học bổng " + result.getName() + " của bạn đã được duyệt thành công.", "SCHOLARSHIP", scholarshipId);
+        } catch (Exception ignored) {}
+        
+        return result;
     }
 
     @Override @Transactional
@@ -418,7 +444,15 @@ public class AcademicServiceImpl implements AcademicService {
         w.setApprovedBy(currentUser().getId());
         w.setApprovedAt(LocalDateTime.now());
         w.setStatus("ACTIVE");
-        return mapWarningToDto(warningRepository.save(w));
+        AcademicWarningEntity saved = warningRepository.save(w);
+        
+        // Push notification
+        try {
+            notificationService.createSystemNotification(saved.getUserId(), "WARNING_APPROVED", 
+                "Cảnh báo học vụ mới", "Bạn có một cảnh báo học vụ mới. Vui lòng kiểm tra.", "WARNING", saved.getWarningId());
+        } catch (Exception ignored) {}
+        
+        return mapWarningToDto(saved);
     }
 
     @Override

@@ -13049,3 +13049,175 @@ Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
 2026-06-09T02:08:11.825Z DEBUG 1 --- [http-nio-8080-exec-1] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
 2026-06-09T02:08:11.825Z DEBUG 1 --- [http-nio-8080-exec-3] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → POST /api/v1/notifications/fcm/token
 2026-06-09T02:08:51.380Z DEBUG 1 --- [http-nio-8080-exec-4] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → POST /api/aichat/message
+2026-06-09T02:47:24.615Z  INFO 1 --- [main] c.u.a.backend.BackendApplication         : Starting BackendApplication v0.0.1-SNAPSHOT using Java 21.0.11 with PID 1 (/app/app.jar started by root in /app)
+2026-06-09T02:47:24.617Z DEBUG 1 --- [main] c.u.a.backend.BackendApplication         : Running with Spring Boot v3.5.14, Spring v6.2.18
+2026-06-09T02:47:24.619Z  INFO 1 --- [main] c.u.a.backend.BackendApplication         : No active profile set, falling back to 1 default profile: "default"
+2026-06-09T02:47:26.075Z  INFO 1 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-09T02:47:26.279Z  INFO 1 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 187 ms. Found 26 JPA repository interfaces.
+2026-06-09T02:47:27.053Z  INFO 1 --- [main] org.reflections.Reflections              : Reflections took 159 ms to scan 1 urls, producing 40 keys and 277 values
+2026-06-09T02:47:27.738Z  INFO 1 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-06-09T02:47:27.760Z  INFO 1 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-09T02:47:27.761Z  INFO 1 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.54]
+2026-06-09T02:47:27.804Z  INFO 1 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-06-09T02:47:27.806Z  INFO 1 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 3113 ms
+2026-06-09T02:47:28.193Z  INFO 1 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-06-09T02:47:28.481Z  INFO 1 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@5d68954d
+2026-06-09T02:47:28.484Z  INFO 1 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-06-09T02:47:28.543Z  INFO 1 --- [main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://mysql-db:3306/utc2app?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true (MySQL 8.0)
+2026-06-09T02:47:28.640Z  INFO 1 --- [main] o.f.core.internal.command.DbValidate     : Successfully validated 25 migrations (execution time 00:00.068s)
+2026-06-09T02:47:28.664Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Current version of schema `utc2app`: 20260607.01
+2026-06-09T02:47:28.668Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Schema `utc2app` is up to date. No migration necessary.
+2026-06-09T02:47:28.824Z  INFO 1 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-06-09T02:47:28.949Z  INFO 1 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.49.Final
+2026-06-09T02:47:29.006Z  INFO 1 --- [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-06-09T02:47:29.413Z  INFO 1 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-09T02:47:29.498Z  WARN 1 --- [main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-09T02:47:29.512Z  INFO 1 --- [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0.46
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-06-09T02:47:31.114Z  INFO 1 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-09T02:47:31.162Z  INFO 1 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-09T02:47:31.531Z DEBUG 1 --- [main] c.u.a.backend.middleware.JwtFilter       : Filter 'jwtFilter' configured for use
+2026-06-09T02:47:31.620Z  INFO 1 --- [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-09T02:47:33.696Z  INFO 1 --- [main] ai.djl.util.Platform                     : Found matching platform from: jar:nested:/app/app.jar/!BOOT-INF/lib/tokenizers-0.26.0.jar!/native/lib/tokenizers.properties
+2026-06-09T02:47:33.698Z  INFO 1 --- [main] a.d.huggingface.tokenizers.jni.LibUtils  : Extracting native/lib/linux-x86_64/libtokenizers.so to cache ...
+2026-06-09T02:47:33.849Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Khởi tạo SemanticSearchService: Bắt đầu load dữ liệu vào In-Memory Vector Store...
+2026-06-09T02:47:33.886Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: markdown/cong_thuc_tinh_diem.md
+2026-06-09T02:47:35.368Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: faq/quy_che_dao_tao.txt
+2026-06-09T02:47:35.583Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: faq/tot_nghiep_dieu_kien.txt
+2026-06-09T02:47:35.756Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: faq/ket_qua_ren_luyen.txt
+2026-06-09T02:47:35.954Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: faq/hoc_bong_chinh_sach.txt
+2026-06-09T02:47:36.130Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: faq/hoc_phi_thanh_toan.txt
+2026-06-09T02:47:36.292Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: faq/ky_luat_quy_dinh_thi.txt
+2026-06-09T02:47:36.514Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: faq/chuan_dau_ra_ngoai_ngu.txt
+2026-06-09T02:47:36.660Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: faq/ky_tuc_xa_ngoai_tru.txt
+2026-06-09T02:47:36.780Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: faq/thu_vien.txt
+2026-06-09T02:47:36.922Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: faq/gioi_thieu_truong_don_vi.txt
+2026-06-09T02:47:37.148Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: markdown/chien_luoc_gpa.md
+2026-06-09T02:47:37.284Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Hoàn tất load tài liệu vào Vector Store.
+2026-06-09T02:47:37.682Z  INFO 1 --- [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-06-09T02:47:38.282Z  WARN 1 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-06-09T02:47:39.241Z  INFO 1 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-06-09T02:47:39.335Z  INFO 1 --- [main] c.u.a.backend.BackendApplication         : Started BackendApplication in 15.442 seconds (process running for 16.633)
+2026-06-09T02:49:12.879Z  INFO 1 --- [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-06-09T02:49:12.881Z  INFO 1 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-09T02:49:12.886Z  INFO 1 --- [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 5 ms
+2026-06-09T02:49:13.341Z DEBUG 1 --- [http-nio-8080-exec-3] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → POST /api/v1/notifications/fcm/token
+2026-06-09T02:49:13.341Z DEBUG 1 --- [http-nio-8080-exec-2] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-09T02:49:13.341Z DEBUG 1 --- [http-nio-8080-exec-1] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-09T02:51:51.381Z DEBUG 1 --- [http-nio-8080-exec-7] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-09T02:51:51.381Z DEBUG 1 --- [http-nio-8080-exec-8] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-09T02:51:54.824Z DEBUG 1 --- [http-nio-8080-exec-9] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → POST /api/v1/notifications/fcm/token
+2026-06-09T02:52:06.069Z DEBUG 1 --- [http-nio-8080-exec-1] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-09T02:52:06.234Z DEBUG 1 --- [http-nio-8080-exec-3] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-09T02:52:06.325Z DEBUG 1 --- [http-nio-8080-exec-5] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → POST /api/v1/notifications/fcm/token
+2026-06-09T02:53:24.687Z DEBUG 1 --- [http-nio-8080-exec-8] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-09T02:53:24.688Z DEBUG 1 --- [http-nio-8080-exec-7] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-09T02:53:24.751Z DEBUG 1 --- [http-nio-8080-exec-9] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → POST /api/v1/notifications/fcm/token
+2026-06-09T03:02:06.524Z DEBUG 1 --- [http-nio-8080-exec-5] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-09T03:02:06.525Z DEBUG 1 --- [http-nio-8080-exec-4] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-09T03:02:16.420Z DEBUG 1 --- [http-nio-8080-exec-6] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-09T03:02:49.422Z DEBUG 1 --- [http-nio-8080-exec-8] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-09T03:02:49.422Z DEBUG 1 --- [http-nio-8080-exec-7] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-09T03:02:52.121Z DEBUG 1 --- [http-nio-8080-exec-9] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-09T03:02:52.125Z DEBUG 1 --- [http-nio-8080-exec-10] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-09T03:02:56.066Z DEBUG 1 --- [http-nio-8080-exec-3] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/academic/semesters
+2026-06-09T03:02:57.143Z DEBUG 1 --- [http-nio-8080-exec-4] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-09T03:02:57.153Z DEBUG 1 --- [http-nio-8080-exec-5] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-09T03:06:56.041Z DEBUG 1 --- [http-nio-8080-exec-10] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-09T03:06:56.037Z DEBUG 1 --- [http-nio-8080-exec-9] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-09T03:07:14.259Z DEBUG 1 --- [http-nio-8080-exec-1] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → POST /api/v1/notifications/fcm/token
+2026-06-09T03:07:17.837Z DEBUG 1 --- [http-nio-8080-exec-2] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/notifications
+2026-06-09T03:07:18.214Z  WARN 1 --- [http-nio-8080-exec-2] ration$PageModule$WarningLoggingModifier : Serializing PageImpl instances as-is is not supported, meaning that there is no guarantee about the stability of the resulting JSON structure!
+	For a stable JSON structure, please use Spring Data's PagedModel (globally via @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO))
+	or Spring HATEOAS and Spring Data's PagedResourcesAssembler as documented in https://docs.spring.io/spring-data/commons/reference/repositories/core-extensions.html#core.web.pageables.
+
+2026-06-09T03:07:18.305Z DEBUG 1 --- [http-nio-8080-exec-3] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/notifications/gmail/inbox
+2026-06-09T03:24:26.534Z  INFO 1 --- [main] c.u.a.backend.BackendApplication         : Starting BackendApplication v0.0.1-SNAPSHOT using Java 21.0.11 with PID 1 (/app/app.jar started by root in /app)
+2026-06-09T03:24:26.537Z DEBUG 1 --- [main] c.u.a.backend.BackendApplication         : Running with Spring Boot v3.5.14, Spring v6.2.18
+2026-06-09T03:24:26.539Z  INFO 1 --- [main] c.u.a.backend.BackendApplication         : No active profile set, falling back to 1 default profile: "default"
+2026-06-09T03:24:27.458Z  INFO 1 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-09T03:24:27.598Z  INFO 1 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 127 ms. Found 26 JPA repository interfaces.
+2026-06-09T03:24:28.107Z  INFO 1 --- [main] org.reflections.Reflections              : Reflections took 96 ms to scan 1 urls, producing 40 keys and 278 values
+2026-06-09T03:24:28.496Z  INFO 1 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-06-09T03:24:28.514Z  INFO 1 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-09T03:24:28.527Z  INFO 1 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.54]
+2026-06-09T03:24:28.565Z  INFO 1 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-06-09T03:24:28.567Z  INFO 1 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1977 ms
+2026-06-09T03:24:28.866Z  INFO 1 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-06-09T03:24:29.087Z  INFO 1 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@5534e6f1
+2026-06-09T03:24:29.089Z  INFO 1 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-06-09T03:24:29.141Z  INFO 1 --- [main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://mysql-db:3306/utc2app?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true (MySQL 8.0)
+2026-06-09T03:24:29.214Z  INFO 1 --- [main] o.f.core.internal.command.DbValidate     : Successfully validated 25 migrations (execution time 00:00.046s)
+2026-06-09T03:24:29.230Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Current version of schema `utc2app`: 20260607.01
+2026-06-09T03:24:29.233Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Schema `utc2app` is up to date. No migration necessary.
+2026-06-09T03:24:29.345Z  INFO 1 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-06-09T03:24:29.420Z  INFO 1 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.49.Final
+2026-06-09T03:24:29.461Z  INFO 1 --- [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-06-09T03:24:29.696Z  INFO 1 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-09T03:24:29.750Z  WARN 1 --- [main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-09T03:24:29.762Z  INFO 1 --- [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0.46
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-06-09T03:24:31.026Z  INFO 1 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-09T03:24:31.083Z  INFO 1 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-09T03:24:31.382Z DEBUG 1 --- [main] c.u.a.backend.middleware.JwtFilter       : Filter 'jwtFilter' configured for use
+2026-06-09T03:24:31.460Z  WARN 1 --- [main] c.u.a.backend.config.FirebaseConfig      : Lỗi: Không tìm thấy file firebase-service-account.json trong resources. Push Notification sẽ không hoạt động!
+2026-06-09T03:24:31.629Z  INFO 1 --- [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-09T03:24:35.423Z  INFO 1 --- [main] ai.djl.util.Platform                     : Found matching platform from: jar:nested:/app/app.jar/!BOOT-INF/lib/tokenizers-0.26.0.jar!/native/lib/tokenizers.properties
+2026-06-09T03:24:35.425Z  INFO 1 --- [main] a.d.huggingface.tokenizers.jni.LibUtils  : Extracting native/lib/linux-x86_64/libtokenizers.so to cache ...
+2026-06-09T03:24:35.517Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Khởi tạo SemanticSearchService: Bắt đầu load dữ liệu vào In-Memory Vector Store...
+2026-06-09T03:24:35.539Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: markdown/cong_thuc_tinh_diem.md
+2026-06-09T03:24:36.449Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: faq/quy_che_dao_tao.txt
+2026-06-09T03:24:36.625Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: faq/tot_nghiep_dieu_kien.txt
+2026-06-09T03:24:36.729Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: faq/ket_qua_ren_luyen.txt
+2026-06-09T03:24:36.887Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: faq/hoc_bong_chinh_sach.txt
+2026-06-09T03:24:37.041Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: faq/hoc_phi_thanh_toan.txt
+2026-06-09T03:24:37.167Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: faq/ky_luat_quy_dinh_thi.txt
+2026-06-09T03:24:37.330Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: faq/chuan_dau_ra_ngoai_ngu.txt
+2026-06-09T03:24:37.446Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: faq/ky_tuc_xa_ngoai_tru.txt
+2026-06-09T03:24:37.543Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: faq/thu_vien.txt
+2026-06-09T03:24:37.674Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: faq/gioi_thieu_truong_don_vi.txt
+2026-06-09T03:24:37.888Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: markdown/chien_luoc_gpa.md
+2026-06-09T03:24:37.998Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Hoàn tất load tài liệu vào Vector Store.
+2026-06-09T03:24:38.267Z  INFO 1 --- [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-06-09T03:24:38.589Z  WARN 1 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-06-09T03:24:39.084Z  INFO 1 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-06-09T03:24:39.116Z  INFO 1 --- [main] c.u.a.backend.BackendApplication         : Started BackendApplication in 13.105 seconds (process running for 13.703)
+2026-06-09T03:26:09.907Z  INFO 1 --- [http-nio-8080-exec-3] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-06-09T03:26:09.908Z  INFO 1 --- [http-nio-8080-exec-3] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-09T03:26:09.912Z  INFO 1 --- [http-nio-8080-exec-3] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
+2026-06-09T03:26:10.218Z DEBUG 1 --- [http-nio-8080-exec-3] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → POST /api/v1/notifications/fcm/token
+2026-06-09T03:26:10.218Z DEBUG 1 --- [http-nio-8080-exec-2] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-09T03:26:10.218Z DEBUG 1 --- [http-nio-8080-exec-1] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-09T03:26:19.653Z DEBUG 1 --- [http-nio-8080-exec-4] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-09T03:26:19.679Z DEBUG 1 --- [http-nio-8080-exec-5] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-09T03:26:22.171Z DEBUG 1 --- [http-nio-8080-exec-6] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/notifications
+2026-06-09T03:26:22.210Z  WARN 1 --- [http-nio-8080-exec-6] ration$PageModule$WarningLoggingModifier : Serializing PageImpl instances as-is is not supported, meaning that there is no guarantee about the stability of the resulting JSON structure!
+	For a stable JSON structure, please use Spring Data's PagedModel (globally via @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO))
+	or Spring HATEOAS and Spring Data's PagedResourcesAssembler as documented in https://docs.spring.io/spring-data/commons/reference/repositories/core-extensions.html#core.web.pageables.
+
+2026-06-09T03:26:22.324Z DEBUG 1 --- [http-nio-8080-exec-7] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/notifications/gmail/inbox
+2026-06-09T03:26:35.301Z DEBUG 1 --- [http-nio-8080-exec-9] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-09T03:26:35.405Z DEBUG 1 --- [http-nio-8080-exec-10] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-09T05:46:50.325Z DEBUG 1 --- [http-nio-8080-exec-5] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → POST /api/v1/notifications/fcm/token
+2026-06-09T05:46:50.325Z DEBUG 1 --- [http-nio-8080-exec-3] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-09T05:46:50.325Z DEBUG 1 --- [http-nio-8080-exec-4] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-09T05:47:11.862Z DEBUG 1 --- [http-nio-8080-exec-10] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-09T05:47:11.865Z DEBUG 1 --- [http-nio-8080-exec-9] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → GET /api/v1/profile/me
+2026-06-09T05:47:12.022Z DEBUG 1 --- [http-nio-8080-exec-2] c.u.a.backend.middleware.JwtFilter       : [JwtFilter] Authenticated: 6551071085@st.utc2.edu.vn → POST /api/v1/notifications/fcm/token
+2026-06-09T05:48:48.018Z  INFO 1 --- [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-09T05:48:48.078Z  INFO 1 --- [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-06-09T05:48:48.201Z  INFO 1 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-06-09T05:48:48.326Z  INFO 1 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-06-09T05:48:48.353Z  INFO 1 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.

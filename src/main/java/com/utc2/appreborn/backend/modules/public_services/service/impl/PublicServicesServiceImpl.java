@@ -8,6 +8,7 @@ import com.utc2.appreborn.backend.modules.public_services.dto.*;
 import com.utc2.appreborn.backend.modules.public_services.entity.ServiceRequest;
 import com.utc2.appreborn.backend.modules.public_services.repository.ServiceRequestRepository;
 import com.utc2.appreborn.backend.modules.public_services.service.PublicServicesService;
+import com.utc2.appreborn.backend.modules.notification.service.NotificationService;
 import com.utc2.appreborn.backend.modules.profile.repository.StudentProfileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class PublicServicesServiceImpl implements PublicServicesService {
     private final ServiceRequestRepository serviceRequestRepository;
     private final StudentProfileRepository studentProfileRepository;
     private final ObjectMapper             objectMapper;
+    private final NotificationService      notificationService;
 
     // ── Student methods ──────────────────────────────────────
 
@@ -121,7 +123,23 @@ public class PublicServicesServiceImpl implements PublicServicesService {
             req.setResolvedAt(LocalDateTime.now());
         }
 
-        return toResponse(serviceRequestRepository.save(req));
+        ServiceRequest saved = serviceRequestRepository.save(req);
+        
+        // Push notification
+        try {
+            String title = "Cập nhật yêu cầu dịch vụ";
+            String body = "Yêu cầu " + saved.getServiceType() + " của bạn đã được cập nhật sang trạng thái: " + saved.getStatus();
+            notificationService.createSystemNotification(
+                    saved.getUser().getId(),
+                    "PUBLIC_SERVICE",
+                    title,
+                    body,
+                    "SERVICE_REQUEST",
+                    saved.getId()
+            );
+        } catch (Exception ignored) {}
+
+        return toResponse(saved);
     }
 
     // ── Helpers ──────────────────────────────────────────────

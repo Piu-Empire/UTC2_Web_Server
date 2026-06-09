@@ -13,6 +13,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.Notification;
+import com.utc2.appreborn.backend.modules.notification.entity.UserNotificationSetting;
+import com.utc2.appreborn.backend.modules.notification.repository.UserNotificationSettingRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.Random;
@@ -27,9 +34,11 @@ public class NotificationServiceImpl implements NotificationService {
     private static final long   OTP_TTL_MS        = 5 * 60 * 1000L;
     private static final int    RATE_LIMIT        = 3;
     private static final long   RATE_WINDOW_MS    = 10 * 60 * 1000L;
+    private static final Logger log = LoggerFactory.getLogger(NotificationServiceImpl.class);
 
     private final JavaMailSender mailSender;
     private final NotificationRepository notificationRepo;
+    private final UserNotificationSettingRepository userNotificationSettingRepo;
 
     private final ConcurrentHashMap<String, OtpEntry>   otpStore   = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, RateBucket> rateStore  = new ConcurrentHashMap<>();
@@ -141,6 +150,29 @@ public class NotificationServiceImpl implements NotificationService {
                 .isRead(false)
                 .build();
         notificationRepo.save(n);
+
+        // Push notification qua Firebase (bọc try-catch để không làm gián đoạn luồng chính)
+        try {
+            var optSetting = userNotificationSettingRepo.findByUserId(userId);
+            if (optSetting.isPresent()) {
+                var setting = optSetting.get();
+                if (setting.isSystemNotifEnabled() && setting.getFcmToken() != null && !setting.getFcmToken().isBlank()) {
+                    Message message = Message.builder()
+                            .setToken(setting.getFcmToken())
+                            .setNotification(Notification.builder()
+                                    .setTitle(title)
+                                    .setBody(body)
+                                    .build())
+                            .putData("type", type != null ? type : "")
+                            .putData("relatedEntityType", relatedEntityType != null ? relatedEntityType : "")
+                            .putData("relatedEntityId", relatedEntityId != null ? String.valueOf(relatedEntityId) : "")
+                            .build();
+                    FirebaseMessaging.getInstance().send(message);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Lỗi khi push notification qua FCM cho userId {}: {}", userId, e.getMessage());
+        }
     }
 
     // ── Mapper ───────────────────────────────────────────────────
