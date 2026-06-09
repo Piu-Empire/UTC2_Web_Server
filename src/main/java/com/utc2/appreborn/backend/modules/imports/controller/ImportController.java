@@ -102,4 +102,49 @@ public class ImportController {
         return ResponseEntity.ok(ApiResponse.success(
                 importService.importEnrollments(file, overwrite)));
     }
+
+    /**
+     * POST /api/v1/admin/import/grades
+     * Required cols: student_code, course_code, semester_name, midterm_score, final_score
+     * Optional: assignment_score, total_score, letter_grade, grade_point, is_passed
+     */
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF_LEVEL_2')")
+    @PostMapping(value = "/grades", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Import điểm sinh viên")
+    public ResponseEntity<ApiResponse<ImportResultResponse>> importGrades(
+            @RequestPart("file") MultipartFile file,
+            @RequestParam(defaultValue = "false") boolean overwrite) {
+        return ResponseEntity.ok(ApiResponse.success(
+                importService.importGrades(file, overwrite)));
+    }
+
+    /**
+     * POST /api/v1/admin/import/scholarships
+     * Required cols: student_code, scholarship_name
+     * Optional: semester_id
+     */
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF_LEVEL_3', 'STAFF_LEVEL_4', 'STAFF_LEVEL_5', 'ADVISOR')")
+    @PostMapping(value = "/scholarships", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Import học bổng sinh viên")
+    public ResponseEntity<ApiResponse<ImportResultResponse>> importScholarships(
+            @RequestPart("file") MultipartFile file,
+            @RequestParam(defaultValue = "false") boolean overwrite) {
+        return ResponseEntity.ok(ApiResponse.success(
+                importService.importScholarships(file, overwrite)));
+    }
+
+    /**
+     * POST /api/v1/admin/import/warnings
+     * Required cols: student_code, warning_type, semester_id
+     * Optional: description
+     */
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF_LEVEL_3', 'STAFF_LEVEL_4', 'STAFF_LEVEL_5', 'ADVISOR')")
+    @PostMapping(value = "/warnings", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Import cảnh báo học vụ")
+    public ResponseEntity<ApiResponse<ImportResultResponse>> importWarnings(
+            @RequestPart("file") MultipartFile file,
+            @RequestParam(defaultValue = "false") boolean overwrite) {
+        return ResponseEntity.ok(ApiResponse.success(
+                importService.importWarnings(file, overwrite)));
+    }
 }

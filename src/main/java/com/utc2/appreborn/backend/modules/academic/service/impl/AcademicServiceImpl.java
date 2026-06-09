@@ -9,7 +9,6 @@ import com.utc2.appreborn.backend.modules.academic.repository.*;
 import com.utc2.appreborn.backend.modules.academic.service.AcademicService;
 import com.utc2.appreborn.backend.modules.auth.entity.User;
 import com.utc2.appreborn.backend.modules.auth.repository.UserRepository;
-import com.utc2.appreborn.backend.modules.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -31,7 +30,6 @@ public class AcademicServiceImpl implements AcademicService {
     private final UserRepository               userRepository;
     private final TeacherCourseRepository      teacherCourseRepository;
     private final LeaderboardApprovalRepository leaderboardApprovalRepository;
-    private final NotificationService          notificationService;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -59,6 +57,14 @@ public class AcademicServiceImpl implements AcademicService {
         return u.getRole() == Role.ADMIN
             || u.getRole() == Role.ADVISOR
             || (u.getRole() == Role.STAFF && u.getStaffLevel() != null && u.getStaffLevel() >= 5);
+    }
+
+    /** lv3+ hoặc Advisor: có quyền thêm học bổng / cảnh báo học vụ */
+    private boolean canAddScholarshipOrWarning() {
+        User u = currentUser();
+        return u.getRole() == Role.ADMIN
+            || u.getRole() == Role.ADVISOR
+            || (u.getRole() == Role.STAFF && u.getStaffLevel() != null && u.getStaffLevel() >= 3);
     }
 
     // ════════════════════════════════════════════════════════════════════════
@@ -208,22 +214,7 @@ public class AcademicServiceImpl implements AcademicService {
             "JOIN semester s ON s.semester_id=e.semester_id WHERE e.enrollment_id=:id")
             .setParameter("id",enrollmentId).getResultList();
         if (rows.isEmpty()) throw new ResourceNotFoundException("Enrollment not found: "+enrollmentId);
-        
-        CourseGradeDto result = mapToGradeDto(rows).get(0);
-        
-        // Push notification
-        try {
-            Long studentUserId = null;
-            var uidQuery = entityManager.createNativeQuery("SELECT user_id FROM enrollment WHERE enrollment_id=:id").setParameter("id", enrollmentId).getResultList();
-            if (!uidQuery.isEmpty()) {
-                studentUserId = ((Number) uidQuery.get(0)).longValue();
-                String title = "Điểm môn học mới";
-                String body = "Môn " + result.getCourseName() + " đã có điểm. Tổng điểm: " + result.getTotalScore();
-                notificationService.createSystemNotification(studentUserId, "GRADE_UPDATE", title, body, "ENROLLMENT", enrollmentId);
-            }
-        } catch (Exception ignored) {}
-        
-        return result;
+        return mapToGradeDto(rows).get(0);
     }
 
     // ════════════════════════════════════════════════════════════════════════
@@ -233,7 +224,7 @@ public class AcademicServiceImpl implements AcademicService {
     // ════════════════════════════════════════════════════════════════════════
 
     @Override
-    public List<LeaderboardEntryDto> getLeaderboard(Long semesterId, String academicYear) {
+    public List<LeaderboardEntryDto> getLeaderboard(Long semesterId, String academicYear, String className) {
         Long currentUserId = resolveUserId(null);
         boolean isAdminOrLv5 = isAdminOrLv5();
 
@@ -245,6 +236,8 @@ public class AcademicServiceImpl implements AcademicService {
         if (!isAdminOrLv5 && semesterId!=null && !leaderboardApprovalRepository.existsBySemesterId(semesterId))
             return Collections.emptyList();
 
+        boolean filterClass = className != null && !className.isBlank();
+
         String sql = semesterId!=null
             ? """
               SELECT s.user_id, up.full_name, sp.student_code, s.gpa, s.total_credits
@@ -252,6 +245,7 @@ public class AcademicServiceImpl implements AcademicService {
               JOIN user_profile up ON up.user_id=s.user_id
               JOIN student_profile sp ON sp.user_id=s.user_id
               WHERE s.semester_id=:semesterId
+              """ + (filterClass ? " AND sp.class_name=:className" : "") + """
               ORDER BY s.gpa DESC, s.total_credits DESC
               """
             : """
@@ -261,6 +255,7 @@ public class AcademicServiceImpl implements AcademicService {
               JOIN user_profile up ON up.user_id=s.user_id
               JOIN student_profile sp ON sp.user_id=s.user_id
               WHERE s.academic_year=:academicYear
+              """ + (filterClass ? " AND sp.class_name=:className" : "") + """
               GROUP BY s.user_id,up.full_name,sp.student_code
               ORDER BY gpa DESC, total_credits DESC
               """;
@@ -268,6 +263,7 @@ public class AcademicServiceImpl implements AcademicService {
         var query = entityManager.createNativeQuery(sql);
         if (semesterId!=null) query.setParameter("semesterId",semesterId);
         else query.setParameter("academicYear",targetYear!=null?targetYear:"");
+        if (filterClass) query.setParameter("className", className);
 
         @SuppressWarnings("unchecked")
         List<Object[]> rows = query.getResultList();
@@ -351,7 +347,7 @@ public class AcademicServiceImpl implements AcademicService {
 
     @Override @Transactional
     public ScholarshipDto updateScholarshipStatus(ScholarshipUpsertDto dto) {
-        if (!isAdvisorOrLv5()) throw new ForbiddenException("Chỉ Advisor hoặc Staff lv5 mới có quyền này");
+        if (!canAddScholarshipOrWarning()) throw new ForbiddenException("Chỉ Staff lv3+ hoặc Advisor mới có quyền thêm học bổng");
         int updated = entityManager.createNativeQuery(
             "UPDATE student_scholarship SET pending_status='pending',received_at=:receivedAt WHERE user_id=:uid AND scholarship_id=:sid")
             .setParameter("receivedAt",dto.getReceivedAt()).setParameter("uid",dto.getUserId())
@@ -372,17 +368,8 @@ public class AcademicServiceImpl implements AcademicService {
         entityManager.createNativeQuery(
             "UPDATE student_scholarship SET pending_status='approved',approved_at=NOW() WHERE user_id=:uid AND scholarship_id=:sid")
             .setParameter("uid",userId).setParameter("sid",scholarshipId).executeUpdate();
-            
-        ScholarshipDto result = getScholarships(userId).stream().filter(s->s.getScholarshipId().equals(scholarshipId))
+        return getScholarships(userId).stream().filter(s->s.getScholarshipId().equals(scholarshipId))
                 .findFirst().orElseThrow(()->new ResourceNotFoundException("Scholarship not found"));
-                
-        // Push notification
-        try {
-            notificationService.createSystemNotification(userId, "SCHOLARSHIP_APPROVED", 
-                "Học bổng được duyệt", "Học bổng " + result.getName() + " của bạn đã được duyệt thành công.", "SCHOLARSHIP", scholarshipId);
-        } catch (Exception ignored) {}
-        
-        return result;
     }
 
     @Override @Transactional
@@ -421,7 +408,7 @@ public class AcademicServiceImpl implements AcademicService {
 
     @Override @Transactional
     public AcademicWarningDto upsertWarning(WarningUpsertDto dto) {
-        if (!isAdvisorOrLv5()) throw new ForbiddenException("Chỉ Advisor hoặc Staff lv5 mới có quyền này");
+        if (!canAddScholarshipOrWarning()) throw new ForbiddenException("Chỉ Staff lv3+ hoặc Advisor mới có quyền thêm cảnh báo");
         AcademicWarningEntity e = AcademicWarningEntity.builder()
                 .userId(dto.getUserId()).semesterId(dto.getSemesterId())
                 .warningType(dto.getWarningType()).description(dto.getDescription())
@@ -432,7 +419,7 @@ public class AcademicServiceImpl implements AcademicService {
 
     @Override @Transactional
     public void deleteWarning(Long warningId) {
-        if (!isAdvisorOrLv5()) throw new ForbiddenException("Chỉ Advisor hoặc Staff lv5 mới có quyền này");
+        if (!canAddScholarshipOrWarning()) throw new ForbiddenException("Chỉ Staff lv3+ hoặc Advisor mới có quyền xoá cảnh báo");
         warningRepository.deleteById(warningId);
     }
 
@@ -444,15 +431,7 @@ public class AcademicServiceImpl implements AcademicService {
         w.setApprovedBy(currentUser().getId());
         w.setApprovedAt(LocalDateTime.now());
         w.setStatus("ACTIVE");
-        AcademicWarningEntity saved = warningRepository.save(w);
-        
-        // Push notification
-        try {
-            notificationService.createSystemNotification(saved.getUserId(), "WARNING_APPROVED", 
-                "Cảnh báo học vụ mới", "Bạn có một cảnh báo học vụ mới. Vui lòng kiểm tra.", "WARNING", saved.getWarningId());
-        } catch (Exception ignored) {}
-        
-        return mapWarningToDto(saved);
+        return mapWarningToDto(warningRepository.save(w));
     }
 
     @Override

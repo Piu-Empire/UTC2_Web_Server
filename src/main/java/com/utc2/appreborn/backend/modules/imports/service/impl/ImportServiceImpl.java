@@ -16,7 +16,11 @@ import com.utc2.appreborn.backend.modules.profile.entity.UserProfileEntity;
 import com.utc2.appreborn.backend.modules.profile.repository.StudentProfileRepository;
 import com.utc2.appreborn.backend.modules.profile.repository.UserProfileRepository;
 import com.utc2.appreborn.backend.modules.academic.entity.CourseEntity;
+import com.utc2.appreborn.backend.modules.academic.entity.AcademicWarningEntity;
+import com.utc2.appreborn.backend.modules.academic.entity.ScholarshipEntity;
 import com.utc2.appreborn.backend.modules.academic.repository.CourseRepository;
+import com.utc2.appreborn.backend.modules.academic.repository.AcademicWarningRepository;
+import com.utc2.appreborn.backend.modules.academic.repository.ScholarshipRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +47,8 @@ public class ImportServiceImpl implements ImportService {
     private final CourseRepository           courseRepository;
     private final DormitoryRoomRepository    dormitoryRoomRepository;
     private final CourseEnrollmentRepository courseEnrollmentRepository;
+    private final ScholarshipRepository      scholarshipRepository;
+    private final AcademicWarningRepository  academicWarningRepository;
 
     @PersistenceContext
     private EntityManager em;
@@ -811,6 +817,227 @@ public class ImportServiceImpl implements ImportService {
             case "full", "da day", "đã đầy", "day", "đầy"      -> "đã đầy";
             default -> "còn chỗ"; // fallback an toàn
         };
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // IMPORT GRADES (lv2 + admin)
+    // Required: student_code, course_code, semester_name, midterm_score, final_score
+    // Optional: assignment_score, total_score, letter_grade, grade_point, is_passed
+    // ─────────────────────────────────────────────────────────
+    @Override
+    @Transactional
+    public ImportResultResponse importGrades(MultipartFile file, boolean overwrite) {
+        List<ImportResultResponse.ImportError> errors = new ArrayList<>();
+        int success = 0;
+
+        try (Workbook wb = new XSSFWorkbook(file.getInputStream())) {
+            Sheet sheet = wb.getSheetAt(0);
+            Map<String, Integer> colMap = buildColMap(sheet.getRow(0));
+
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+                if (row == null || isRowEmpty(row)) continue;
+                int rowNum = i + 1;
+                try {
+                    String studentCode  = getCol(row, colMap, "student_code");
+                    String courseCode   = getCol(row, colMap, "course_code");
+                    String semesterName = getCol(row, colMap, "semester_name");
+                    String midtermStr   = getCol(row, colMap, "midterm_score");
+                    String finalStr     = getCol(row, colMap, "final_score");
+
+                    if (studentCode.isEmpty() || courseCode.isEmpty() || semesterName.isEmpty()) {
+                        errors.add(err(rowNum, "required", "student_code, course_code, semester_name là bắt buộc"));
+                        continue;
+                    }
+
+                    Optional<StudentProfileEntity> spOpt = studentProfileRepository.findByStudentCode(studentCode);
+                    if (spOpt.isEmpty()) {
+                        errors.add(err(rowNum, "student_code", "Không tìm thấy sinh viên: " + studentCode)); continue;
+                    }
+                    Long userId = spOpt.get().getUserId();
+
+                    List<?> courseIds = em.createNativeQuery("SELECT course_id FROM course WHERE course_code=?")
+                            .setParameter(1, courseCode).getResultList();
+                    if (courseIds.isEmpty()) {
+                        errors.add(err(rowNum, "course_code", "Không tìm thấy học phần: " + courseCode)); continue;
+                    }
+                    Long courseId = ((Number) courseIds.get(0)).longValue();
+
+                    List<?> semIds = em.createNativeQuery("SELECT semester_id FROM semester_info WHERE semester_name=? LIMIT 1")
+                            .setParameter(1, semesterName).getResultList();
+                    if (semIds.isEmpty()) {
+                        errors.add(err(rowNum, "semester_name", "Không tìm thấy kỳ học: " + semesterName)); continue;
+                    }
+                    Long semId = ((Number) semIds.get(0)).longValue();
+
+                    String assignmentStr = getCol(row, colMap, "assignment_score");
+                    String totalStr      = getCol(row, colMap, "total_score");
+                    String letterGrade   = getCol(row, colMap, "letter_grade");
+                    String gradePointStr = getCol(row, colMap, "grade_point");
+                    String isPassedStr   = getCol(row, colMap, "is_passed");
+
+                    int updated = em.createNativeQuery(
+                            "UPDATE enrollment SET midterm_score=?, final_score=?, assignment_score=?, " +
+                            "total_score=?, letter_grade=?, grade_point=?, is_passed=? " +
+                            "WHERE user_id=? AND course_id=? AND semester_id=?")
+                        .setParameter(1, midtermStr.isEmpty()    ? null : Double.parseDouble(midtermStr))
+                        .setParameter(2, finalStr.isEmpty()      ? null : Double.parseDouble(finalStr))
+                        .setParameter(3, assignmentStr.isEmpty() ? null : Double.parseDouble(assignmentStr))
+                        .setParameter(4, totalStr.isEmpty()      ? null : Double.parseDouble(totalStr))
+                        .setParameter(5, letterGrade.isEmpty()   ? null : letterGrade)
+                        .setParameter(6, gradePointStr.isEmpty() ? null : Double.parseDouble(gradePointStr))
+                        .setParameter(7, isPassedStr.isEmpty()   ? null : Boolean.parseBoolean(isPassedStr))
+                        .setParameter(8, userId).setParameter(9, courseId).setParameter(10, semId)
+                        .executeUpdate();
+
+                    if (updated == 0) {
+                        errors.add(err(rowNum, "enrollment", "Sinh viên " + studentCode + " chưa đăng ký học phần " + courseCode + " kỳ " + semesterName));
+                    } else {
+                        success++;
+                    }
+                } catch (NumberFormatException e) {
+                    errors.add(err(rowNum, "format", "Điểm phải là số: " + e.getMessage()));
+                } catch (Exception e) {
+                    errors.add(err(rowNum, "unknown", e.getMessage()));
+                }
+            }
+        } catch (Exception e) {
+            errors.add(err(0, "file", "Lỗi đọc file: " + e.getMessage()));
+        }
+        return ImportResultResponse.builder().success(success).failed(errors.size()).errors(errors).build();
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // IMPORT SCHOLARSHIPS (lv3+ / advisor)
+    // Required: student_code, scholarship_name
+    // Optional: semester_id
+    // ─────────────────────────────────────────────────────────
+    @Override
+    @Transactional
+    public ImportResultResponse importScholarships(MultipartFile file, boolean overwrite) {
+        List<ImportResultResponse.ImportError> errors = new ArrayList<>();
+        int success = 0;
+
+        try (Workbook wb = new XSSFWorkbook(file.getInputStream())) {
+            Sheet sheet = wb.getSheetAt(0);
+            Map<String, Integer> colMap = buildColMap(sheet.getRow(0));
+
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+                if (row == null || isRowEmpty(row)) continue;
+                int rowNum = i + 1;
+                try {
+                    String studentCode     = getCol(row, colMap, "student_code");
+                    String scholarshipName = getCol(row, colMap, "scholarship_name");
+
+                    if (studentCode.isEmpty() || scholarshipName.isEmpty()) {
+                        errors.add(err(rowNum, "required", "student_code, scholarship_name là bắt buộc")); continue;
+                    }
+
+                    Optional<StudentProfileEntity> spOpt = studentProfileRepository.findByStudentCode(studentCode);
+                    if (spOpt.isEmpty()) {
+                        errors.add(err(rowNum, "student_code", "Không tìm thấy sinh viên: " + studentCode)); continue;
+                    }
+                    Long userId = spOpt.get().getUserId();
+
+                    // Tìm hoặc tạo scholarship theo tên
+                    List<?> schIds = em.createNativeQuery("SELECT scholarship_id FROM scholarship WHERE name=? LIMIT 1")
+                            .setParameter(1, scholarshipName).getResultList();
+                    Long scholarshipId;
+                    if (schIds.isEmpty()) {
+                        // Tạo mới scholarship record
+                        em.createNativeQuery("INSERT INTO scholarship(name) VALUES(?)")
+                                .setParameter(1, scholarshipName).executeUpdate();
+                        scholarshipId = ((Number) em.createNativeQuery(
+                                "SELECT scholarship_id FROM scholarship WHERE name=? LIMIT 1")
+                                .setParameter(1, scholarshipName).getSingleResult()).longValue();
+                    } else {
+                        scholarshipId = ((Number) schIds.get(0)).longValue();
+                    }
+
+                    String semIdStr = getCol(row, colMap, "semester_id");
+                    Long semId = semIdStr.isEmpty() ? null : Long.parseLong(semIdStr);
+
+                    boolean exists = !em.createNativeQuery(
+                            "SELECT 1 FROM student_scholarship WHERE user_id=? AND scholarship_id=?")
+                            .setParameter(1, userId).setParameter(2, scholarshipId)
+                            .getResultList().isEmpty();
+
+                    if (exists && !overwrite) {
+                        errors.add(err(rowNum, "duplicate", "Sinh viên " + studentCode + " đã có học bổng này — dùng overwrite=true")); continue;
+                    }
+                    if (exists) {
+                        em.createNativeQuery("UPDATE student_scholarship SET pending_status='pending', semester_id=? WHERE user_id=? AND scholarship_id=?")
+                                .setParameter(1, semId).setParameter(2, userId).setParameter(3, scholarshipId).executeUpdate();
+                    } else {
+                        em.createNativeQuery("INSERT INTO student_scholarship(user_id, scholarship_id, pending_status, semester_id) VALUES(?,?,'pending',?)")
+                                .setParameter(1, userId).setParameter(2, scholarshipId).setParameter(3, semId).executeUpdate();
+                    }
+                    success++;
+                } catch (Exception e) {
+                    errors.add(err(rowNum, "unknown", e.getMessage()));
+                }
+            }
+        } catch (Exception e) {
+            errors.add(err(0, "file", "Lỗi đọc file: " + e.getMessage()));
+        }
+        return ImportResultResponse.builder().success(success).failed(errors.size()).errors(errors).build();
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // IMPORT WARNINGS (lv3+ / advisor)
+    // Required: student_code, warning_type, semester_id
+    // Optional: description
+    // ─────────────────────────────────────────────────────────
+    @Override
+    @Transactional
+    public ImportResultResponse importWarnings(MultipartFile file, boolean overwrite) {
+        List<ImportResultResponse.ImportError> errors = new ArrayList<>();
+        int success = 0;
+
+        try (Workbook wb = new XSSFWorkbook(file.getInputStream())) {
+            Sheet sheet = wb.getSheetAt(0);
+            Map<String, Integer> colMap = buildColMap(sheet.getRow(0));
+
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+                if (row == null || isRowEmpty(row)) continue;
+                int rowNum = i + 1;
+                try {
+                    String studentCode  = getCol(row, colMap, "student_code");
+                    String warningType  = getCol(row, colMap, "warning_type");
+                    String semIdStr     = getCol(row, colMap, "semester_id");
+
+                    if (studentCode.isEmpty() || warningType.isEmpty() || semIdStr.isEmpty()) {
+                        errors.add(err(rowNum, "required", "student_code, warning_type, semester_id là bắt buộc")); continue;
+                    }
+
+                    Optional<StudentProfileEntity> spOpt = studentProfileRepository.findByStudentCode(studentCode);
+                    if (spOpt.isEmpty()) {
+                        errors.add(err(rowNum, "student_code", "Không tìm thấy sinh viên: " + studentCode)); continue;
+                    }
+                    Long userId = spOpt.get().getUserId();
+                    Long semId  = Long.parseLong(semIdStr);
+                    String description = getCol(row, colMap, "description");
+
+                    academicWarningRepository.save(AcademicWarningEntity.builder()
+                            .userId(userId).semesterId(semId)
+                            .warningType(warningType.toUpperCase())
+                            .description(description.isEmpty() ? null : description)
+                            .issuedAt(LocalDateTime.now())
+                            .status("pending") // chờ lv5 duyệt
+                            .build());
+                    success++;
+                } catch (NumberFormatException e) {
+                    errors.add(err(rowNum, "format", "semester_id phải là số: " + e.getMessage()));
+                } catch (Exception e) {
+                    errors.add(err(rowNum, "unknown", e.getMessage()));
+                }
+            }
+        } catch (Exception e) {
+            errors.add(err(0, "file", "Lỗi đọc file: " + e.getMessage()));
+        }
+        return ImportResultResponse.builder().success(success).failed(errors.size()).errors(errors).build();
     }
 
 }

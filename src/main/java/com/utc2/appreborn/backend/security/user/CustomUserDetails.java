@@ -18,11 +18,20 @@ public class CustomUserDetails implements UserDetails {
         if (user.getRole() == null) {
             return List.of(new SimpleGrantedAuthority("ROLE_STUDENT"));
         }
-        // STAFF level 5 → authority riêng để phân quyền KTX + học phần
-        if (user.getRole().name().equals("STAFF") && Integer.valueOf(5).equals(user.getStaffLevel())) {
-            return List.of(new SimpleGrantedAuthority("ROLE_STAFF_LEVEL_5"));
+        // ADMIN và ADVISOR: 1 authority duy nhất
+        if (!user.getRole().name().equals("STAFF")) {
+            return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
         }
-        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
+        // STAFF: trả authority tổng (ROLE_STAFF) + authority theo level (ROLE_STAFF_LEVEL_X)
+        // Để các @PreAuthorize có thể check cả hasRole('STAFF') lẫn hasRole('STAFF_LEVEL_2')
+        Integer lv = user.getStaffLevel();
+        if (lv == null) {
+            return List.of(new SimpleGrantedAuthority("ROLE_STAFF"));
+        }
+        return List.of(
+            new SimpleGrantedAuthority("ROLE_STAFF"),
+            new SimpleGrantedAuthority("ROLE_STAFF_LEVEL_" + lv)
+        );
     }
 
     @Override

@@ -11,4 +11,7 @@ public interface ImportService {
     ImportResultResponse importStudents(MultipartFile file, boolean overwrite);
     ImportResultResponse importDormitoryRooms(MultipartFile file, boolean overwrite);
     ImportResultResponse importEnrollments(MultipartFile file, boolean overwrite);
+    ImportResultResponse importGrades(MultipartFile file, boolean overwrite);
+    ImportResultResponse importScholarships(MultipartFile file, boolean overwrite);
+    ImportResultResponse importWarnings(MultipartFile file, boolean overwrite);
 }

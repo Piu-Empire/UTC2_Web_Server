@@ -34,9 +34,10 @@ public class AcademicController {
     @GetMapping("/leaderboard")
     public ResponseEntity<ApiResponse<List<LeaderboardEntryDto>>> getLeaderboard(
             @RequestParam(required = false) Long   semesterId,
-            @RequestParam(required = false) String academicYear) {
+            @RequestParam(required = false) String academicYear,
+            @RequestParam(required = false) String className) {
         return ResponseEntity.ok(ApiResponse.success(
-                academicService.getLeaderboard(semesterId, academicYear)));
+                academicService.getLeaderboard(semesterId, academicYear, className)));
     }
 
     @GetMapping("/scholarships")

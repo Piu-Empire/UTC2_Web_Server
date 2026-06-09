@@ -8,7 +8,7 @@ public interface AcademicService {
     // ── Student / App ─────────────────────────────────────────────────────
     List<SemesterDto>         getSemesters(Long userId);
     List<CourseGradeDto>      getGrades(Long userId, Long semesterId);
-    List<LeaderboardEntryDto> getLeaderboard(Long semesterId, String academicYear);
+    List<LeaderboardEntryDto> getLeaderboard(Long semesterId, String academicYear, String className);
     List<ScholarshipDto>      getScholarships(Long userId);
     List<AcademicWarningDto>  getWarnings(Long userId, Long semesterId);
 
