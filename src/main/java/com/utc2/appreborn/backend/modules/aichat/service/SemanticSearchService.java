@@ -26,18 +26,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Slf4j
 public class SemanticSearchService {
 
-    private final EmbeddingModel embeddingModel;
+    private EmbeddingModel embeddingModel;
     private final EmbeddingStore<TextSegment> embeddingStore;
+    private boolean isInitialized = false;
 
     public SemanticSearchService() {
-        this.embeddingModel = new AllMiniLmL6V2EmbeddingModel();
         this.embeddingStore = new InMemoryEmbeddingStore<>();
     }
 
-    @PostConstruct
-    public void init() {
-        log.info("Khởi tạo SemanticSearchService: Bắt đầu load dữ liệu vào In-Memory Vector Store...");
+    private synchronized void ensureInitialized() {
+        if (isInitialized) {
+            return;
+        }
+        
+        log.info("Khởi tạo SemanticSearchService: Load model AI và dữ liệu vào In-Memory Vector Store...");
         try {
+            this.embeddingModel = new AllMiniLmL6V2EmbeddingModel();
+            
             ObjectMapper mapper = new ObjectMapper();
             Resource catalogResource = new org.springframework.core.io.ClassPathResource("documents/doc_catalog.json");
             DocumentParser parser = new ApacheTikaDocumentParser();
@@ -73,13 +78,16 @@ public class SemanticSearchService {
             } else {
                 log.warn("Không tìm thấy doc_catalog.json trong thư mục documents.");
             }
-            log.info("Hoàn tất load tài liệu vào Vector Store.");
+            isInitialized = true;
+            log.info("Hoàn tất load model và tài liệu vào Vector Store.");
         } catch (Exception e) {
             log.error("Lỗi khởi tạo SemanticSearchService: ", e);
+            throw new RuntimeException("Lỗi lazy init SemanticSearchService", e);
         }
     }
 
     public List<EmbeddingMatch<TextSegment>> search(String query, double minScore) {
+        ensureInitialized();
         return embeddingStore.findRelevant(embeddingModel.embed(query).content(), 3, minScore);
     }
 }
