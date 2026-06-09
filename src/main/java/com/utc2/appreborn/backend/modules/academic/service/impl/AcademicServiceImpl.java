@@ -243,22 +243,34 @@ public class AcademicServiceImpl implements AcademicService {
         boolean isAdminOrLv5 = isAdminOrLv5();
 
         String targetYear = academicYear;
-        if (targetYear==null && semesterId!=null)
-            targetYear = semesterRepository.findById(semesterId).map(SemesterEntity::getAcademicYear).orElse(null);
+        String targetSemesterName = null;
+        
+        if (semesterId != null) {
+            Optional<SemesterEntity> semOpt = semesterRepository.findById(semesterId);
+            if (semOpt.isPresent()) {
+                targetSemesterName = semOpt.get().getSemesterName();
+                if (targetYear == null) targetYear = semOpt.get().getAcademicYear();
+            }
+        }
 
         // Nếu là App (không phải admin/lv5), chỉ trả kỳ đã duyệt
-        if (!isAdminOrLv5 && semesterId!=null && !leaderboardApprovalRepository.existsBySemesterId(semesterId))
-            return Collections.emptyList();
+        if (!isAdminOrLv5 && targetSemesterName != null) {
+            boolean isApproved = !entityManager.createNativeQuery(
+                "SELECT 1 FROM leaderboard_approval la JOIN semester s ON la.semester_id = s.semester_id WHERE s.semester_name = :semName")
+                .setParameter("semName", targetSemesterName)
+                .getResultList().isEmpty();
+            if (!isApproved) return Collections.emptyList();
+        }
 
         boolean filterClass = className != null && !className.isBlank();
 
-        String sql = semesterId!=null
+        String sql = targetSemesterName != null
             ? """
               SELECT s.user_id, up.full_name, sp.student_code, s.gpa, s.total_credits
               FROM semester s
               JOIN user_profile up ON up.user_id=s.user_id
               JOIN student_profile sp ON sp.user_id=s.user_id
-              WHERE s.semester_id=:semesterId
+              WHERE s.semester_name=:semesterName
               """ + (filterClass ? " AND sp.class_name=:className" : "") + """
               ORDER BY s.gpa DESC, s.total_credits DESC
               """
@@ -275,8 +287,8 @@ public class AcademicServiceImpl implements AcademicService {
               """;
 
         var query = entityManager.createNativeQuery(sql);
-        if (semesterId!=null) query.setParameter("semesterId",semesterId);
-        else query.setParameter("academicYear",targetYear!=null?targetYear:"");
+        if (targetSemesterName != null) query.setParameter("semesterName", targetSemesterName);
+        else query.setParameter("academicYear", targetYear != null ? targetYear : "");
         if (filterClass) query.setParameter("className", className);
 
         @SuppressWarnings("unchecked")
