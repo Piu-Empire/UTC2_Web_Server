@@ -271,7 +271,7 @@ public class AcademicServiceImpl implements AcademicService {
               JOIN user_profile up ON up.user_id=s.user_id
               JOIN student_profile sp ON sp.user_id=s.user_id
               WHERE s.semester_name=:semesterName
-              """ + (filterClass ? " AND sp.class_name=:className" : "") + """
+              """ + (filterClass ? " AND sp.class_name=:className\n" : "\n") + """
               ORDER BY s.gpa DESC, s.total_credits DESC
               """
             : """
@@ -281,7 +281,7 @@ public class AcademicServiceImpl implements AcademicService {
               JOIN user_profile up ON up.user_id=s.user_id
               JOIN student_profile sp ON sp.user_id=s.user_id
               WHERE s.academic_year=:academicYear
-              """ + (filterClass ? " AND sp.class_name=:className" : "") + """
+              """ + (filterClass ? " AND sp.class_name=:className\n" : "\n") + """
               GROUP BY s.user_id,up.full_name,sp.student_code
               ORDER BY gpa DESC, total_credits DESC
               """;
