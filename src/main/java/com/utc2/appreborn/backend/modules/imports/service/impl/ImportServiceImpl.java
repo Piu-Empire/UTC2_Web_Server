@@ -863,7 +863,7 @@ public class ImportServiceImpl implements ImportService {
                     }
                     Long courseId = ((Number) courseIds.get(0)).longValue();
 
-                    List<?> semIds = em.createNativeQuery("SELECT semester_id FROM semester_info WHERE semester_name=? LIMIT 1")
+                    List<?> semIds = em.createNativeQuery("SELECT semester_id FROM semester WHERE semester_name=? LIMIT 1")
                             .setParameter(1, semesterName).getResultList();
                     if (semIds.isEmpty()) {
                         errors.add(err(rowNum, "semester_name", "Không tìm thấy kỳ học: " + semesterName)); continue;
