@@ -111,28 +111,54 @@ public class AssessmentServiceImpl implements AssessmentService {
 
     @Override
     public ExternalAssessmentResponse getExternalAssessment(Long userId, String periodId) {
-        List<ExternalAssessment> rows = externalRepo.findByUserIdAndPeriodId(userId, periodId);
-        List<ExternalAssessmentResponse.ExternalScoreDto> dtos = rows.stream()
-                .map(r -> ExternalAssessmentResponse.ExternalScoreDto.builder()
-                        .criteriaId(r.getCriteriaId())
-                        .tapTheScore(r.getTapTheScore())
-                        .boMonScore(r.getBoMonScore())
-                        .khoaScore(r.getKhoaScore())
-                        .truongScore(r.getTruongScore())
-                        .build())
-                .collect(Collectors.toList());
-
+        List<ExternalAssessment> exRows = externalRepo.findByUserIdAndPeriodId(userId, periodId);
+        List<StudentAssessment> svRows = studentRepo.findByUserIdAndPeriodId(userId, periodId);
+        
         ExternalAssessmentStatus status = statusRepo
                 .findById(new ExternalAssessmentStatusId(userId, periodId))
                 .orElse(null);
+
+        boolean truong = status != null && status.isTruongApproved();
+        boolean khoa   = status != null && status.isKhoaApproved();
+        boolean adv    = status != null && status.isAdvisorApproved();
+
+        Map<Integer, ExternalAssessment> exByCriteria = exRows.stream()
+                .collect(Collectors.toMap(ExternalAssessment::getCriteriaId, x -> x));
+
+        List<ExternalAssessmentResponse.ExternalScoreDto> dtos = svRows.stream().map(sv -> {
+            ExternalAssessment ex = exByCriteria.get(sv.getCriteriaId());
+            BigDecimal fallback = sv.getScore();
+            BigDecimal tapThe = ex != null ? ex.getTapTheScore() : fallback;
+            BigDecimal boMon  = ex != null ? ex.getBoMonScore() : fallback;
+            BigDecimal khoaSc = ex != null ? ex.getKhoaScore() : fallback;
+            BigDecimal truongSc = ex != null ? ex.getTruongScore() : fallback;
+
+            BigDecimal finalScore = fallback;
+            if (truong) {
+                finalScore = truongSc;
+            } else if (khoa) {
+                finalScore = khoaSc;
+            } else if (adv) {
+                finalScore = tapThe; // Assuming Advisor approval validates the class level score
+            }
+
+            return ExternalAssessmentResponse.ExternalScoreDto.builder()
+                    .criteriaId(sv.getCriteriaId())
+                    // Here we map the final effective score to the standard fields so the App displays it easily
+                    .tapTheScore(tapThe)
+                    .boMonScore(boMon)
+                    .khoaScore(khoaSc)
+                    .truongScore(finalScore) // Using truongScore as the effective final score the app will show
+                    .build();
+        }).collect(Collectors.toList());
 
         return ExternalAssessmentResponse.builder()
                 .userId(userId)
                 .periodId(periodId)
                 .items(dtos)
-                .advisorApproved(status != null && status.isAdvisorApproved())
-                .khoaApproved(status != null && status.isKhoaApproved())
-                .truongApproved(status != null && status.isTruongApproved())
+                .advisorApproved(adv)
+                .khoaApproved(khoa)
+                .truongApproved(truong)
                 .build();
     }
 
@@ -212,29 +238,39 @@ public class AssessmentServiceImpl implements AssessmentService {
                     .map(StudentAssessment::getScore)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-            // Tổng từng cột external
-            BigDecimal tapThe = sumColumn(exRows, ExternalAssessment::getTapTheScore);
-            BigDecimal boMon  = sumColumn(exRows, ExternalAssessment::getBoMonScore);
-            BigDecimal khoa   = sumColumn(exRows, ExternalAssessment::getKhoaScore);
-            BigDecimal truong = sumColumn(exRows, ExternalAssessment::getTruongScore);
-
             // Map external theo criteriaId để join
             Map<Integer, ExternalAssessment> exByCriteria = exRows.stream()
                     .collect(Collectors.toMap(ExternalAssessment::getCriteriaId, x -> x, (a, b) -> a));
 
-            List<StudentOverviewResponse.CriteriaDetail> details = svRows.stream()
-                    .map(sv -> {
-                        ExternalAssessment ex = exByCriteria.get(sv.getCriteriaId());
-                        return StudentOverviewResponse.CriteriaDetail.builder()
-                                .criteriaId(sv.getCriteriaId())
-                                .studentScore(sv.getScore())
-                                .evidenceUris(parseUris(sv.getEvidenceUris()))
-                                .tapTheScore(ex != null ? ex.getTapTheScore() : BigDecimal.ZERO)
-                                .boMonScore(ex != null ? ex.getBoMonScore() : BigDecimal.ZERO)
-                                .khoaScore(ex != null ? ex.getKhoaScore() : BigDecimal.ZERO)
-                                .truongScore(ex != null ? ex.getTruongScore() : BigDecimal.ZERO)
-                                .build();
-                    }).collect(Collectors.toList());
+            BigDecimal tapTheTotal = BigDecimal.ZERO;
+            BigDecimal boMonTotal  = BigDecimal.ZERO;
+            BigDecimal khoaTotal   = BigDecimal.ZERO;
+            BigDecimal truongTotal = BigDecimal.ZERO;
+
+            List<StudentOverviewResponse.CriteriaDetail> details = new ArrayList<>();
+            for (StudentAssessment sv : svRows) {
+                ExternalAssessment ex = exByCriteria.get(sv.getCriteriaId());
+                BigDecimal svScore = sv.getScore() != null ? sv.getScore() : BigDecimal.ZERO;
+                BigDecimal t = ex != null ? ex.getTapTheScore() : svScore;
+                BigDecimal b = ex != null ? ex.getBoMonScore() : svScore;
+                BigDecimal k = ex != null ? ex.getKhoaScore() : svScore;
+                BigDecimal tr = ex != null ? ex.getTruongScore() : svScore;
+
+                tapTheTotal = tapTheTotal.add(t);
+                boMonTotal = boMonTotal.add(b);
+                khoaTotal = khoaTotal.add(k);
+                truongTotal = truongTotal.add(tr);
+
+                details.add(StudentOverviewResponse.CriteriaDetail.builder()
+                        .criteriaId(sv.getCriteriaId())
+                        .studentScore(svScore)
+                        .evidenceUris(parseUris(sv.getEvidenceUris()))
+                        .tapTheScore(t)
+                        .boMonScore(b)
+                        .khoaScore(k)
+                        .truongScore(tr)
+                        .build());
+            }
 
             return StudentOverviewResponse.builder()
                     .userId(userId)
@@ -242,10 +278,10 @@ public class AssessmentServiceImpl implements AssessmentService {
                             .map(p -> p.getStudentCode()).orElse(""))
                     .periodId(periodId)
                     .studentTotalScore(svTotal)
-                    .tapTheScore(tapThe)
-                    .boMonScore(boMon)
-                    .khoaScore(khoa)
-                    .truongScore(truong)
+                    .tapTheScore(tapTheTotal)
+                    .boMonScore(boMonTotal)
+                    .khoaScore(khoaTotal)
+                    .truongScore(truongTotal)
                     .advisorApproved(status != null && status.isAdvisorApproved())
                     .khoaApproved(status != null && status.isKhoaApproved())
                     .truongApproved(status != null && status.isTruongApproved())
@@ -359,15 +395,23 @@ public class AssessmentServiceImpl implements AssessmentService {
             ExternalAssessment row = externalRepo
                     .findByUserIdAndPeriodIdAndCriteriaId(
                             request.getUserId(), request.getPeriodId(), item.getCriteriaId())
-                    .orElse(ExternalAssessment.builder()
-                            .userId(request.getUserId())
-                            .periodId(request.getPeriodId())
-                            .criteriaId(item.getCriteriaId())
-                            .tapTheScore(BigDecimal.ZERO)
-                            .boMonScore(BigDecimal.ZERO)
-                            .khoaScore(BigDecimal.ZERO)
-                            .truongScore(BigDecimal.ZERO)
-                            .build());
+                    .orElseGet(() -> {
+                        BigDecimal svScore = studentRepo.findByUserIdAndPeriodId(request.getUserId(), request.getPeriodId())
+                                .stream()
+                                .filter(s -> s.getCriteriaId().equals(item.getCriteriaId()))
+                                .map(StudentAssessment::getScore)
+                                .findFirst()
+                                .orElse(BigDecimal.ZERO);
+                        return ExternalAssessment.builder()
+                                .userId(request.getUserId())
+                                .periodId(request.getPeriodId())
+                                .criteriaId(item.getCriteriaId())
+                                .tapTheScore(svScore)
+                                .boMonScore(svScore)
+                                .khoaScore(svScore)
+                                .truongScore(svScore)
+                                .build();
+                    });
             BigDecimal score = nvl(item.getScore());
             switch (column) {
                 case "tapThe" -> row.setTapTheScore(score);

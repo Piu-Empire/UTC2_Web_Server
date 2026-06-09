@@ -71,6 +71,20 @@ public class AcademicServiceImpl implements AcademicService {
     //  1. SEMESTERS
     // ════════════════════════════════════════════════════════════════════════
 
+    private Long resolveUserIdByCode(Long userId, String studentCode) {
+        if (userId != null) return userId;
+        if (studentCode == null || studentCode.isBlank()) throw new ResourceNotFoundException("Thiếu mssv");
+        try {
+            Number id = (Number) entityManager.createNativeQuery("SELECT user_id FROM student_profile WHERE student_code = :code")
+                    .setParameter("code", studentCode.trim())
+                    .getSingleResult();
+            if (id == null) throw new ResourceNotFoundException("Không tìm thấy sinh viên với MSSV: " + studentCode);
+            return id.longValue();
+        } catch (jakarta.persistence.NoResultException e) {
+            throw new ResourceNotFoundException("Không tìm thấy sinh viên với MSSV: " + studentCode);
+        }
+    }
+
     @Override
     public List<SemesterDto> getSemesters(Long userId) {
         Long id = resolveUserId(userId);
@@ -348,16 +362,18 @@ public class AcademicServiceImpl implements AcademicService {
     @Override @Transactional
     public ScholarshipDto updateScholarshipStatus(ScholarshipUpsertDto dto) {
         if (!canAddScholarshipOrWarning()) throw new ForbiddenException("Chỉ Staff lv3+ hoặc Advisor mới có quyền thêm học bổng");
+        Long targetUserId = resolveUserIdByCode(dto.getUserId(), dto.getStudentCode());
+
         int updated = entityManager.createNativeQuery(
             "UPDATE student_scholarship SET pending_status='pending',received_at=:receivedAt WHERE user_id=:uid AND scholarship_id=:sid")
-            .setParameter("receivedAt",dto.getReceivedAt()).setParameter("uid",dto.getUserId())
+            .setParameter("receivedAt",dto.getReceivedAt()).setParameter("uid",targetUserId)
             .setParameter("sid",dto.getScholarshipId()).executeUpdate();
         if (updated==0)
             entityManager.createNativeQuery(
                 "INSERT INTO student_scholarship(user_id,scholarship_id,pending_status,semester_id,received_at) VALUES(:uid,:sid,'pending',:semId,:recAt)")
-                .setParameter("uid",dto.getUserId()).setParameter("sid",dto.getScholarshipId())
+                .setParameter("uid",targetUserId).setParameter("sid",dto.getScholarshipId())
                 .setParameter("semId",dto.getSemesterId()).setParameter("recAt",dto.getReceivedAt()).executeUpdate();
-        return getScholarships(dto.getUserId()).stream()
+        return getScholarships(targetUserId).stream()
                 .filter(s->s.getScholarshipId().equals(dto.getScholarshipId())).findFirst()
                 .orElseThrow(()->new ResourceNotFoundException("Scholarship not found"));
     }
@@ -409,8 +425,10 @@ public class AcademicServiceImpl implements AcademicService {
     @Override @Transactional
     public AcademicWarningDto upsertWarning(WarningUpsertDto dto) {
         if (!canAddScholarshipOrWarning()) throw new ForbiddenException("Chỉ Staff lv3+ hoặc Advisor mới có quyền thêm cảnh báo");
+        Long targetUserId = resolveUserIdByCode(dto.getUserId(), dto.getStudentCode());
+
         AcademicWarningEntity e = AcademicWarningEntity.builder()
-                .userId(dto.getUserId()).semesterId(dto.getSemesterId())
+                .userId(targetUserId).semesterId(dto.getSemesterId())
                 .warningType(dto.getWarningType()).description(dto.getDescription())
                 .issuedAt(LocalDateTime.now()).status("pending") // chưa duyệt
                 .build();
@@ -550,5 +568,51 @@ public class AcademicServiceImpl implements AcademicService {
         if(t>=8.5) return 4.0; if(t>=8.0) return 3.5; if(t>=7.0) return 3.0;
         if(t>=6.5) return 2.5; if(t>=5.5) return 2.0; if(t>=5.0) return 1.5;
         if(t>=4.0) return 1.0; return 0.0;
+    }
+
+    @Override
+    public String exportScholarships(String studentCode) {
+        Long targetUserId = (studentCode != null && !studentCode.isBlank()) ? resolveUserIdByCode(null, studentCode) : null;
+        List<ScholarshipDto> list = getScholarships(targetUserId);
+        StringBuilder csv = new StringBuilder("Scholarship ID,Name,Organization,Amount,Unit,Min GPA,Status,Received At,Approved\n");
+        for (ScholarshipDto s : list) {
+            csv.append(s.getScholarshipId()).append(",")
+               .append(escapeCsv(s.getName())).append(",")
+               .append(escapeCsv(s.getOrganization())).append(",")
+               .append(s.getAmount()).append(",")
+               .append(escapeCsv(s.getUnit())).append(",")
+               .append(s.getMinGpa()).append(",")
+               .append(escapeCsv(s.getStatus())).append(",")
+               .append(escapeCsv(s.getReceivedAt())).append(",")
+               .append(s.getApproved()).append("\n");
+        }
+        return csv.toString();
+    }
+
+    @Override
+    public String exportWarnings(String studentCode, Long semesterId) {
+        Long targetUserId = (studentCode != null && !studentCode.isBlank()) ? resolveUserIdByCode(null, studentCode) : null;
+        List<AcademicWarningDto> list = getWarnings(targetUserId, semesterId);
+        StringBuilder csv = new StringBuilder("Warning ID,Type,Description,Semester ID,Status,Issued At,Resolved At,Approved At\n");
+        for (AcademicWarningDto w : list) {
+            csv.append(w.getWarningId()).append(",")
+               .append(escapeCsv(w.getWarningType())).append(",")
+               .append(escapeCsv(w.getDescription())).append(",")
+               .append(w.getSemesterId()).append(",")
+               .append(escapeCsv(w.getStatus())).append(",")
+               .append(escapeCsv(w.getIssuedAt())).append(",")
+               .append(escapeCsv(w.getResolvedAt())).append(",")
+               .append(escapeCsv(w.getApprovedAt())).append("\n");
+        }
+        return csv.toString();
+    }
+
+    private String escapeCsv(String val) {
+        if (val == null) return "";
+        String s = val.replace("\"", "\"\"");
+        if (s.contains(",") || s.contains("\"") || s.contains("\n")) {
+            return "\"" + s + "\"";
+        }
+        return s;
     }
 }

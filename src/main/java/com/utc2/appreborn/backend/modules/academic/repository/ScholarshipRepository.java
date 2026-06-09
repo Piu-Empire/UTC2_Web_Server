@@ -43,8 +43,8 @@ public interface ScholarshipRepository extends JpaRepository<ScholarshipEntity, 
             JOIN scholarship s   ON s.scholarship_id = ss.scholarship_id
             JOIN user_profile up ON up.user_id = ss.user_id
             JOIN student_profile sp ON sp.user_id = ss.user_id
-            WHERE ss.pending_status = 'pending'
-            ORDER BY ss.user_id, s.scholarship_id
+            WHERE ss.pending_status IN ('pending', 'approved', 'not_received')
+            ORDER BY ss.pending_status ASC, ss.user_id, s.scholarship_id
             """, nativeQuery = true)
     List<Object[]> findPendingApprovals();
 }

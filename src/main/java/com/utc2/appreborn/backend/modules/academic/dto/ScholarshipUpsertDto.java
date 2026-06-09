@@ -4,7 +4,8 @@ import lombok.Data;
 
 @Data
 public class ScholarshipUpsertDto {
-    private Long   userId;         // sinh viên nhận học bổng
+    private Long   userId;         // (optional) sinh viên nhận học bổng
+    private String studentCode;    // MSSV
     private Long   scholarshipId;  // học bổng nào
     private String status;         // received | not_received
     private Long   semesterId;

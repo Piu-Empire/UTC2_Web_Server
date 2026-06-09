@@ -171,4 +171,24 @@ public class AcademicController {
         academicService.removeTeacherCourse(id);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
+
+    // ── Export ────────────────────────────────────────────────────────────
+
+    @GetMapping(value = "/scholarships/export", produces = "text/csv; charset=utf-8")
+    public ResponseEntity<String> exportScholarships(@RequestParam(required = false) String studentCode) {
+        String csv = academicService.exportScholarships(studentCode);
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=\"scholarships.csv\"")
+                .body("\uFEFF" + csv); // add BOM for Excel
+    }
+
+    @GetMapping(value = "/warnings/export", produces = "text/csv; charset=utf-8")
+    public ResponseEntity<String> exportWarnings(
+            @RequestParam(required = false) String studentCode, 
+            @RequestParam(required = false) Long semesterId) {
+        String csv = academicService.exportWarnings(studentCode, semesterId);
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=\"warnings.csv\"")
+                .body("\uFEFF" + csv);
+    }
 }

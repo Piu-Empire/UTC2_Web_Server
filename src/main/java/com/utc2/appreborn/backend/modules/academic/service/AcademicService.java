@@ -12,6 +12,10 @@ public interface AcademicService {
     List<ScholarshipDto>      getScholarships(Long userId);
     List<AcademicWarningDto>  getWarnings(Long userId, Long semesterId);
 
+    // ── Export ────────────────────────────────────────────────────────────
+    String                    exportScholarships(String studentCode);
+    String                    exportWarnings(String studentCode, Long semesterId);
+
     // ── STAFF lv2 (Giảng viên) ────────────────────────────────────────────
     List<GradesByCourseDto>   getGradesByCourse(Long courseId, String className);
     CourseGradeDto            updateGrade(Long enrollmentId, GradeUpdateDto dto);

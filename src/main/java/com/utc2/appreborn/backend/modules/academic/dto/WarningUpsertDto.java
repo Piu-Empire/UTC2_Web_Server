@@ -4,7 +4,8 @@ import lombok.Data;
 
 @Data
 public class WarningUpsertDto {
-    private Long   userId;      // sinh viên bị cảnh báo
+    private Long   userId;      // (optional) sinh viên bị cảnh báo
+    private String studentCode; // MSSV
     private Long   semesterId;
     private String warningType; // LOW_GPA | FAILED_EXAM | ATTENDANCE
     private String description;
