@@ -1,0 +1,40 @@
+TỐT NGHIỆP & ĐỒ ÁN TỐT NGHIỆP - CÂU HỎI THƯỜNG GẶP
+
+=== ĐIỀU KIỆN NHẬN ĐỒ ÁN TỐT NGHIỆP ===
+
+Q: Điều kiện để được nhận học phần đồ án tốt nghiệp?
+A: (1) Không bị truy cứu hình sự, không đang bị đình chỉ học; (2) Số tín chỉ chưa tích lũy (không tính thực tập TN và ĐATN) không vượt quá 10 tín chỉ.
+
+=== ĐIỀU KIỆN BẢO VỆ ĐỒ ÁN ===
+
+Q: Điều kiện để được bảo vệ đồ án tốt nghiệp?
+A: (1) Không bị truy cứu hình sự, không đang bị đình chỉ; (2) Được sự đồng ý của giảng viên hướng dẫn và giảng viên đọc duyệt; (3) Đã tích lũy đủ số tín chỉ theo chương trình (không tính GDQP, GDTC, tự chọn không tính điểm, ĐATN) và ĐTBTL ≥ 1.9 (thang 4).
+
+Q: Nếu không đủ điều kiện bảo vệ thì xử lý thế nào?
+A: Nếu chưa đủ tín chỉ: được học bổ sung và bảo vệ ĐATN đã hoàn thành trong học kỳ liền kề khi đủ điều kiện. Sau thời hạn đó phải đăng ký làm lại ĐATN.
+
+=== CÔNG NHẬN TỐT NGHIỆP ===
+
+Q: Điều kiện để được công nhận tốt nghiệp?
+A: (1) Tích lũy đủ học phần và số tín chỉ theo yêu cầu chương trình, đạt chuẩn đầu ra; (2) ĐTBTL toàn khóa ≥ 2.0 (thang 4); (3) Tại thời điểm xét không bị truy cứu hình sự hoặc đang bị đình chỉ.
+
+Q: Nhà trường xét tốt nghiệp bao nhiêu lần mỗi năm?
+A: 2 lần: sau khi kết thúc học kỳ 1 và học kỳ 2. Có thể xét bổ sung nếu cần.
+
+Q: Hạng tốt nghiệp được xác định như thế nào?
+A: Dựa vào ĐTBTL toàn khóa (theo bảng xếp loại thang 4). Hạng Xuất sắc/Giỏi bị hạ một bậc nếu: khối lượng học lại vượt 5% tổng tín chỉ, hoặc đã bị kỷ luật từ cảnh cáo trở lên.
+
+Q: Sinh viên hết thời gian học mà chưa tốt nghiệp do thiếu GDQP/GDTC/ngoại ngữ thì sao?
+A: Trong 3 năm kể từ khi thôi học, vẫn có thể hoàn thiện các điều kiện còn thiếu và đề nghị xét tốt nghiệp.
+
+Q: Sinh viên không tốt nghiệp có nhận được gì không?
+A: Được cấp chứng nhận về các học phần đã tích lũy trong chương trình.
+
+=== HẠNG TỐT NGHIỆP (thang 4) ===
+
+| ĐTBTL           | Hạng tốt nghiệp |
+|-----------------|-----------------|
+| 3.6 – 4.0       | Xuất sắc        |
+| 3.2 – cận 3.6   | Giỏi            |
+| 2.5 – cận 3.2   | Khá             |
+| 2.0 – cận 2.5   | Trung bình      |

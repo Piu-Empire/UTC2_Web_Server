@@ -1,0 +1,76 @@
+{
+  "catalog": [
+    {
+      "id": "DOC_001",
+      "path": "markdown/cong_thuc_tinh_diem.md",
+      "topic": "điểm số, điểm học phần, cách tính điểm, gpa, điểm trung bình, thang điểm chữ, thang điểm 4, điểm quá trình, điểm thi, đồ án tốt nghiệp ĐATN",
+      "description": "Công thức tính điểm học phần (ĐQT × a + ĐTH × b), bảng quy đổi thang 10 sang thang chữ (A+, A, B+, B, C+, C, D+, D, F+, F) và thang 4, điều kiện tích lũy, xếp loại học lực, công thức tính điểm ĐATN."
+    },
+    {
+      "id": "DOC_002",
+      "path": "faq/quy_che_dao_tao.txt",
+      "topic": "quy chế, học vụ, đăng ký học, bảo lưu, thôi học, cảnh báo học tập, buộc thôi học, tín chỉ, học lại, cải thiện điểm, chuyển ngành, chuyển trường, thời gian tối đa, hai chương trình",
+      "description": "Giải đáp câu hỏi về quy chế đào tạo: số tín chỉ đăng ký tối thiểu/tối đa, đợt đăng ký học, điều kiện bảo lưu kết quả, khi nào bị cảnh báo học tập, khi nào bị buộc thôi học, quy định học lại và cải thiện điểm, điều kiện chuyển ngành/chuyển trường, thời gian học tối đa, học hai chương trình cùng lúc."
+    },
+    {
+      "id": "DOC_003",
+      "path": "faq/tot_nghiep_dieu_kien.txt",
+      "topic": "tốt nghiệp, đồ án tốt nghiệp, điều kiện tốt nghiệp, hạng tốt nghiệp, xét tốt nghiệp, bảo vệ đồ án, ĐATN",
+      "description": "Điều kiện nhận và bảo vệ đồ án tốt nghiệp, điều kiện công nhận tốt nghiệp, cách xác định hạng tốt nghiệp (Xuất sắc/Giỏi/Khá/Trung bình), lịch xét tốt nghiệp, quy định về gia hạn hoàn thiện điều kiện còn thiếu."
+    },
+    {
+      "id": "DOC_004",
+      "path": "faq/ket_qua_ren_luyen.txt",
+      "topic": "rèn luyện, điểm rèn luyện, đánh giá rèn luyện, xếp loại rèn luyện, tiêu chí rèn luyện",
+      "description": "5 tiêu chí và thang điểm đánh giá kết quả rèn luyện sinh viên (tổng 100 điểm), phân loại (Xuất sắc/Tốt/Khá/Trung bình/Yếu/Kém), hậu quả khi xếp loại yếu kém, tác động của kỷ luật lên điểm rèn luyện, quy trình tự đánh giá."
+    },
+    {
+      "id": "DOC_005",
+      "path": "faq/hoc_bong_chinh_sach.txt",
+      "topic": "học bổng, học bổng khuyến khích học tập, học bổng chính sách, miễn giảm học phí, trợ cấp xã hội, hỗ trợ chi phí học tập, miễn phí ký túc xá, chế độ ưu đãi",
+      "description": "Các loại học bổng (KKHT, chính sách), điều kiện và mức xét; đối tượng được miễn/giảm học phí 100%, 70%, 50%; trợ cấp xã hội; hỗ trợ chi phí học tập cho dân tộc thiểu số hộ nghèo; miễn giảm phí KTX; nguyên tắc hưởng chế độ cao nhất khi được nhiều chế độ cùng lúc."
+    },
+    {
+      "id": "DOC_006",
+      "path": "faq/hoc_phi_thanh_toan.txt",
+      "topic": "học phí, đóng học phí, thanh toán, vay vốn tín dụng, bảo hiểm y tế BHYT, phí ký túc xá, VietinBank, Viettel Money",
+      "description": "Cách tính học phí (tín chỉ × đơn giá), hướng dẫn đóng học phí trực tuyến qua VietinBank và Viettel Money, mức đóng BHYT năm học 2024-2025, bảng giá phí các loại phòng KTX, thủ tục và mức vay vốn tín dụng sinh viên (4 triệu/tháng, lãi 6.6%/năm)."
+    },
+    {
+      "id": "DOC_007",
+      "path": "faq/ky_luat_quy_dinh_thi.txt",
+      "topic": "kỷ luật, vi phạm, xử lý kỷ luật, quy định thi, gian lận thi, thẻ sinh viên, hút thuốc, đánh nhau, ma túy",
+      "description": "4 mức kỷ luật (khiển trách, cảnh cáo, đình chỉ, buộc thôi học) và điều kiện áp dụng từng mức; bảng vi phạm phổ biến kèm hình thức xử lý; quy định thi kết thúc học phần (giờ giấc, vật dụng, bài làm); mức xử lý vi phạm trong thi (khiển trách thi -25%, cảnh cáo thi -50%, đình chỉ thi điểm 0); quy định đeo thẻ sinh viên và thủ tục làm lại thẻ."
+    },
+    {
+      "id": "DOC_008",
+      "path": "faq/chuan_dau_ra_ngoai_ngu.txt",
+      "topic": "ngoại ngữ, chuẩn đầu ra ngoại ngữ, B1, tiếng Anh, A1, A2, miễn ngoại ngữ, chứng chỉ ngoại ngữ, IELTS, TOEIC",
+      "description": "Chuẩn đầu ra ngoại ngữ tốt nghiệp (B1 CEFR), điều kiện miễn học ngoại ngữ (có chứng chỉ B1 hợp lệ), cấu trúc 3 phần chương trình ngoại ngữ (A1, A2 tăng cường; B1 cơ bản 4 tín chỉ; ngoại ngữ chuyên ngành 3 tín chỉ), điều kiện tiên quyết và thời điểm tổ chức từng phần."
+    },
+    {
+      "id": "DOC_009",
+      "path": "faq/ky_tuc_xa_ngoai_tru.txt",
+      "topic": "ký túc xá, KTX, đăng ký KTX, phòng KTX, sinh viên ngoại trú, ở trọ, đăng ký tạm trú",
+      "description": "Giới thiệu KTX (sức chứa, tiện ích, địa chỉ), quy trình đăng ký nội trú cho SV năm nhất và năm 2+, mức phí các loại phòng, quy định và nghĩa vụ đăng ký thường trú/tạm trú đối với sinh viên ngoại trú."
+    },
+    {
+      "id": "DOC_010",
+      "path": "faq/thu_vien.txt",
+      "topic": "thư viện, mượn sách, giáo trình, tài liệu điện tử, OPAC, thẻ thư viện, giờ mở cửa thư viện, học liệu số",
+      "description": "Giới thiệu Trung tâm Thông tin – Thư viện (địa chỉ, tầng, nguồn tài liệu), giờ mở cửa, quy định mượn sách đọc tại chỗ và mượn về nhà (tối đa 2 cuốn, 30 ngày), quy trình mượn/trả giáo trình theo học kỳ, truy cập tài liệu điện tử và CSDL trực tuyến, nội quy sử dụng thư viện."
+    },
+    {
+      "id": "DOC_011",
+      "path": "faq/gioi_thieu_truong_don_vi.txt",
+      "topic": "giới thiệu trường, lịch sử trường, các phòng ban, đơn vị chức năng, liên hệ, số điện thoại, email, kênh thông tin, website, khoa, bộ môn",
+      "description": "Lịch sử hình thành trường UTC và Phân hiệu HCM, sứ mạng và tầm nhìn, danh sách toàn bộ các phòng ban/đơn vị với địa chỉ phòng/số điện thoại/email, các kênh thông tin online (website, fanpage, YouTube, cổng dịch vụ công), danh sách các khoa và bộ môn."
+    },
+    {
+      "id": "DOC_012",
+      "path": "markdown/chien_luoc_gpa.md",
+      "topic": "mục tiêu gpa, tăng gpa, chiến lược điểm, điểm dự kiến, tính điểm học kỳ này",
+      "description": "Hướng dẫn AI về chiến lược tăng GPA, cách đặt mục tiêu điểm số cho các học kỳ sau, và nguyên tắc giả định điểm 8.0 cho các môn học chưa thi trong học kỳ hiện tại."
+    }
+  ]
+}
