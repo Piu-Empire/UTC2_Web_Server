@@ -13221,3 +13221,94 @@ Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
 2026-06-09T05:48:48.201Z  INFO 1 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
 2026-06-09T05:48:48.326Z  INFO 1 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
 2026-06-09T05:48:48.353Z  INFO 1 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-06-09T06:23:26.030Z  INFO 1 --- [main] c.u.a.backend.BackendApplication         : Starting BackendApplication v0.0.1-SNAPSHOT using Java 21.0.11 with PID 1 (/app/app.jar started by root in /app)
+2026-06-09T06:23:26.034Z DEBUG 1 --- [main] c.u.a.backend.BackendApplication         : Running with Spring Boot v3.5.14, Spring v6.2.18
+2026-06-09T06:23:26.038Z  INFO 1 --- [main] c.u.a.backend.BackendApplication         : No active profile set, falling back to 1 default profile: "default"
+2026-06-09T06:23:28.159Z  INFO 1 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-09T06:23:28.482Z  INFO 1 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 300 ms. Found 26 JPA repository interfaces.
+2026-06-09T06:23:29.477Z  INFO 1 --- [main] org.reflections.Reflections              : Reflections took 162 ms to scan 1 urls, producing 40 keys and 278 values
+2026-06-09T06:23:30.175Z  INFO 1 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-06-09T06:23:30.353Z  INFO 1 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-09T06:23:30.360Z  INFO 1 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.54]
+2026-06-09T06:23:30.451Z  INFO 1 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-06-09T06:23:30.531Z  INFO 1 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 4398 ms
+2026-06-09T06:23:31.141Z  INFO 1 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-06-09T06:23:31.963Z  INFO 1 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@6d2db15b
+2026-06-09T06:23:31.967Z  INFO 1 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-06-09T06:23:32.161Z  INFO 1 --- [main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://kodama.proxy.rlwy.net:10094/railway?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true (MySQL 9.4)
+2026-06-09T06:23:32.491Z  WARN 1 --- [main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: MySQL 9.4 is newer than this version of Flyway and support has not been tested. The latest supported version of MySQL is 8.1.
+2026-06-09T06:23:32.712Z  INFO 1 --- [main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table `railway`.`flyway_schema_history` does not exist yet
+2026-06-09T06:23:32.784Z  INFO 1 --- [main] o.f.core.internal.command.DbValidate     : Successfully validated 25 migrations (execution time 00:00.242s)
+2026-06-09T06:23:33.298Z  INFO 1 --- [main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table `railway`.`flyway_schema_history` ...
+2026-06-09T06:23:33.997Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Current version of schema `railway`: << Empty Schema >>
+2026-06-09T06:23:34.212Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `railway` to version "1 - utc2 init schema"
+2026-06-09T06:23:39.861Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `railway` to version "2 - insert initial data"
+2026-06-09T06:23:42.440Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `railway` to version "4 - add student card url"
+2026-06-09T06:23:43.444Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `railway` to version "5 - fix ui breaking columns"
+2026-06-09T06:23:44.725Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `railway` to version "6 - fix service request pk"
+2026-06-09T06:23:45.702Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `railway` to version "7 - add user profile address"
+2026-06-09T06:23:46.650Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `railway` to version "8 - add password reset token"
+2026-06-09T06:23:47.645Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `railway` to version "9 - insert test"
+2026-06-09T06:23:48.532Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `railway` to version "10 - update admin role"
+2026-06-09T06:23:49.505Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `railway` to version "11 - fix academic warning type"
+2026-06-09T06:23:50.547Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `railway` to version "12 - simplify payment status"
+2026-06-09T06:23:51.808Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `railway` to version "13 - add fee type"
+2026-06-09T06:23:53.003Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `railway` to version "14 - notification fcm gmail"
+2026-06-09T06:23:54.178Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `railway` to version "15 - create tuition rate"
+2026-06-09T06:23:55.942Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `railway` to version "16 - fix fee data and recalculate"
+2026-06-09T06:23:57.921Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `railway` to version "17 - fee link enrollment and dormitory"
+2026-06-09T06:23:59.257Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `railway` to version "20250810.01 - create assessment tables"
+2026-06-09T06:24:00.567Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `railway` to version "20250810.02 - add scholarship tables"
+2026-06-09T06:24:02.035Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `railway` to version "20250815.01 - assessment staff external redesign"
+2026-06-09T06:24:03.286Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `railway` to version "20250815.02 - test data assessment roles"
+2026-06-09T06:24:05.667Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `railway` to version "20250815.03 - fix staff levels complete"
+2026-06-09T06:24:05.959Z  WARN 1 --- [main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: Duplicate entry 'giangvien@utc2.edu.vn' for key 'user.email' (SQL State: 23000 - Error Code: 1062)
+2026-06-09T06:24:06.067Z  WARN 1 --- [main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: Duplicate entry '8' for key 'user_profile.PRIMARY' (SQL State: 23000 - Error Code: 1062)
+2026-06-09T06:24:07.018Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `railway` to version "20250817.01 - create teacher course"
+2026-06-09T06:24:08.037Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `railway` to version "20250818.01 - academic workflow"
+2026-06-09T06:24:09.407Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `railway` to version "20250818.02 - clean bad test assessment data"
+2026-06-09T06:24:10.730Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Migrating schema `railway` to version "20260607.01 - add chat action log"
+2026-06-09T06:24:11.586Z  INFO 1 --- [main] o.f.core.internal.command.DbMigrate      : Successfully applied 25 migrations to schema `railway`, now at version v20260607.01 (execution time 00:18.050s)
+2026-06-09T06:24:11.908Z  INFO 1 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-06-09T06:24:11.989Z  INFO 1 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.49.Final
+2026-06-09T06:24:12.033Z  INFO 1 --- [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-06-09T06:24:12.364Z  INFO 1 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-09T06:24:12.534Z  WARN 1 --- [main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-09T06:24:12.548Z  INFO 1 --- [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 9.4
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-06-09T06:24:13.965Z  INFO 1 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-09T06:24:14.174Z  INFO 1 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-09T06:24:14.512Z DEBUG 1 --- [main] c.u.a.backend.middleware.JwtFilter       : Filter 'jwtFilter' configured for use
+2026-06-09T06:24:14.563Z  WARN 1 --- [main] c.u.a.backend.config.FirebaseConfig      : Lỗi: Không tìm thấy file firebase-service-account.json trong resources. Push Notification sẽ không hoạt động!
+2026-06-09T06:24:14.648Z  INFO 1 --- [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-09T06:24:16.881Z  INFO 1 --- [main] ai.djl.util.Platform                     : Found matching platform from: jar:nested:/app/app.jar/!BOOT-INF/lib/tokenizers-0.26.0.jar!/native/lib/tokenizers.properties
+2026-06-09T06:24:16.887Z  INFO 1 --- [main] a.d.huggingface.tokenizers.jni.LibUtils  : Extracting native/lib/linux-x86_64/libtokenizers.so to cache ...
+2026-06-09T06:24:17.015Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Khởi tạo SemanticSearchService: Bắt đầu load dữ liệu vào In-Memory Vector Store...
+2026-06-09T06:24:17.043Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: markdown/cong_thuc_tinh_diem.md
+2026-06-09T06:24:18.559Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: faq/quy_che_dao_tao.txt
+2026-06-09T06:24:19.361Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: faq/tot_nghiep_dieu_kien.txt
+2026-06-09T06:24:19.936Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: faq/ket_qua_ren_luyen.txt
+2026-06-09T06:24:20.355Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: faq/hoc_bong_chinh_sach.txt
+2026-06-09T06:24:20.719Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: faq/hoc_phi_thanh_toan.txt
+2026-06-09T06:24:20.987Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: faq/ky_luat_quy_dinh_thi.txt
+2026-06-09T06:24:21.355Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: faq/chuan_dau_ra_ngoai_ngu.txt
+2026-06-09T06:24:21.681Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: faq/ky_tuc_xa_ngoai_tru.txt
+2026-06-09T06:24:22.154Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: faq/thu_vien.txt
+2026-06-09T06:24:22.500Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: faq/gioi_thieu_truong_don_vi.txt
+2026-06-09T06:24:22.931Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Đang xử lý tài liệu từ Catalog: markdown/chien_luoc_gpa.md
+2026-06-09T06:24:23.215Z  INFO 1 --- [main] c.u.a.b.m.a.s.SemanticSearchService      : Hoàn tất load tài liệu vào Vector Store.
+2026-06-09T06:24:23.843Z  INFO 1 --- [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-06-09T06:24:24.520Z  WARN 1 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-06-09T06:24:25.327Z  INFO 1 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-06-09T06:24:25.378Z  INFO 1 --- [main] c.u.a.backend.BackendApplication         : Started BackendApplication in 60.207 seconds (process running for 61.146)
+2026-06-09T06:27:47.023Z  INFO 1 --- [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-09T06:27:47.034Z  INFO 1 --- [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-06-09T06:27:47.046Z  INFO 1 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-06-09T06:27:47.052Z  INFO 1 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-06-09T06:27:47.070Z  INFO 1 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
