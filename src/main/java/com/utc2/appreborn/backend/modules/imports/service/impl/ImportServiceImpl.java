@@ -40,15 +40,15 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ImportServiceImpl implements ImportService {
 
-    private final UserRepository             userRepository;
-    private final StudentProfileRepository   studentProfileRepository;
-    private final UserProfileRepository      userProfileRepository;
-    private final TuitionFeeRepository       tuitionFeeRepository;
-    private final CourseRepository           courseRepository;
-    private final DormitoryRoomRepository    dormitoryRoomRepository;
+    private final UserRepository userRepository;
+    private final StudentProfileRepository studentProfileRepository;
+    private final UserProfileRepository userProfileRepository;
+    private final TuitionFeeRepository tuitionFeeRepository;
+    private final CourseRepository courseRepository;
+    private final DormitoryRoomRepository dormitoryRoomRepository;
     private final CourseEnrollmentRepository courseEnrollmentRepository;
-    private final ScholarshipRepository      scholarshipRepository;
-    private final AcademicWarningRepository  academicWarningRepository;
+    private final ScholarshipRepository scholarshipRepository;
+    private final AcademicWarningRepository academicWarningRepository;
 
     @PersistenceContext
     private EntityManager em;
@@ -68,21 +68,22 @@ public class ImportServiceImpl implements ImportService {
 
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
-                if (row == null || isRowEmpty(row)) continue;
+                if (row == null || isRowEmpty(row))
+                    continue;
 
                 int rowNum = i + 1;
                 try {
-                    String studentCode  = getCol(row, colMap, "student_code");
-                    String fullName     = getCol(row, colMap, "full_name");
-                    String phone        = getCol(row, colMap, "phone_number");
-                    String dob          = getCol(row, colMap, "date_of_birth");
-                    String gender       = getCol(row, colMap, "gender");
-                    String address      = getCol(row, colMap, "address");
-                    String faculty      = getCol(row, colMap, "faculty");
-                    String major        = getCol(row, colMap, "major");
+                    String studentCode = getCol(row, colMap, "student_code");
+                    String fullName = getCol(row, colMap, "full_name");
+                    String phone = getCol(row, colMap, "phone_number");
+                    String dob = getCol(row, colMap, "date_of_birth");
+                    String gender = getCol(row, colMap, "gender");
+                    String address = getCol(row, colMap, "address");
+                    String faculty = getCol(row, colMap, "faculty");
+                    String major = getCol(row, colMap, "major");
                     String academicYear = getCol(row, colMap, "academic_year");
-                    String className    = getCol(row, colMap, "class_name");
-                    String status       = getCol(row, colMap, "status");
+                    String className = getCol(row, colMap, "class_name");
+                    String status = getCol(row, colMap, "status");
 
                     if (studentCode.isEmpty()) {
                         errors.add(err(rowNum, "student_code", "Không được để trống"));
@@ -98,20 +99,29 @@ public class ImportServiceImpl implements ImportService {
                     StudentProfileEntity sp = spOpt.get();
                     Long userId = sp.getUserId();
 
-                    if (!faculty.isEmpty())      sp.setFaculty(faculty);
-                    if (!major.isEmpty())        sp.setMajor(major);
-                    if (!academicYear.isEmpty()) sp.setAcademicYear(academicYear);
-                    if (!className.isEmpty())    sp.setClassName(className);
-                    if (!status.isEmpty())       sp.setStatus(status);
+                    if (!faculty.isEmpty())
+                        sp.setFaculty(faculty);
+                    if (!major.isEmpty())
+                        sp.setMajor(major);
+                    if (!academicYear.isEmpty())
+                        sp.setAcademicYear(academicYear);
+                    if (!className.isEmpty())
+                        sp.setClassName(className);
+                    if (!status.isEmpty())
+                        sp.setStatus(status);
                     studentProfileRepository.save(sp);
 
                     UserProfileEntity up = userProfileRepository.findById(userId)
                             .orElse(UserProfileEntity.builder().userId(userId).user(sp.getUser()).build());
 
-                    if (!fullName.isEmpty()) up.setFullName(fullName);
-                    if (!phone.isEmpty())    up.setPhoneNumber(phone);
-                    if (!gender.isEmpty())   up.setGender(gender);
-                    if (!address.isEmpty())  up.setAddress(address);
+                    if (!fullName.isEmpty())
+                        up.setFullName(fullName);
+                    if (!phone.isEmpty())
+                        up.setPhoneNumber(phone);
+                    if (!gender.isEmpty())
+                        up.setGender(gender);
+                    if (!address.isEmpty())
+                        up.setAddress(address);
 
                     Integer dobIdx = colMap.get("date_of_birth");
                     if (dobIdx != null) {
@@ -121,8 +131,9 @@ public class ImportServiceImpl implements ImportService {
                                 up.setDateOfBirth(dobCell.getDateCellValue()
                                         .toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
                             } else if (!dob.isEmpty()) {
-                                try { up.setDateOfBirth(LocalDate.parse(dob)); }
-                                catch (Exception e) {
+                                try {
+                                    up.setDateOfBirth(LocalDate.parse(dob));
+                                } catch (Exception e) {
                                     errors.add(err(rowNum, "date_of_birth", "Sai định dạng ngày (yyyy-MM-dd)"));
                                 }
                             }
@@ -159,35 +170,40 @@ public class ImportServiceImpl implements ImportService {
 
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
-                if (row == null || isRowEmpty(row)) continue;
+                if (row == null || isRowEmpty(row))
+                    continue;
 
                 int rowNum = i + 1;
                 try {
-                    String studentCode    = getCol(row, colMap, "student_code");
-                    String semesterIdStr  = getCol(row, colMap, "semester_id");
+                    String studentCode = getCol(row, colMap, "student_code");
+                    String semesterIdStr = getCol(row, colMap, "semester_id");
                     String totalAmountStr = getCol(row, colMap, "total_amount");
-                    String paidAmountStr  = getCol(row, colMap, "paid_amount");
-                    String paymentMethod  = getCol(row, colMap, "payment_method");
+                    String paidAmountStr = getCol(row, colMap, "paid_amount");
+                    String paymentMethod = getCol(row, colMap, "payment_method");
 
                     if (studentCode.isEmpty()) {
-                        errors.add(err(rowNum, "student_code", "Không được để trống")); continue;
+                        errors.add(err(rowNum, "student_code", "Không được để trống"));
+                        continue;
                     }
                     if (semesterIdStr.isEmpty()) {
-                        errors.add(err(rowNum, "semester_id", "Không được để trống")); continue;
+                        errors.add(err(rowNum, "semester_id", "Không được để trống"));
+                        continue;
                     }
                     if (totalAmountStr.isEmpty()) {
-                        errors.add(err(rowNum, "total_amount", "Không được để trống")); continue;
+                        errors.add(err(rowNum, "total_amount", "Không được để trống"));
+                        continue;
                     }
 
                     Optional<StudentProfileEntity> spOpt = studentProfileRepository.findByStudentCode(studentCode);
                     if (spOpt.isEmpty()) {
-                        errors.add(err(rowNum, "student_code", "Không tìm thấy sinh viên: " + studentCode)); continue;
+                        errors.add(err(rowNum, "student_code", "Không tìm thấy sinh viên: " + studentCode));
+                        continue;
                     }
 
-                    Long userId     = spOpt.get().getUserId();
+                    Long userId = spOpt.get().getUserId();
                     Long semesterId = Long.parseLong(semesterIdStr);
                     BigDecimal totalAmount = new BigDecimal(totalAmountStr.replace(",", ""));
-                    BigDecimal paidAmount  = paidAmountStr.isEmpty()
+                    BigDecimal paidAmount = paidAmountStr.isEmpty()
                             ? BigDecimal.ZERO
                             : new BigDecimal(paidAmountStr.replace(",", ""));
                     BigDecimal remaining = totalAmount.subtract(paidAmount);
@@ -222,22 +238,26 @@ public class ImportServiceImpl implements ImportService {
                     if (dueDateIdx != null) {
                         Cell dueDateCell = row.getCell(dueDateIdx, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
                         if (dueDateCell != null) {
-                            if (dueDateCell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(dueDateCell)) {
+                            if (dueDateCell.getCellType() == CellType.NUMERIC
+                                    && DateUtil.isCellDateFormatted(dueDateCell)) {
                                 fee.setDueDate(dueDateCell.getDateCellValue()
                                         .toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
                             } else {
                                 String dueDateStr = getString(row, dueDateIdx);
                                 if (!dueDateStr.isEmpty()) {
-                                    try { fee.setDueDate(LocalDate.parse(dueDateStr)); }
-                                    catch (Exception e) {
-                                        errors.add(err(rowNum, "due_date", "Sai định dạng ngày (yyyy-MM-dd)")); continue;
+                                    try {
+                                        fee.setDueDate(LocalDate.parse(dueDateStr));
+                                    } catch (Exception e) {
+                                        errors.add(err(rowNum, "due_date", "Sai định dạng ngày (yyyy-MM-dd)"));
+                                        continue;
                                     }
                                 }
                             }
                         }
                     }
 
-                    if (!paymentMethod.isEmpty()) fee.setPaymentMethod(paymentMethod);
+                    if (!paymentMethod.isEmpty())
+                        fee.setPaymentMethod(paymentMethod);
 
                     tuitionFeeRepository.save(fee);
                     success++;
@@ -269,35 +289,38 @@ public class ImportServiceImpl implements ImportService {
 
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
-                if (row == null || isRowEmpty(row)) continue;
+                if (row == null || isRowEmpty(row))
+                    continue;
 
                 int rowNum = i + 1;
                 try {
-                    String major              = getCol(row, colMap, "major");
-                    String academicYear       = getCol(row, colMap, "academic_year");
-                    String courseCode         = getCol(row, colMap, "course_code");
+                    String major = getCol(row, colMap, "major");
+                    String academicYear = getCol(row, colMap, "academic_year");
+                    String courseCode = getCol(row, colMap, "course_code");
                     String semesterSuggestion = getCol(row, colMap, "semester_suggestion");
-                    String isRequiredStr      = getCol(row, colMap, "is_required");
-                    String groupName          = getCol(row, colMap, "group_name");
+                    String isRequiredStr = getCol(row, colMap, "is_required");
+                    String groupName = getCol(row, colMap, "group_name");
 
-                    if (major.isEmpty() || academicYear.isEmpty() || courseCode.isEmpty() || semesterSuggestion.isEmpty()) {
-                        errors.add(err(rowNum, "required", "major, academic_year, course_code, semester_suggestion là bắt buộc"));
+                    if (major.isEmpty() || academicYear.isEmpty() || courseCode.isEmpty()
+                            || semesterSuggestion.isEmpty()) {
+                        errors.add(err(rowNum, "required",
+                                "major, academic_year, course_code, semester_suggestion là bắt buộc"));
                         continue;
                     }
 
                     List<?> curriculumIds = em.createNativeQuery(
-                                    "SELECT curriculum_id FROM curriculum WHERE major=? AND academic_year=?")
+                            "SELECT curriculum_id FROM curriculum WHERE major=? AND academic_year=?")
                             .setParameter(1, major).setParameter(2, academicYear).getResultList();
 
                     Long curriculumId;
                     if (curriculumIds.isEmpty()) {
                         em.createNativeQuery(
-                                        "INSERT INTO curriculum (major, academic_year, total_credits_required, description) VALUES (?, ?, 0, ?)")
+                                "INSERT INTO curriculum (major, academic_year, total_credits_required, description) VALUES (?, ?, 0, ?)")
                                 .setParameter(1, major).setParameter(2, academicYear)
                                 .setParameter(3, "Chương trình đào tạo " + major + " " + academicYear)
                                 .executeUpdate();
                         List<?> newIds = em.createNativeQuery(
-                                        "SELECT curriculum_id FROM curriculum WHERE major=? AND academic_year=?")
+                                "SELECT curriculum_id FROM curriculum WHERE major=? AND academic_year=?")
                                 .setParameter(1, major).setParameter(2, academicYear).getResultList();
                         curriculumId = ((Number) newIds.get(0)).longValue();
                     } else {
@@ -307,31 +330,33 @@ public class ImportServiceImpl implements ImportService {
                     List<?> courseIds = em.createNativeQuery("SELECT course_id FROM course WHERE course_code=?")
                             .setParameter(1, courseCode).getResultList();
                     if (courseIds.isEmpty()) {
-                        errors.add(err(rowNum, "course_code", "Không tìm thấy học phần: " + courseCode)); continue;
+                        errors.add(err(rowNum, "course_code", "Không tìm thấy học phần: " + courseCode));
+                        continue;
                     }
 
-                    Long courseId  = ((Number) courseIds.get(0)).longValue();
-                    int semSugg    = Integer.parseInt(semesterSuggestion);
-                    boolean isReq  = !"false".equalsIgnoreCase(isRequiredStr);
+                    Long courseId = ((Number) courseIds.get(0)).longValue();
+                    int semSugg = Integer.parseInt(semesterSuggestion);
+                    boolean isReq = !"false".equalsIgnoreCase(isRequiredStr);
 
                     List<?> existing = em.createNativeQuery(
-                                    "SELECT 1 FROM curriculum_item WHERE curriculum_id=? AND course_id=?")
+                            "SELECT 1 FROM curriculum_item WHERE curriculum_id=? AND course_id=?")
                             .setParameter(1, curriculumId).setParameter(2, courseId).getResultList();
 
                     if (!existing.isEmpty()) {
                         if (overwrite) {
                             em.createNativeQuery(
-                                            "UPDATE curriculum_item SET semester_suggestion=?, is_required=?, group_name=? WHERE curriculum_id=? AND course_id=?")
+                                    "UPDATE curriculum_item SET semester_suggestion=?, is_required=?, group_name=? WHERE curriculum_id=? AND course_id=?")
                                     .setParameter(1, semSugg).setParameter(2, isReq)
                                     .setParameter(3, groupName.isEmpty() ? null : groupName)
                                     .setParameter(4, curriculumId).setParameter(5, courseId).executeUpdate();
                         } else {
-                            errors.add(err(rowNum, "course_code", "Học phần " + courseCode + " đã có trong CTĐT — dùng overwrite=true"));
+                            errors.add(err(rowNum, "course_code",
+                                    "Học phần " + courseCode + " đã có trong CTĐT — dùng overwrite=true"));
                             continue;
                         }
                     } else {
                         em.createNativeQuery(
-                                        "INSERT INTO curriculum_item (curriculum_id, course_id, semester_suggestion, is_required, group_name) VALUES (?, ?, ?, ?, ?)")
+                                "INSERT INTO curriculum_item (curriculum_id, course_id, semester_suggestion, is_required, group_name) VALUES (?, ?, ?, ?, ?)")
                                 .setParameter(1, curriculumId).setParameter(2, courseId)
                                 .setParameter(3, semSugg).setParameter(4, isReq)
                                 .setParameter(5, groupName.isEmpty() ? null : groupName).executeUpdate();
@@ -365,14 +390,15 @@ public class ImportServiceImpl implements ImportService {
 
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
-                if (row == null || isRowEmpty(row)) continue;
+                if (row == null || isRowEmpty(row))
+                    continue;
 
                 int rowNum = i + 1;
                 try {
                     String courseCode = getCol(row, colMap, "course_code").trim();
                     String courseName = getCol(row, colMap, "course_name").trim();
                     String creditsStr = getCol(row, colMap, "credits").trim();
-                    String desc       = getCol(row, colMap, "description").trim();
+                    String desc = getCol(row, colMap, "description").trim();
 
                     if (courseCode.isEmpty() || courseName.isEmpty() || creditsStr.isEmpty()) {
                         errors.add(err(rowNum, "validation", "Thiếu dữ liệu bắt buộc"));
@@ -435,29 +461,48 @@ public class ImportServiceImpl implements ImportService {
 
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
-                if (row == null || isRowEmpty(row)) continue;
+                if (row == null || isRowEmpty(row))
+                    continue;
 
                 int rowNum = i + 1;
                 try {
-                    String email        = getCol(row, colMap, "email");
-                    String fullName     = getCol(row, colMap, "full_name");
-                    String studentCode  = getCol(row, colMap, "student_code");
-                    String faculty      = getCol(row, colMap, "faculty");
-                    String major        = getCol(row, colMap, "major");
+                    String email = getCol(row, colMap, "email");
+                    String fullName = getCol(row, colMap, "full_name");
+                    String studentCode = getCol(row, colMap, "student_code");
+                    String faculty = getCol(row, colMap, "faculty");
+                    String major = getCol(row, colMap, "major");
                     String academicYear = getCol(row, colMap, "academic_year");
-                    String status       = getCol(row, colMap, "status");
-                    String phone        = getCol(row, colMap, "phone_number");
-                    String dob          = getCol(row, colMap, "date_of_birth");
-                    String gender       = getCol(row, colMap, "gender");
-                    String address      = getCol(row, colMap, "address");
-                    String className    = getCol(row, colMap, "class_name");
+                    String status = getCol(row, colMap, "status");
+                    String phone = getCol(row, colMap, "phone_number");
+                    String dob = getCol(row, colMap, "date_of_birth");
+                    String gender = getCol(row, colMap, "gender");
+                    String address = getCol(row, colMap, "address");
+                    String className = getCol(row, colMap, "class_name");
 
-                    if (email.isEmpty())        { errors.add(err(rowNum, "email",        "Không được để trống")); continue; }
-                    if (fullName.isEmpty())     { errors.add(err(rowNum, "full_name",    "Không được để trống")); continue; }
-                    if (studentCode.isEmpty())  { errors.add(err(rowNum, "student_code", "Không được để trống")); continue; }
-                    if (faculty.isEmpty())      { errors.add(err(rowNum, "faculty",      "Không được để trống")); continue; }
-                    if (major.isEmpty())        { errors.add(err(rowNum, "major",        "Không được để trống")); continue; }
-                    if (academicYear.isEmpty()) { errors.add(err(rowNum, "academic_year","Không được để trống")); continue; }
+                    if (email.isEmpty()) {
+                        errors.add(err(rowNum, "email", "Không được để trống"));
+                        continue;
+                    }
+                    if (fullName.isEmpty()) {
+                        errors.add(err(rowNum, "full_name", "Không được để trống"));
+                        continue;
+                    }
+                    if (studentCode.isEmpty()) {
+                        errors.add(err(rowNum, "student_code", "Không được để trống"));
+                        continue;
+                    }
+                    if (faculty.isEmpty()) {
+                        errors.add(err(rowNum, "faculty", "Không được để trống"));
+                        continue;
+                    }
+                    if (major.isEmpty()) {
+                        errors.add(err(rowNum, "major", "Không được để trống"));
+                        continue;
+                    }
+                    if (academicYear.isEmpty()) {
+                        errors.add(err(rowNum, "academic_year", "Không được để trống"));
+                        continue;
+                    }
 
                     Optional<StudentProfileEntity> existingSp = studentProfileRepository.findByStudentCode(studentCode);
                     if (existingSp.isPresent()) {
@@ -467,19 +512,26 @@ public class ImportServiceImpl implements ImportService {
                             continue;
                         }
                         StudentProfileEntity sp = existingSp.get();
-                        sp.setFaculty(faculty); sp.setMajor(major);
+                        sp.setFaculty(faculty);
+                        sp.setMajor(major);
                         sp.setAcademicYear(academicYear);
-                        if (!className.isEmpty()) sp.setClassName(className);
-                        if (!status.isEmpty())    sp.setStatus(status);
+                        if (!className.isEmpty())
+                            sp.setClassName(className);
+                        if (!status.isEmpty())
+                            sp.setStatus(status);
                         studentProfileRepository.saveAndFlush(sp);
 
                         Long userId = sp.getUserId();
                         UserProfileEntity up = userProfileRepository.findById(userId)
                                 .orElse(UserProfileEntity.builder().userId(userId).user(sp.getUser()).build());
-                        if (!fullName.isEmpty()) up.setFullName(fullName);
-                        if (!phone.isEmpty())    up.setPhoneNumber(phone);
-                        if (!gender.isEmpty())   up.setGender(gender);
-                        if (!address.isEmpty())  up.setAddress(address);
+                        if (!fullName.isEmpty())
+                            up.setFullName(fullName);
+                        if (!phone.isEmpty())
+                            up.setPhoneNumber(phone);
+                        if (!gender.isEmpty())
+                            up.setGender(gender);
+                        if (!address.isEmpty())
+                            up.setAddress(address);
                         parseDob(row, colMap, dob, up, errors, rowNum);
                         userProfileRepository.saveAndFlush(up);
                         success++;
@@ -487,7 +539,8 @@ public class ImportServiceImpl implements ImportService {
                     }
 
                     if (userRepository.findByEmail(email).isPresent()) {
-                        errors.add(err(rowNum, "email", "Email " + email + " đã được sử dụng")); continue;
+                        errors.add(err(rowNum, "email", "Email " + email + " đã được sử dụng"));
+                        continue;
                     }
 
                     User user = User.builder()
@@ -535,7 +588,7 @@ public class ImportServiceImpl implements ImportService {
     }
 
     // ─────────────────────────────────────────────────────────
-    // IMPORT DORMITORY ROOMS  ← MỚI
+    // IMPORT DORMITORY ROOMS ← MỚI
     // Required: room_code, building, capacity, room_type, price_per_month
     // Optional: floor, status (default: available), amenities
     // ─────────────────────────────────────────────────────────
@@ -551,18 +604,19 @@ public class ImportServiceImpl implements ImportService {
 
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
-                if (row == null || isRowEmpty(row)) continue;
+                if (row == null || isRowEmpty(row))
+                    continue;
 
                 int rowNum = i + 1;
                 try {
-                    String roomCode    = getCol(row, colMap, "room_code");
-                    String building    = getCol(row, colMap, "building");
+                    String roomCode = getCol(row, colMap, "room_code");
+                    String building = getCol(row, colMap, "building");
                     String capacityStr = getCol(row, colMap, "capacity");
-                    String roomType    = getCol(row, colMap, "room_type");
-                    String priceStr    = getCol(row, colMap, "price_per_month");
-                    String floorStr    = getCol(row, colMap, "floor");
-                    String status      = getCol(row, colMap, "status");
-                    String amenities   = getCol(row, colMap, "amenities");
+                    String roomType = getCol(row, colMap, "room_type");
+                    String priceStr = getCol(row, colMap, "price_per_month");
+                    String floorStr = getCol(row, colMap, "floor");
+                    String status = getCol(row, colMap, "status");
+                    String amenities = getCol(row, colMap, "amenities");
 
                     if (roomCode.isEmpty() || building.isEmpty() || capacityStr.isEmpty()
                             || roomType.isEmpty() || priceStr.isEmpty()) {
@@ -592,8 +646,10 @@ public class ImportServiceImpl implements ImportService {
                     room.setPricePerMonth(Double.parseDouble(priceStr.replace(",", "")));
                     // Normalize status: map English/raw → Vietnamese cho khớp với app
                     room.setStatus(normalizeRoomStatus(status));
-                    if (!floorStr.isEmpty())  room.setFloor(Integer.parseInt(floorStr));
-                    if (!amenities.isEmpty()) room.setAmenities(amenities);
+                    if (!floorStr.isEmpty())
+                        room.setFloor(Integer.parseInt(floorStr));
+                    if (!amenities.isEmpty())
+                        room.setAmenities(amenities);
 
                     dormitoryRoomRepository.save(room);
                     success++;
@@ -613,10 +669,10 @@ public class ImportServiceImpl implements ImportService {
     }
 
     // ─────────────────────────────────────────────────────────
-    // IMPORT ENROLLMENTS  ← MỚI
+    // IMPORT ENROLLMENTS ← MỚI
     // Required: student_code, course_code, semester_id
     // Optional: status, midterm_score, final_score, assignment_score,
-    //           total_score, letter_grade, grade_point, is_passed
+    // total_score, letter_grade, grade_point, is_passed
     // ─────────────────────────────────────────────────────────
     @Override
     @Transactional
@@ -630,13 +686,14 @@ public class ImportServiceImpl implements ImportService {
 
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
-                if (row == null || isRowEmpty(row)) continue;
+                if (row == null || isRowEmpty(row))
+                    continue;
 
                 int rowNum = i + 1;
                 try {
-                    String studentCode   = getCol(row, colMap, "student_code");
-                    String courseCode    = getCol(row, colMap, "course_code");
-                    String semIdStr      = getCol(row, colMap, "semester_id");
+                    String studentCode = getCol(row, colMap, "student_code");
+                    String courseCode = getCol(row, colMap, "course_code");
+                    String semIdStr = getCol(row, colMap, "semester_id");
 
                     if (studentCode.isEmpty() || courseCode.isEmpty() || semIdStr.isEmpty()) {
                         errors.add(err(rowNum, "required",
@@ -647,7 +704,8 @@ public class ImportServiceImpl implements ImportService {
                     // Resolve student → userId
                     Optional<StudentProfileEntity> spOpt = studentProfileRepository.findByStudentCode(studentCode);
                     if (spOpt.isEmpty()) {
-                        errors.add(err(rowNum, "student_code", "Không tìm thấy sinh viên: " + studentCode)); continue;
+                        errors.add(err(rowNum, "student_code", "Không tìm thấy sinh viên: " + studentCode));
+                        continue;
                     }
                     Long userId = spOpt.get().getUserId();
 
@@ -655,20 +713,21 @@ public class ImportServiceImpl implements ImportService {
                     List<?> courseIds = em.createNativeQuery("SELECT course_id FROM course WHERE course_code=?")
                             .setParameter(1, courseCode).getResultList();
                     if (courseIds.isEmpty()) {
-                        errors.add(err(rowNum, "course_code", "Không tìm thấy học phần: " + courseCode)); continue;
+                        errors.add(err(rowNum, "course_code", "Không tìm thấy học phần: " + courseCode));
+                        continue;
                     }
                     Long courseId = ((Number) courseIds.get(0)).longValue();
-                    Long semId    = Long.parseLong(semIdStr);
+                    Long semId = Long.parseLong(semIdStr);
 
                     // Optional score fields
-                    String status         = getCol(row, colMap, "status");
-                    String midtermStr     = getCol(row, colMap, "midterm_score");
-                    String finalStr       = getCol(row, colMap, "final_score");
-                    String assignmentStr  = getCol(row, colMap, "assignment_score");
-                    String totalStr       = getCol(row, colMap, "total_score");
-                    String letterGrade    = getCol(row, colMap, "letter_grade");
-                    String gradePointStr  = getCol(row, colMap, "grade_point");
-                    String isPassedStr    = getCol(row, colMap, "is_passed");
+                    String status = getCol(row, colMap, "status");
+                    String midtermStr = getCol(row, colMap, "midterm_score");
+                    String finalStr = getCol(row, colMap, "final_score");
+                    String assignmentStr = getCol(row, colMap, "assignment_score");
+                    String totalStr = getCol(row, colMap, "total_score");
+                    String letterGrade = getCol(row, colMap, "letter_grade");
+                    String gradePointStr = getCol(row, colMap, "grade_point");
+                    String isPassedStr = getCol(row, colMap, "is_passed");
 
                     // Check existing enrollment
                     boolean exists = courseEnrollmentRepository
@@ -677,44 +736,47 @@ public class ImportServiceImpl implements ImportService {
                     if (exists) {
                         if (!overwrite) {
                             errors.add(err(rowNum, "enrollment",
-                                    "Sinh viên " + studentCode + " đã đăng ký học phần " + courseCode + " — dùng overwrite=true"));
+                                    "Sinh viên " + studentCode + " đã đăng ký học phần " + courseCode
+                                            + " — dùng overwrite=true"));
                             continue;
                         }
-                        // Update enrollment scores via native query (EnrollmentEntity không có score fields)
+                        // Update enrollment scores via native query (EnrollmentEntity không có score
+                        // fields)
                         em.createNativeQuery(
-                                        "UPDATE enrollment SET " +
-                                                "status=?, midterm_score=?, final_score=?, assignment_score=?, " +
-                                                "total_score=?, letter_grade=?, grade_point=?, is_passed=? " +
-                                                "WHERE user_id=? AND course_id=? AND semester_id=?")
-                                .setParameter(1,  status.isEmpty() ? "registered" : status)
-                                .setParameter(2,  midtermStr.isEmpty()    ? null : Double.parseDouble(midtermStr))
-                                .setParameter(3,  finalStr.isEmpty()      ? null : Double.parseDouble(finalStr))
-                                .setParameter(4,  assignmentStr.isEmpty() ? null : Double.parseDouble(assignmentStr))
-                                .setParameter(5,  totalStr.isEmpty()      ? null : Double.parseDouble(totalStr))
-                                .setParameter(6,  letterGrade.isEmpty()   ? null : letterGrade)
-                                .setParameter(7,  gradePointStr.isEmpty() ? null : Double.parseDouble(gradePointStr))
-                                .setParameter(8,  isPassedStr.isEmpty()   ? null : Boolean.parseBoolean(isPassedStr))
-                                .setParameter(9,  userId)
+                                "UPDATE enrollment SET " +
+                                        "status=?, midterm_score=?, final_score=?, assignment_score=?, " +
+                                        "total_score=?, letter_grade=?, grade_point=?, is_passed=? " +
+                                        "WHERE user_id=? AND course_id=? AND semester_id=?")
+                                .setParameter(1, status.isEmpty() ? "registered" : status)
+                                .setParameter(2, midtermStr.isEmpty() ? null : Double.parseDouble(midtermStr))
+                                .setParameter(3, finalStr.isEmpty() ? null : Double.parseDouble(finalStr))
+                                .setParameter(4, assignmentStr.isEmpty() ? null : Double.parseDouble(assignmentStr))
+                                .setParameter(5, totalStr.isEmpty() ? null : Double.parseDouble(totalStr))
+                                .setParameter(6, letterGrade.isEmpty() ? null : letterGrade)
+                                .setParameter(7, gradePointStr.isEmpty() ? null : Double.parseDouble(gradePointStr))
+                                .setParameter(8, isPassedStr.isEmpty() ? null : Boolean.parseBoolean(isPassedStr))
+                                .setParameter(9, userId)
                                 .setParameter(10, courseId)
                                 .setParameter(11, semId)
                                 .executeUpdate();
                     } else {
                         em.createNativeQuery(
-                                        "INSERT INTO enrollment " +
-                                                "(user_id, course_id, semester_id, status, midterm_score, final_score, " +
-                                                "assignment_score, total_score, letter_grade, grade_point, is_passed, registered_at) " +
-                                                "VALUES (?,?,?,?,?,?,?,?,?,?,?,NOW())")
-                                .setParameter(1,  userId)
-                                .setParameter(2,  courseId)
-                                .setParameter(3,  semId)
-                                .setParameter(4,  status.isEmpty() ? "registered" : status)
-                                .setParameter(5,  midtermStr.isEmpty()    ? null : Double.parseDouble(midtermStr))
-                                .setParameter(6,  finalStr.isEmpty()      ? null : Double.parseDouble(finalStr))
-                                .setParameter(7,  assignmentStr.isEmpty() ? null : Double.parseDouble(assignmentStr))
-                                .setParameter(8,  totalStr.isEmpty()      ? null : Double.parseDouble(totalStr))
-                                .setParameter(9,  letterGrade.isEmpty()   ? null : letterGrade)
+                                "INSERT INTO enrollment " +
+                                        "(user_id, course_id, semester_id, status, midterm_score, final_score, " +
+                                        "assignment_score, total_score, letter_grade, grade_point, is_passed, registered_at) "
+                                        +
+                                        "VALUES (?,?,?,?,?,?,?,?,?,?,?,NOW())")
+                                .setParameter(1, userId)
+                                .setParameter(2, courseId)
+                                .setParameter(3, semId)
+                                .setParameter(4, status.isEmpty() ? "registered" : status)
+                                .setParameter(5, midtermStr.isEmpty() ? null : Double.parseDouble(midtermStr))
+                                .setParameter(6, finalStr.isEmpty() ? null : Double.parseDouble(finalStr))
+                                .setParameter(7, assignmentStr.isEmpty() ? null : Double.parseDouble(assignmentStr))
+                                .setParameter(8, totalStr.isEmpty() ? null : Double.parseDouble(totalStr))
+                                .setParameter(9, letterGrade.isEmpty() ? null : letterGrade)
                                 .setParameter(10, gradePointStr.isEmpty() ? null : Double.parseDouble(gradePointStr))
-                                .setParameter(11, isPassedStr.isEmpty()   ? null : Boolean.parseBoolean(isPassedStr))
+                                .setParameter(11, isPassedStr.isEmpty() ? null : Boolean.parseBoolean(isPassedStr))
                                 .executeUpdate();
                     }
 
@@ -740,27 +802,33 @@ public class ImportServiceImpl implements ImportService {
 
     private Map<String, Integer> buildColMap(Row headerRow) {
         Map<String, Integer> map = new HashMap<>();
-        if (headerRow == null) return map;
+        if (headerRow == null)
+            return map;
         for (int c = headerRow.getFirstCellNum(); c < headerRow.getLastCellNum(); c++) {
             Cell cell = headerRow.getCell(c, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
-            if (cell == null) continue;
+            if (cell == null)
+                continue;
             String name = getString(headerRow, c).toLowerCase().trim();
-            if (!name.isEmpty()) map.put(name, c);
+            if (!name.isEmpty())
+                map.put(name, c);
         }
         return map;
     }
 
     private String getCol(Row row, Map<String, Integer> colMap, String colName) {
         Integer idx = colMap.get(colName.toLowerCase());
-        if (idx == null) return "";
+        if (idx == null)
+            return "";
         return getString(row, idx);
     }
 
     private String getString(Row row, int col) {
         Cell cell = row.getCell(col, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
-        if (cell == null) return "";
+        if (cell == null)
+            return "";
         switch (cell.getCellType()) {
-            case STRING:  return cell.getStringCellValue().trim();
+            case STRING:
+                return cell.getStringCellValue().trim();
             case NUMERIC:
                 if (DateUtil.isCellDateFormatted(cell)) {
                     return cell.getDateCellValue()
@@ -768,11 +836,16 @@ public class ImportServiceImpl implements ImportService {
                 }
                 double v = cell.getNumericCellValue();
                 return (v == Math.floor(v)) ? String.valueOf((long) v) : String.valueOf(v);
-            case BOOLEAN: return String.valueOf(cell.getBooleanCellValue());
+            case BOOLEAN:
+                return String.valueOf(cell.getBooleanCellValue());
             case FORMULA:
-                try { return String.valueOf((long) cell.getNumericCellValue()); }
-                catch (Exception e) { return cell.getStringCellValue().trim(); }
-            default: return "";
+                try {
+                    return String.valueOf((long) cell.getNumericCellValue());
+                } catch (Exception e) {
+                    return cell.getStringCellValue().trim();
+                }
+            default:
+                return "";
         }
     }
 
@@ -780,7 +853,8 @@ public class ImportServiceImpl implements ImportService {
         for (int c = row.getFirstCellNum(); c < row.getLastCellNum(); c++) {
             Cell cell = row.getCell(c);
             if (cell != null && cell.getCellType() != CellType.BLANK
-                    && !cell.toString().trim().isEmpty()) return false;
+                    && !cell.toString().trim().isEmpty())
+                return false;
         }
         return true;
     }
@@ -791,37 +865,43 @@ public class ImportServiceImpl implements ImportService {
     }
 
     private void parseDob(Row row, Map<String, Integer> colMap, String dobStr,
-                          UserProfileEntity up, List<ImportResultResponse.ImportError> errors, int rowNum) {
+            UserProfileEntity up, List<ImportResultResponse.ImportError> errors, int rowNum) {
         Integer dobIdx = colMap.get("date_of_birth");
-        if (dobIdx == null) return;
+        if (dobIdx == null)
+            return;
         Cell dobCell = row.getCell(dobIdx, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
-        if (dobCell == null) return;
+        if (dobCell == null)
+            return;
         if (dobCell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(dobCell)) {
             up.setDateOfBirth(dobCell.getDateCellValue()
                     .toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
         } else if (!dobStr.isEmpty()) {
-            try { up.setDateOfBirth(LocalDate.parse(dobStr)); }
-            catch (Exception e) {
+            try {
+                up.setDateOfBirth(LocalDate.parse(dobStr));
+            } catch (Exception e) {
                 errors.add(err(rowNum, "date_of_birth", "Sai định dạng ngày (yyyy-MM-dd)"));
             }
         }
     }
+
     /**
      * Chuyển status từ Excel (English hoặc tiếng Việt) → đúng format trong DB.
      * DB dùng: "còn chỗ", "đã đầy"
      */
     private String normalizeRoomStatus(String raw) {
-        if (raw == null || raw.isBlank()) return "còn chỗ";
+        if (raw == null || raw.isBlank())
+            return "còn chỗ";
         return switch (raw.trim().toLowerCase()) {
-            case "available", "con cho", "còn chỗ", "trống"    -> "còn chỗ";
-            case "full", "da day", "đã đầy", "day", "đầy"      -> "đã đầy";
+            case "available", "con cho", "còn chỗ", "trống" -> "còn chỗ";
+            case "full", "da day", "đã đầy", "day", "đầy" -> "đã đầy";
             default -> "còn chỗ"; // fallback an toàn
         };
     }
 
     // ─────────────────────────────────────────────────────────
     // IMPORT GRADES (lv2 + admin)
-    // Required: student_code, course_code, semester_name, midterm_score, final_score
+    // Required: student_code, course_code, semester_name, midterm_score,
+    // final_score
     // Optional: assignment_score, total_score, letter_grade, grade_point, is_passed
     // ─────────────────────────────────────────────────────────
     @Override
@@ -836,14 +916,15 @@ public class ImportServiceImpl implements ImportService {
 
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
-                if (row == null || isRowEmpty(row)) continue;
+                if (row == null || isRowEmpty(row))
+                    continue;
                 int rowNum = i + 1;
                 try {
-                    String studentCode  = getCol(row, colMap, "student_code");
-                    String courseCode   = getCol(row, colMap, "course_code");
+                    String studentCode = getCol(row, colMap, "student_code");
+                    String courseCode = getCol(row, colMap, "course_code");
                     String semesterName = getCol(row, colMap, "semester_name");
-                    String midtermStr   = getCol(row, colMap, "midterm_score");
-                    String finalStr     = getCol(row, colMap, "final_score");
+                    String midtermStr = getCol(row, colMap, "midterm_score");
+                    String finalStr = getCol(row, colMap, "final_score");
 
                     if (studentCode.isEmpty() || courseCode.isEmpty() || semesterName.isEmpty()) {
                         errors.add(err(rowNum, "required", "student_code, course_code, semester_name là bắt buộc"));
@@ -852,46 +933,51 @@ public class ImportServiceImpl implements ImportService {
 
                     Optional<StudentProfileEntity> spOpt = studentProfileRepository.findByStudentCode(studentCode);
                     if (spOpt.isEmpty()) {
-                        errors.add(err(rowNum, "student_code", "Không tìm thấy sinh viên: " + studentCode)); continue;
+                        errors.add(err(rowNum, "student_code", "Không tìm thấy sinh viên: " + studentCode));
+                        continue;
                     }
                     Long userId = spOpt.get().getUserId();
 
                     List<?> courseIds = em.createNativeQuery("SELECT course_id FROM course WHERE course_code=?")
                             .setParameter(1, courseCode).getResultList();
                     if (courseIds.isEmpty()) {
-                        errors.add(err(rowNum, "course_code", "Không tìm thấy học phần: " + courseCode)); continue;
+                        errors.add(err(rowNum, "course_code", "Không tìm thấy học phần: " + courseCode));
+                        continue;
                     }
                     Long courseId = ((Number) courseIds.get(0)).longValue();
 
-                    List<?> semIds = em.createNativeQuery("SELECT semester_id FROM semester WHERE semester_name=? LIMIT 1")
+                    List<?> semIds = em
+                            .createNativeQuery("SELECT semester_id FROM semester WHERE semester_name=? LIMIT 1")
                             .setParameter(1, semesterName).getResultList();
                     if (semIds.isEmpty()) {
-                        errors.add(err(rowNum, "semester_name", "Không tìm thấy kỳ học: " + semesterName)); continue;
+                        errors.add(err(rowNum, "semester_name", "Không tìm thấy kỳ học: " + semesterName));
+                        continue;
                     }
                     Long semId = ((Number) semIds.get(0)).longValue();
 
                     String assignmentStr = getCol(row, colMap, "assignment_score");
-                    String totalStr      = getCol(row, colMap, "total_score");
-                    String letterGrade   = getCol(row, colMap, "letter_grade");
+                    String totalStr = getCol(row, colMap, "total_score");
+                    String letterGrade = getCol(row, colMap, "letter_grade");
                     String gradePointStr = getCol(row, colMap, "grade_point");
-                    String isPassedStr   = getCol(row, colMap, "is_passed");
+                    String isPassedStr = getCol(row, colMap, "is_passed");
 
                     int updated = em.createNativeQuery(
                             "UPDATE enrollment SET midterm_score=?, final_score=?, assignment_score=?, " +
-                            "total_score=?, letter_grade=?, grade_point=?, is_passed=? " +
-                            "WHERE user_id=? AND course_id=? AND semester_id=?")
-                        .setParameter(1, midtermStr.isEmpty()    ? null : Double.parseDouble(midtermStr))
-                        .setParameter(2, finalStr.isEmpty()      ? null : Double.parseDouble(finalStr))
-                        .setParameter(3, assignmentStr.isEmpty() ? null : Double.parseDouble(assignmentStr))
-                        .setParameter(4, totalStr.isEmpty()      ? null : Double.parseDouble(totalStr))
-                        .setParameter(5, letterGrade.isEmpty()   ? null : letterGrade)
-                        .setParameter(6, gradePointStr.isEmpty() ? null : Double.parseDouble(gradePointStr))
-                        .setParameter(7, isPassedStr.isEmpty()   ? null : Boolean.parseBoolean(isPassedStr))
-                        .setParameter(8, userId).setParameter(9, courseId).setParameter(10, semId)
-                        .executeUpdate();
+                                    "total_score=?, letter_grade=?, grade_point=?, is_passed=? " +
+                                    "WHERE user_id=? AND course_id=? AND semester_id=?")
+                            .setParameter(1, midtermStr.isEmpty() ? null : Double.parseDouble(midtermStr))
+                            .setParameter(2, finalStr.isEmpty() ? null : Double.parseDouble(finalStr))
+                            .setParameter(3, assignmentStr.isEmpty() ? null : Double.parseDouble(assignmentStr))
+                            .setParameter(4, totalStr.isEmpty() ? null : Double.parseDouble(totalStr))
+                            .setParameter(5, letterGrade.isEmpty() ? null : letterGrade)
+                            .setParameter(6, gradePointStr.isEmpty() ? null : Double.parseDouble(gradePointStr))
+                            .setParameter(7, isPassedStr.isEmpty() ? null : Boolean.parseBoolean(isPassedStr))
+                            .setParameter(8, userId).setParameter(9, courseId).setParameter(10, semId)
+                            .executeUpdate();
 
                     if (updated == 0) {
-                        errors.add(err(rowNum, "enrollment", "Sinh viên " + studentCode + " chưa đăng ký học phần " + courseCode + " kỳ " + semesterName));
+                        errors.add(err(rowNum, "enrollment", "Sinh viên " + studentCode + " chưa đăng ký học phần "
+                                + courseCode + " kỳ " + semesterName));
                     } else {
                         success++;
                     }
@@ -924,19 +1010,22 @@ public class ImportServiceImpl implements ImportService {
 
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
-                if (row == null || isRowEmpty(row)) continue;
+                if (row == null || isRowEmpty(row))
+                    continue;
                 int rowNum = i + 1;
                 try {
-                    String studentCode     = getCol(row, colMap, "student_code");
+                    String studentCode = getCol(row, colMap, "student_code");
                     String scholarshipName = getCol(row, colMap, "scholarship_name");
 
                     if (studentCode.isEmpty() || scholarshipName.isEmpty()) {
-                        errors.add(err(rowNum, "required", "student_code, scholarship_name là bắt buộc")); continue;
+                        errors.add(err(rowNum, "required", "student_code, scholarship_name là bắt buộc"));
+                        continue;
                     }
 
                     Optional<StudentProfileEntity> spOpt = studentProfileRepository.findByStudentCode(studentCode);
                     if (spOpt.isEmpty()) {
-                        errors.add(err(rowNum, "student_code", "Không tìm thấy sinh viên: " + studentCode)); continue;
+                        errors.add(err(rowNum, "student_code", "Không tìm thấy sinh viên: " + studentCode));
+                        continue;
                     }
                     Long userId = spOpt.get().getUserId();
 
@@ -964,14 +1053,20 @@ public class ImportServiceImpl implements ImportService {
                             .getResultList().isEmpty();
 
                     if (exists && !overwrite) {
-                        errors.add(err(rowNum, "duplicate", "Sinh viên " + studentCode + " đã có học bổng này — dùng overwrite=true")); continue;
+                        errors.add(err(rowNum, "duplicate",
+                                "Sinh viên " + studentCode + " đã có học bổng này — dùng overwrite=true"));
+                        continue;
                     }
                     if (exists) {
-                        em.createNativeQuery("UPDATE student_scholarship SET pending_status='pending', semester_id=? WHERE user_id=? AND scholarship_id=?")
-                                .setParameter(1, semId).setParameter(2, userId).setParameter(3, scholarshipId).executeUpdate();
+                        em.createNativeQuery(
+                                "UPDATE student_scholarship SET pending_status='pending', semester_id=? WHERE user_id=? AND scholarship_id=?")
+                                .setParameter(1, semId).setParameter(2, userId).setParameter(3, scholarshipId)
+                                .executeUpdate();
                     } else {
-                        em.createNativeQuery("INSERT INTO student_scholarship(user_id, scholarship_id, pending_status, semester_id) VALUES(?,?,'pending',?)")
-                                .setParameter(1, userId).setParameter(2, scholarshipId).setParameter(3, semId).executeUpdate();
+                        em.createNativeQuery(
+                                "INSERT INTO student_scholarship(user_id, scholarship_id, pending_status, semester_id) VALUES(?,?,'pending',?)")
+                                .setParameter(1, userId).setParameter(2, scholarshipId).setParameter(3, semId)
+                                .executeUpdate();
                     }
                     success++;
                 } catch (Exception e) {
@@ -1001,23 +1096,26 @@ public class ImportServiceImpl implements ImportService {
 
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
-                if (row == null || isRowEmpty(row)) continue;
+                if (row == null || isRowEmpty(row))
+                    continue;
                 int rowNum = i + 1;
                 try {
-                    String studentCode  = getCol(row, colMap, "student_code");
-                    String warningType  = getCol(row, colMap, "warning_type");
-                    String semIdStr     = getCol(row, colMap, "semester_id");
+                    String studentCode = getCol(row, colMap, "student_code");
+                    String warningType = getCol(row, colMap, "warning_type");
+                    String semIdStr = getCol(row, colMap, "semester_id");
 
                     if (studentCode.isEmpty() || warningType.isEmpty() || semIdStr.isEmpty()) {
-                        errors.add(err(rowNum, "required", "student_code, warning_type, semester_id là bắt buộc")); continue;
+                        errors.add(err(rowNum, "required", "student_code, warning_type, semester_id là bắt buộc"));
+                        continue;
                     }
 
                     Optional<StudentProfileEntity> spOpt = studentProfileRepository.findByStudentCode(studentCode);
                     if (spOpt.isEmpty()) {
-                        errors.add(err(rowNum, "student_code", "Không tìm thấy sinh viên: " + studentCode)); continue;
+                        errors.add(err(rowNum, "student_code", "Không tìm thấy sinh viên: " + studentCode));
+                        continue;
                     }
                     Long userId = spOpt.get().getUserId();
-                    Long semId  = Long.parseLong(semIdStr);
+                    Long semId = Long.parseLong(semIdStr);
                     String description = getCol(row, colMap, "description");
 
                     academicWarningRepository.save(AcademicWarningEntity.builder()
